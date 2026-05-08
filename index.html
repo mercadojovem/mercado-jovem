@@ -3,1129 +3,1159 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Mercado Jovem — Bolsa Escolar</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<title>Mercado Jovem — Bolsa Escolar JCV</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --navy: #0D1B2E;
-    --navy2: #152640;
-    --gold: #D4A843;
-    --gold2: #F0C060;
-    --cream: #F5EDD8;
-    --green: #2ECC71;
-    --red: #E74C3C;
-    --blue: #3498DB;
-    --text: #E8DFC8;
-    --muted: #8A9BB0;
-    --card: rgba(255,255,255,0.04);
-    --border: rgba(212,168,67,0.2);
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:   #1A3A5C;
+  --navy2:  #122845;
+  --navy3:  #0D1E34;
+  --lime:   #6ABF2E;
+  --lime2:  #82D93E;
+  --sky:    #A8D8EA;
+  --sky2:   #C8E8F5;
+  --white:  #FFFFFF;
+  --off:    #F4F8FC;
+  --bg:     #EEF4FA;
+  --text:   #1A3A5C;
+  --muted:  #5A7A96;
+  --border: rgba(26,58,92,0.12);
+  --green:  #2EAB5E;
+  --red:    #D94040;
+  --card:   #FFFFFF;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--navy);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* ── LOGIN MODAL ── */
+#loginOverlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(13,30,52,.8);backdrop-filter:blur(10px);align-items:center;justify-content:center}
+#loginOverlay.show{display:flex;animation:fadeIn .2s ease}
+.login-box{background:var(--white);border-radius:20px;padding:44px 48px;width:100%;max-width:400px;box-shadow:0 40px 100px rgba(26,58,92,.35);text-align:center}
+.login-icon{width:60px;height:60px;background:var(--navy);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:20px}
+.login-box h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.login-box p{font-size:13px;color:var(--muted);margin-bottom:28px}
+.lf{margin-bottom:14px;text-align:left}
+.lf label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;font-family:'JetBrains Mono',monospace}
+.lf input{width:100%;background:var(--off);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:14px;padding:11px 16px;outline:none;transition:border-color .2s}
+.lf input:focus{border-color:var(--navy)}
+.login-err{background:#FEE;border:1px solid #FCC;color:var(--red);font-size:12px;border-radius:8px;padding:8px 14px;margin-bottom:14px;display:none;font-family:'JetBrains Mono',monospace}
+.login-err.show{display:block}
+.btn-do-login{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:6px}
+.btn-do-login:hover{background:var(--navy2)}
+.btn-cancel-login{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:14px;text-decoration:underline}
 
-  /* BG grid */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 0;
-    background-image:
-      linear-gradient(rgba(212,168,67,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(212,168,67,0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-  }
+/* ── TICKER ── */
+.ticker-bar{background:var(--navy3);overflow:hidden;height:0px;max-height:0px;display:flex;align-items:center;position:sticky;top:0;z-index:100;transition:max-height .3s,height .3s}
+.ticker-bar.visible{height:34px;max-height:34px}
+.ticker-label{background:var(--lime);color:var(--navy3);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:10px;padding:0 14px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;letter-spacing:1.5px;text-transform:uppercase}
+.ticker-scroll{display:flex;overflow:hidden;flex:1}
+.ticker-inner{display:flex;gap:48px;animation:ticker 35s linear infinite;white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:11px}
+.ti{display:flex;align-items:center;gap:8px}
+.ti-name{color:var(--sky)}
+.ti-val{color:#fff;font-weight:500}
+.ti-chg.up{color:var(--lime2)}
+.ti-chg.dn{color:#FF7070}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-  /* TICKER */
-  .ticker-bar {
-    background: var(--navy2);
-    border-bottom: 1px solid var(--border);
-    overflow: hidden;
-    height: 36px;
-    display: flex; align-items: center;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .ticker-label {
-    background: var(--gold);
-    color: var(--navy);
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 600; font-size: 11px;
-    padding: 0 14px;
-    height: 100%;
-    display: flex; align-items: center;
-    white-space: nowrap;
-    flex-shrink: 0;
-    letter-spacing: 1px;
-  }
-  .ticker-scroll {
-    display: flex; gap: 0; overflow: hidden; flex: 1;
-  }
-  .ticker-inner {
-    display: flex; gap: 48px;
-    animation: ticker 30s linear infinite;
-    white-space: nowrap;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-  }
-  .ticker-item { display: flex; align-items: center; gap: 8px; }
-  .ticker-name { color: var(--muted); }
-  .ticker-val { color: var(--text); font-weight: 500; }
-  .ticker-chg.up { color: var(--green); }
-  .ticker-chg.dn { color: var(--red); }
-  @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+/* ── HEADER ── */
+header{background:var(--white);border-bottom:3px solid var(--lime);padding:16px 48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;box-shadow:0 2px 16px rgba(26,58,92,.08);transition:top .3s}
+header.with-ticker{top:34px}
+.logo-block{display:flex;align-items:center;gap:14px}
+.logo-icon{width:44px;height:44px;background:var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.logo-text h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}
+.logo-text span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:2px;display:block;text-transform:uppercase}
+.hdr-right{display:flex;align-items:center;gap:16px}
+.hdr-meta{text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);line-height:2}
+.hdr-meta strong{color:var(--navy);font-size:12px}
+.btn-login-trigger{background:none;border:2px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Barlow',sans-serif}
+.btn-login-trigger:hover{border-color:var(--navy);color:var(--navy)}
+.btn-login-trigger.logged{border-color:var(--lime);color:#2A8A10}
 
-  /* HEADER */
-  header {
-    position: relative; z-index: 1;
-    padding: 36px 48px 24px;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-  }
-  .logo-block { display: flex; align-items: center; gap: 16px; }
-  .logo-icon {
-    width: 52px; height: 52px;
-    background: var(--gold);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 26px;
-  }
-  .logo-text h1 {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800; font-size: 22px;
-    color: var(--cream);
-    letter-spacing: -0.5px;
-  }
-  .logo-text span {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; color: var(--gold);
-    letter-spacing: 2px;
-  }
-  .header-meta {
-    text-align: right;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; color: var(--muted);
-    line-height: 1.8;
-  }
-  .header-meta strong { color: var(--gold); font-size: 13px; }
+/* ── NAV ── */
+nav{background:var(--navy);padding:0 48px;display:flex;gap:2px;position:sticky;top:67px;z-index:98;transition:top .3s}
+nav.with-ticker{top:101px}
+.nav-btn{background:none;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.8px;color:rgba(255,255,255,.5);padding:13px 18px;border-bottom:3px solid transparent;transition:all .2s;text-transform:uppercase}
+.nav-btn:hover{color:var(--sky2)}
+.nav-btn.active{color:#fff;border-bottom-color:var(--lime)}
+#navAdmin{margin-left:auto;color:var(--lime) !important;opacity:.7;display:none}
+#navAdmin.show{display:block;opacity:1}
 
-  /* NAV */
-  nav {
-    position: sticky; top: 36px; z-index: 99;
-    background: rgba(13,27,46,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 48px;
-    display: flex; gap: 4px;
-  }
-  .nav-btn {
-    background: none; border: none; cursor: pointer;
-    font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px;
-    color: var(--muted);
-    padding: 14px 20px;
-    border-bottom: 2px solid transparent;
-    transition: all .2s;
-    letter-spacing: 0.3px;
-  }
-  .nav-btn:hover { color: var(--cream); }
-  .nav-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+/* ── MAIN ── */
+main{padding:36px 48px;max-width:1440px;margin:0 auto}
+.page{display:none}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-  /* MAIN */
-  main { position: relative; z-index: 1; padding: 40px 48px; max-width: 1400px; margin: 0 auto; }
+/* ── TITLES ── */
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.sec-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
 
-  .page { display: none; }
-  .page.active { display: block; animation: fadeIn .3s ease; }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+/* ── STAT CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;transition:box-shadow .2s,transform .2s;border-top:3px solid var(--navy)}
+.stat-card:hover{box-shadow:0 8px 24px rgba(26,58,92,.1);transform:translateY(-2px)}
+.stat-card.lime{border-top-color:var(--lime)}
+.stat-lbl{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;color:var(--navy);line-height:1;margin-bottom:6px}
+.stat-val.lime{color:var(--lime)}
+.stat-val.green{color:var(--green)}
+.stat-val.red{color:var(--red)}
+.badge{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:20px;display:inline-block}
+.badge.up{background:rgba(106,191,46,.12);color:#2A7A10}
+.badge.dn{background:rgba(217,64,64,.1);color:var(--red)}
+.badge.neu{background:rgba(26,58,92,.08);color:var(--navy)}
 
-  /* SECTION TITLE */
-  .section-title {
-    font-family: 'Syne', sans-serif; font-weight: 800;
-    font-size: 28px; color: var(--cream);
-    margin-bottom: 6px;
-    letter-spacing: -0.5px;
-  }
-  .section-sub {
-    font-size: 13px; color: var(--muted);
-    margin-bottom: 32px;
-  }
+/* ── SELIC HERO ── */
+.selic-hero{background:var(--navy);border-radius:18px;padding:30px 36px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:24px;position:relative;overflow:hidden}
+.selic-hero::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(106,191,46,.07)}
+.selic-hero::after{content:'';position:absolute;right:60px;bottom:-60px;width:150px;height:150px;border-radius:50%;background:rgba(168,216,234,.05)}
+.sh-left h2{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--lime);text-transform:uppercase;margin-bottom:8px}
+.sh-rate{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:70px;color:#fff;line-height:1;letter-spacing:-1px}
+.sh-rate span{font-size:30px;color:var(--lime)}
+.sh-period{font-size:13px;color:var(--sky);margin-top:6px}
+.sh-right{text-align:right;position:relative;z-index:1}
+.sh-hist{display:flex;flex-direction:column;gap:8px}
+.sh-hist-item{display:flex;gap:16px;justify-content:flex-end;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+.sh-hist-lbl{color:rgba(168,216,234,.7)}
+.sh-hist-val{color:#fff;font-weight:500}
+.copom-badge{background:rgba(106,191,46,.15);border:1px solid rgba(106,191,46,.4);border-radius:8px;padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--lime);margin-top:16px;letter-spacing:1px;text-align:center}
 
-  /* STAT CARDS */
-  .stats-row {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 16px; margin-bottom: 36px;
-  }
-  .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 22px 24px;
-    transition: border-color .2s, transform .2s;
-  }
-  .stat-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-  .stat-label {
-    font-size: 11px; color: var(--muted);
-    letter-spacing: 1.5px; text-transform: uppercase;
-    margin-bottom: 8px;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-  .stat-value {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 26px; font-weight: 600;
-    color: var(--cream);
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  .stat-value.gold { color: var(--gold); }
-  .stat-value.green { color: var(--green); }
-  .stat-value.red { color: var(--red); }
-  .stat-badge {
-    font-size: 11px; font-family: 'IBM Plex Mono', monospace;
-    padding: 2px 8px; border-radius: 20px;
-    display: inline-block;
-  }
-  .stat-badge.up { background: rgba(46,204,113,.15); color: var(--green); }
-  .stat-badge.dn { background: rgba(231,76,60,.15); color: var(--red); }
-  .stat-badge.neutral { background: rgba(212,168,67,.15); color: var(--gold); }
+/* ── TABLES ── */
+.tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 2px 12px rgba(26,58,92,.06)}
+.tbl-head{padding:15px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--off)}
+.tbl-head h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}
+.tbl-head span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--navy3)}
+th{padding:10px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--sky);font-weight:500;border-bottom:1px solid rgba(255,255,255,.08)}
+td{padding:12px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border)}
+tbody tr:hover{background:rgba(26,58,92,.03)}
+tbody tr:last-child td{border-bottom:none}
+.mono{font-family:'JetBrains Mono',monospace;font-weight:500}
+.empresa-nm{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px}
+.empresa-cd{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.setor-badge{font-size:9px;letter-spacing:1px;padding:3px 9px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-weight:600}
+.sparkbar{display:flex;align-items:flex-end;gap:2px;height:22px}
+.sparkbar span{width:5px;border-radius:2px 2px 0 0;background:var(--navy);opacity:.2}
+.sparkbar span:last-child{background:var(--lime);opacity:1}
 
-  /* SELIC HIGHLIGHT */
-  .selic-hero {
-    background: linear-gradient(135deg, var(--navy2) 0%, #1a3050 100%);
-    border: 1px solid var(--gold);
-    border-radius: 18px;
-    padding: 32px 40px;
-    margin-bottom: 36px;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 24px;
-  }
-  .selic-left h2 {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px; letter-spacing: 3px;
-    color: var(--gold); text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .selic-rate {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800; font-size: 64px;
-    color: var(--gold2);
-    line-height: 1; letter-spacing: -2px;
-  }
-  .selic-period {
-    font-size: 13px; color: var(--muted); margin-top: 6px;
-  }
-  .selic-right {
-    text-align: right;
-  }
-  .selic-history { display: flex; flex-direction: column; gap: 8px; }
-  .selic-hist-item {
-    display: flex; gap: 16px; justify-content: flex-end; align-items: center;
-    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
-  }
-  .selic-hist-label { color: var(--muted); }
-  .selic-hist-val { color: var(--text); font-weight: 500; }
-  .selic-hist-chg { width: 60px; text-align: right; }
-  .copom-badge {
-    background: rgba(212,168,67,.1);
-    border: 1px solid var(--gold);
-    border-radius: 8px;
-    padding: 10px 16px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--gold);
-    margin-top: 16px;
-    text-align: center;
-    letter-spacing: 1px;
-  }
+/* ── COMUNICADOS ── */
+.com-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.com-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;border-left:4px solid var(--navy);transition:box-shadow .2s,transform .2s}
+.com-card:hover{box-shadow:0 6px 20px rgba(26,58,92,.1);transform:translateY(-2px)}
+.com-card.urgente{border-left-color:var(--red)}
+.com-card.copom{border-left-color:var(--lime)}
+.com-card.pregao{border-left-color:var(--sky)}
+.com-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.com-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:700}
+.tag-urgente{background:rgba(217,64,64,.1);color:var(--red)}
+.tag-info{background:rgba(26,58,92,.08);color:var(--navy)}
+.tag-copom{background:rgba(106,191,46,.12);color:#2A7A10}
+.tag-pregao{background:rgba(168,216,234,.3);color:#1A5A7A}
+.com-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.com-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--navy);margin-bottom:7px;line-height:1.3}
+.com-body{font-size:13px;color:var(--muted);line-height:1.6}
 
-  /* EMPRESAS TABLE */
-  .table-wrap {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 32px;
-  }
-  .table-header {
-    padding: 18px 24px;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-  }
-  .table-header h3 {
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
-    color: var(--cream);
-  }
-  .table-header span {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; color: var(--muted);
-  }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { background: rgba(255,255,255,0.03); }
-  th {
-    padding: 12px 20px; text-align: left;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
-    color: var(--muted); font-weight: 500;
-    border-bottom: 1px solid var(--border);
-  }
-  td {
-    padding: 14px 20px;
-    font-size: 13px; color: var(--text);
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  tbody tr:hover { background: rgba(212,168,67,0.04); }
-  tbody tr:last-child td { border-bottom: none; }
-  .td-mono { font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
-  .td-empresa { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; }
-  .td-sector {
-    font-size: 11px; color: var(--muted);
-    font-family: 'IBM Plex Mono', monospace;
-  }
-  .badge-setor {
-    font-size: 10px; letter-spacing: 1px;
-    padding: 3px 9px; border-radius: 20px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 500;
-  }
-  .up-arrow::before { content: '▲ '; }
-  .dn-arrow::before { content: '▼ '; }
+/* ── PREGÃO STATUS ── */
+.pregao-status{background:linear-gradient(135deg,#EBF7E3,#F4FBF0);border:1px solid rgba(106,191,46,.35);border-radius:14px;padding:22px 26px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between}
+.pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(106,191,46,.4);animation:pulse 2s infinite;margin-right:8px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(106,191,46,.4)}70%{box-shadow:0 0 0 10px rgba(106,191,46,0)}100%{box-shadow:0 0 0 0 rgba(106,191,46,0)}}
+.pregao-info h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;color:#2A7A10;text-transform:uppercase;margin-bottom:3px}
+.pregao-info p{font-size:13px;color:var(--muted)}
+.pregao-timer{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:#2A7A10}
 
-  /* MINI CHART BAR */
-  .sparkbar {
-    display: flex; align-items: flex-end; gap: 2px;
-    height: 24px;
-  }
-  .sparkbar span {
-    width: 5px; border-radius: 2px 2px 0 0;
-    background: var(--gold);
-    opacity: 0.5;
-    transition: opacity .2s;
-  }
-  .sparkbar span:last-child { opacity: 1; }
+/* ── TÍTULOS CARDS ── */
+.tit-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.tit-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;border-top:3px solid var(--lime)}
+.tit-tipo{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--lime);margin-bottom:5px;text-transform:uppercase}
+.tit-cod{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--navy);margin-bottom:12px}
+.tit-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.tit-row span{font-size:12px;color:var(--muted)}
+.tit-row strong{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text)}
 
-  /* COMUNICADOS */
-  .comunicados-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-  }
-  .comunicado-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px; padding: 22px 24px;
-    transition: border-color .2s, transform .2s;
-    cursor: pointer;
-  }
-  .comunicado-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-  .com-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-  .com-tag {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px; letter-spacing: 1.5px;
-    padding: 3px 10px; border-radius: 20px;
-    white-space: nowrap;
-  }
-  .tag-urgente { background: rgba(231,76,60,.15); color: var(--red); }
-  .tag-info { background: rgba(52,152,219,.15); color: var(--blue); }
-  .tag-copom { background: rgba(212,168,67,.15); color: var(--gold); }
-  .tag-pregao { background: rgba(46,204,113,.15); color: var(--green); }
-  .com-date { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
-  .com-title {
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
-    color: var(--cream); margin-bottom: 8px; line-height: 1.3;
-  }
-  .com-body { font-size: 13px; color: var(--muted); line-height: 1.6; }
+/* ══════════════════════════════════════════
+   ADMIN PANEL
+══════════════════════════════════════════ */
+.admin-wrap{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:70vh;background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 4px 24px rgba(26,58,92,.1)}
+.admin-sidebar{background:var(--navy);padding:24px 0}
+.admin-sidebar-hdr{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.admin-sidebar-hdr h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.admin-sidebar-hdr p{font-size:11px;color:rgba(168,216,234,.6);font-family:'JetBrains Mono',monospace}
+.admin-nav{margin-top:12px}
+.admin-nav-btn{width:100%;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px 20px;color:rgba(255,255,255,.55);font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;text-align:left;transition:all .2s;border-left:3px solid transparent}
+.admin-nav-btn:hover{color:#fff;background:rgba(255,255,255,.05)}
+.admin-nav-btn.active{color:#fff;background:rgba(106,191,46,.12);border-left-color:var(--lime)}
+.admin-nav-btn .icon{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.admin-nav-sep{height:1px;background:rgba(255,255,255,.07);margin:10px 20px}
+.admin-logout{width:calc(100% - 24px);margin:12px;background:rgba(217,64,64,.15);border:1px solid rgba(217,64,64,.25);color:#FF9090;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Barlow',sans-serif;display:flex;align-items:center;gap:8px}
+.admin-logout:hover{background:rgba(217,64,64,.25)}
 
-  /* PREGÃO */
-  .pregao-status {
-    background: linear-gradient(135deg, rgba(46,204,113,0.1), rgba(46,204,113,0.03));
-    border: 1px solid rgba(46,204,113,0.3);
-    border-radius: 14px; padding: 24px 28px;
-    margin-bottom: 32px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .pulse {
-    display: inline-block; width: 10px; height: 10px;
-    border-radius: 50%; background: var(--green);
-    box-shadow: 0 0 0 0 rgba(46,204,113,0.4);
-    animation: pulse 2s infinite;
-    margin-right: 10px;
-  }
-  @keyframes pulse {
-    0%{box-shadow:0 0 0 0 rgba(46,204,113,0.4)}
-    70%{box-shadow:0 0 0 10px rgba(46,204,113,0)}
-    100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}
-  }
-  .pregao-info h3 {
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px;
-    color: var(--green); margin-bottom: 4px;
-  }
-  .pregao-info p { font-size: 13px; color: var(--muted); }
-  .pregao-timer {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 28px; font-weight: 600; color: var(--green);
-    letter-spacing: 2px;
-  }
+.admin-content{padding:32px 36px;overflow-y:auto}
+.admin-section{display:none}
+.admin-section.active{display:block;animation:fadeIn .25s ease}
+.admin-sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.admin-sec-sub{font-size:12px;color:var(--muted);margin-bottom:24px}
 
-  /* TÍTULOS PAGE */
-  .titulos-stats {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-    margin-bottom: 32px;
-  }
-  .titulo-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 14px; padding: 22px 24px;
-  }
-  .titulo-tipo {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
-    letter-spacing: 2px; color: var(--gold); margin-bottom: 6px;
-  }
-  .titulo-cod {
-    font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: 18px; color: var(--cream); margin-bottom: 12px;
-  }
-  .titulo-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .titulo-row span { font-size: 12px; color: var(--muted); }
-  .titulo-row strong { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text); }
+/* Admin toolbar */
+.admin-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.btn-add{background:var(--lime);color:var(--navy);border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-add:hover{background:var(--lime2);transform:translateY(-1px)}
+.btn-navy{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;transition:background .2s}
+.btn-navy:hover{background:var(--navy2)}
 
-  /* ADMIN PANEL */
-  .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .admin-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 14px; padding: 24px;
-  }
-  .admin-card h3 {
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
-    color: var(--cream); margin-bottom: 16px;
-    padding-bottom: 12px; border-bottom: 1px solid var(--border);
-  }
-  label { display: block; font-size: 11px; color: var(--muted); letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase; font-family: 'IBM Plex Mono', monospace; }
-  input, select, textarea {
-    width: 100%; background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
-    color: var(--text); font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-    padding: 10px 14px; margin-bottom: 14px;
-    transition: border-color .2s;
-    outline: none;
-  }
-  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
-  select option { background: var(--navy2); }
-  textarea { resize: vertical; min-height: 80px; font-family: 'Inter', sans-serif; }
-  .btn {
-    background: var(--gold);
-    color: var(--navy); border: none; border-radius: 8px;
-    padding: 11px 24px; font-family: 'Syne', sans-serif;
-    font-weight: 700; font-size: 13px; cursor: pointer;
-    transition: background .2s, transform .1s;
-    letter-spacing: 0.3px;
-  }
-  .btn:hover { background: var(--gold2); transform: translateY(-1px); }
-  .btn:active { transform: translateY(0); }
-  .btn-ghost {
-    background: transparent; color: var(--gold);
-    border: 1px solid var(--gold); border-radius: 8px;
-    padding: 10px 20px; font-family: 'Syne', sans-serif;
-    font-weight: 600; font-size: 12px; cursor: pointer;
-    transition: all .2s;
-  }
-  .btn-ghost:hover { background: rgba(212,168,67,.1); }
+/* Admin table actions */
+.btn-edit{background:rgba(26,58,92,.08);border:1px solid var(--border);color:var(--navy);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Barlow',sans-serif}
+.btn-edit:hover{background:var(--navy);color:#fff}
+.btn-del{background:rgba(217,64,64,.08);border:1px solid rgba(217,64,64,.2);color:var(--red);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Barlow',sans-serif}
+.btn-del:hover{background:var(--red);color:#fff}
 
-  /* FOOTER */
-  footer {
-    position: relative; z-index: 1;
-    text-align: center; padding: 28px 48px;
-    border-top: 1px solid var(--border);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; color: var(--muted);
-    letter-spacing: 1px;
-  }
-  footer strong { color: var(--gold); }
+/* ── MODAL FORM ── */
+#modalOverlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(13,30,52,.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
+#modalOverlay.show{display:flex;animation:fadeIn .2s ease}
+.modal-box{background:var(--white);border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(26,58,92,.35)}
+.modal-hdr{background:var(--navy);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;border-radius:20px 20px 0 0;position:sticky;top:0;z-index:1}
+.modal-hdr h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:#fff;text-transform:uppercase;letter-spacing:.5px}
+.btn-modal-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center}
+.btn-modal-close:hover{background:rgba(255,255,255,.2)}
+.modal-body{padding:28px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;font-family:'JetBrains Mono',monospace}
+.form-group input,
+.form-group select,
+.form-group textarea{width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 13px;outline:none;transition:border-color .2s}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{border-color:var(--navy)}
+.form-group select option{background:#fff}
+.form-group textarea{resize:vertical;min-height:90px;font-family:'Barlow',sans-serif;font-size:13px}
+.modal-footer{padding:20px 28px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;background:var(--off);border-radius:0 0 20px 20px;position:sticky;bottom:0}
+.btn-save{background:var(--lime);color:var(--navy);border:none;border-radius:8px;padding:10px 24px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.btn-save:hover{background:var(--lime2)}
+.btn-cancel-modal{background:var(--off);border:2px solid var(--border);color:var(--muted);border-radius:8px;padding:10px 20px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-cancel-modal:hover{border-color:var(--navy);color:var(--navy)}
 
-  /* TOAST */
-  #toast {
-    position: fixed; bottom: 28px; right: 28px; z-index: 999;
-    background: var(--gold); color: var(--navy);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
-    padding: 12px 22px; border-radius: 10px;
-    transform: translateY(80px); opacity: 0;
-    transition: all .3s ease;
-    pointer-events: none;
-  }
-  #toast.show { transform: translateY(0); opacity: 1; }
+/* ── CONFIRM ── */
+#confirmOverlay{display:none;position:fixed;inset:0;z-index:10000;background:rgba(13,30,52,.8);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+#confirmOverlay.show{display:flex}
+.confirm-box{background:#fff;border-radius:16px;padding:36px 40px;width:100%;max-width:380px;text-align:center;box-shadow:0 30px 80px rgba(26,58,92,.3)}
+.confirm-box h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--navy);text-transform:uppercase;margin-bottom:10px}
+.confirm-box p{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+.btn-confirm-yes{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;cursor:pointer}
+.btn-confirm-no{background:var(--off);border:2px solid var(--border);color:var(--muted);border-radius:8px;padding:10px 20px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer}
 
-  @media (max-width: 900px) {
-    header, main, nav { padding-left: 20px; padding-right: 20px; }
-    .stats-row { grid-template-columns: 1fr 1fr; }
-    .comunicados-grid, .admin-grid { grid-template-columns: 1fr; }
-    .selic-hero { flex-direction: column; }
-    .titulos-stats { grid-template-columns: 1fr; }
-  }
+/* ── TICKER ADMIN ── */
+.ticker-admin-preview{background:var(--navy3);border-radius:10px;padding:12px 16px;margin-bottom:16px;overflow:hidden;position:relative;height:42px}
+.ticker-admin-preview .ticker-inner{font-family:'JetBrains Mono',monospace;font-size:12px;animation:ticker 25s linear infinite}
+.ticker-items-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.ticker-item-row{display:flex;align-items:center;gap:10px;background:var(--off);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+.ticker-item-row span{flex:1;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text)}
+.ticker-source-note{font-size:12px;color:var(--muted);background:rgba(106,191,46,.08);border:1px solid rgba(106,191,46,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--navy);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:12px 22px;border-radius:10px;border-left:4px solid var(--lime);transform:translateY(80px);opacity:0;transition:all .3s ease;pointer-events:none;box-shadow:0 8px 24px rgba(26,58,92,.2)}
+#toast.show{transform:translateY(0);opacity:1}
+
+/* ── FOOTER ── */
+footer{text-align:center;padding:22px 48px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;background:var(--white);margin-top:40px}
+footer strong{color:var(--navy)}
+
+@media(max-width:960px){
+  header,main,nav{padding-left:16px;padding-right:16px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .com-grid{grid-template-columns:1fr}
+  .selic-hero{flex-direction:column}
+  .tit-stats{grid-template-columns:1fr}
+  .admin-wrap{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .admin-sidebar{padding:16px 0}
+  .admin-nav{display:flex;flex-wrap:wrap;gap:4px;padding:0 12px}
+  .admin-nav-btn{width:auto;border-left:none;border-bottom:3px solid transparent;padding:8px 14px;font-size:12px}
+  .admin-nav-btn.active{border-left:none;border-bottom-color:var(--lime)}
+  .form-row{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
-<!-- TICKER -->
-<div class="ticker-bar">
-  <div class="ticker-label">📊 MERCADO JOVEM</div>
-  <div class="ticker-scroll">
-    <div class="ticker-inner" id="tickerInner"></div>
+<!-- LOGIN -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-icon">🏛️</div>
+    <h2>Acesso Administrativo</h2>
+    <p>Banco Central do Mercado Jovem</p>
+    <div class="login-err" id="loginErr">Usuário ou senha incorretos.</div>
+    <div class="lf"><label>Usuário</label><input type="text" id="loginUser" autocomplete="username"/></div>
+    <div class="lf"><label>Senha</label><input type="password" id="loginPass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="btn-do-login" onclick="doLogin()">Entrar</button><br>
+    <button class="btn-cancel-login" onclick="closeLogin()">Cancelar</button>
   </div>
 </div>
 
+<!-- MODAL FORM -->
+<div id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h3 id="modalTitle">Formulário</h3>
+      <button class="btn-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" id="modalSaveBtn">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>⚠️ Confirmar Exclusão</h3>
+    <p id="confirmMsg">Deseja realmente excluir este item? Esta ação não pode ser desfeita.</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-yes" id="confirmYes">Excluir</button>
+      <button class="btn-confirm-no" onclick="closeConfirm()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-bar" id="tickerBar">
+  <div class="ticker-label" id="tickerLabel">📊 MERCADO JOVEM</div>
+  <div class="ticker-scroll"><div class="ticker-inner" id="tickerInner"></div></div>
+</div>
+
 <!-- HEADER -->
-<header>
+<header id="mainHeader">
   <div class="logo-block">
     <div class="logo-icon">🏛️</div>
     <div class="logo-text">
       <h1>Mercado Jovem</h1>
-      <span>BOLSA ESCOLAR · JCV</span>
+      <span id="headerSubtitle">Bolsa Escolar · JCV</span>
     </div>
   </div>
-  <div class="header-meta">
-    <div id="realtimeClock"></div>
-    <strong id="selicHeaderVal"></strong>
-    <div>Banco Central do Mercado Jovem</div>
+  <div class="hdr-right">
+    <div class="hdr-meta">
+      <div id="clock"></div>
+      <strong id="selicHdrVal"></strong>
+    </div>
+    <button class="btn-login-trigger" id="btnLoginTrigger" onclick="openLogin()">⚙ Admin</button>
   </div>
 </header>
 
 <!-- NAV -->
-<nav>
-  <button class="nav-btn active" onclick="showPage('home')">Início</button>
-  <button class="nav-btn" onclick="showPage('empresas')">Empresas</button>
-  <button class="nav-btn" onclick="showPage('selic')">Selic JCV</button>
-  <button class="nav-btn" onclick="showPage('titulos')">Títulos</button>
-  <button class="nav-btn" onclick="showPage('comunicados')">Comunicados</button>
-  <button class="nav-btn" onclick="showPage('pregao')">Pregão</button>
-  <button class="nav-btn" onclick="showPage('admin')" style="margin-left:auto;color:var(--gold)">⚙ Admin</button>
+<nav id="mainNav">
+  <button class="nav-btn active" onclick="showPage('home',this)">Início</button>
+  <button class="nav-btn" onclick="showPage('empresas',this)">Empresas</button>
+  <button class="nav-btn" onclick="showPage('selic',this)">Selic JCV</button>
+  <button class="nav-btn" onclick="showPage('titulos',this)">Títulos</button>
+  <button class="nav-btn" onclick="showPage('comunicados',this)">Comunicados</button>
+  <button class="nav-btn" onclick="showPage('pregao',this)">Pregão</button>
+  <button class="nav-btn" id="navAdmin" onclick="showPage('admin',this)">⚙ Admin</button>
 </nav>
 
 <main>
 
-  <!-- HOME -->
-  <div class="page active" id="page-home">
-    <div class="section-title">Painel Geral</div>
-    <div class="section-sub">Visão consolidada do Mercado Jovem — atualizado em tempo real</div>
-
-    <div class="stats-row" id="statsRow"></div>
-
-    <div class="selic-hero">
-      <div class="selic-left">
-        <h2>⚡ TAXA SELIC JCV VIGENTE</h2>
-        <div class="selic-rate" id="selicBig"></div>
-        <div class="selic-period" id="selicPeriod"></div>
-      </div>
-      <div class="selic-right">
-        <div class="selic-history" id="selicHistory"></div>
-        <div class="copom-badge" id="copomBadge"></div>
-      </div>
+<!-- ── HOME ── -->
+<div class="page active" id="page-home">
+  <div class="sec-title">Painel Geral</div>
+  <div class="sec-sub" id="homeSubtitle">Visão consolidada do Mercado Jovem</div>
+  <div class="stats-row" id="statsRow"></div>
+  <div class="selic-hero">
+    <div class="sh-left">
+      <h2>⚡ Taxa Selic JCV Vigente</h2>
+      <div class="sh-rate" id="shRate"></div>
+      <div class="sh-period" id="shPeriod"></div>
     </div>
-
-    <div class="table-wrap">
-      <div class="table-header">
-        <h3>📈 Ranking das Empresas</h3>
-        <span>Valor de mercado em JovemCoin</span>
-      </div>
-      <table id="rankingTable">
-        <thead>
-          <tr>
-            <th>#</th><th>Empresa</th><th>Setor</th>
-            <th>Valor (JCV)</th><th>Cota (JCV)</th>
-            <th>Var. 24h</th><th>Histórico</th>
-          </tr>
-        </thead>
-        <tbody id="rankingBody"></tbody>
-      </table>
+    <div class="sh-right">
+      <div class="sh-hist" id="shHist"></div>
+      <div class="copom-badge" id="copomBadge"></div>
     </div>
   </div>
-
-  <!-- EMPRESAS -->
-  <div class="page" id="page-empresas">
-    <div class="section-title">Empresas Listadas</div>
-    <div class="section-sub">Todas as empresas registradas no Mercado Jovem</div>
-    <div class="table-wrap">
-      <div class="table-header">
-        <h3>📋 Cadastro Completo</h3>
-        <span id="totalEmpresas"></span>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Código</th><th>Empresa</th><th>Setor</th><th>Turma</th>
-            <th>Valor (JCV)</th><th>Cotas Totais</th><th>Valor da Cota</th>
-            <th>CEO</th><th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="empresasBody"></tbody>
-      </table>
-    </div>
+  <div class="tbl-wrap">
+    <div class="tbl-head"><h3>📈 Ranking das Empresas</h3><span>Valor de mercado em JovemCoin (JCV)</span></div>
+    <table><thead><tr><th>#</th><th>Empresa</th><th>Setor</th><th>Valor Total (JCV)</th><th>Cota (JCV)</th><th>Variação</th><th>Histórico</th></tr></thead>
+    <tbody id="rankingBody"></tbody></table>
   </div>
+</div>
 
-  <!-- SELIC -->
-  <div class="page" id="page-selic">
-    <div class="section-title">Taxa Selic JCV</div>
-    <div class="section-sub">Histórico de decisões do COPOM Jovem</div>
-
-    <div class="stats-row" style="grid-template-columns: repeat(3,1fr)">
-      <div class="stat-card">
-        <div class="stat-label">Taxa Atual</div>
-        <div class="stat-value gold" id="selicAtualCard"></div>
-        <div class="stat-badge neutral">ao período</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Taxa Diária Equiv.</div>
-        <div class="stat-value" id="selicDiariaCard"></div>
-        <div class="stat-badge neutral">ao dia</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Próxima Reunião COPOM</div>
-        <div class="stat-value" id="proximoCopom"></div>
-        <div class="stat-badge neutral">Bimestre</div>
-      </div>
-    </div>
-
-    <div class="table-wrap">
-      <div class="table-header"><h3>📊 Histórico de Decisões</h3></div>
-      <table>
-        <thead><tr>
-          <th>Período</th><th>Data</th><th>Taxa (%a.p.)</th>
-          <th>Variação</th><th>Decisão</th><th>Motivo</th>
-        </tr></thead>
-        <tbody id="selicHistBody"></tbody>
-      </table>
-    </div>
+<!-- ── EMPRESAS ── -->
+<div class="page" id="page-empresas">
+  <div class="sec-title">Empresas Listadas</div>
+  <div class="sec-sub">Todas as empresas registradas no Mercado Jovem</div>
+  <div class="tbl-wrap">
+    <div class="tbl-head"><h3>📋 Cadastro Completo</h3><span id="lblTotalEmpresas"></span></div>
+    <table><thead><tr><th>Código</th><th>Empresa</th><th>Setor</th><th>Turma</th><th>Valor (JCV)</th><th>Cotas</th><th>Valor/Cota</th><th>CEO</th><th>Variação</th></tr></thead>
+    <tbody id="empresasBody"></tbody></table>
   </div>
+</div>
 
-  <!-- TÍTULOS -->
-  <div class="page" id="page-titulos">
-    <div class="section-title">Títulos TJV</div>
-    <div class="section-sub">Títulos emitidos pelo Banco Central do Mercado Jovem</div>
-
-    <div class="titulos-stats" id="titulosCards"></div>
-
-    <div class="table-wrap">
-      <div class="table-header"><h3>📋 Todos os Títulos</h3></div>
-      <table>
-        <thead><tr>
-          <th>Código</th><th>Empresa</th><th>Tipo</th>
-          <th>Capital (JCV)</th><th>Taxa</th><th>Vencimento</th>
-          <th>Rendimento (JCV)</th><th>Status</th>
-        </tr></thead>
-        <tbody id="titulosBody"></tbody>
-      </table>
-    </div>
+<!-- ── SELIC ── -->
+<div class="page" id="page-selic">
+  <div class="sec-title">Taxa Selic JCV</div>
+  <div class="sec-sub">Histórico de decisões do COPOM Jovem</div>
+  <div class="stats-row" style="grid-template-columns:repeat(3,1fr)" id="selicStats"></div>
+  <div class="tbl-wrap">
+    <div class="tbl-head"><h3>📊 Histórico COPOM</h3></div>
+    <table><thead><tr><th>Período</th><th>Data</th><th>Taxa (% a.p.)</th><th>Variação</th><th>Decisão</th><th>Motivo</th></tr></thead>
+    <tbody id="selicHistBody"></tbody></table>
   </div>
+</div>
 
-  <!-- COMUNICADOS -->
-  <div class="page" id="page-comunicados">
-    <div class="section-title">Comunicados Oficiais</div>
-    <div class="section-sub">Publicações do Banco Central do Mercado Jovem</div>
-    <div class="comunicados-grid" id="comunicadosGrid"></div>
+<!-- ── TÍTULOS ── -->
+<div class="page" id="page-titulos">
+  <div class="sec-title">Títulos TJV</div>
+  <div class="sec-sub">Títulos emitidos pelo Banco Central do Mercado Jovem</div>
+  <div class="tit-stats" id="titStats"></div>
+  <div class="tbl-wrap">
+    <div class="tbl-head"><h3>📋 Títulos Emitidos</h3></div>
+    <table><thead><tr><th>Código</th><th>Empresa</th><th>Tipo</th><th>Capital (JCV)</th><th>Taxa</th><th>Prazo</th><th>Vencimento</th><th>Rendimento (JCV)</th><th>Status</th></tr></thead>
+    <tbody id="titulosBody"></tbody></table>
   </div>
+</div>
 
-  <!-- PREGÃO -->
-  <div class="page" id="page-pregao">
-    <div class="section-title">Pregão</div>
-    <div class="section-sub">Sessões de negociação do Mercado Jovem</div>
+<!-- ── COMUNICADOS ── -->
+<div class="page" id="page-comunicados">
+  <div class="sec-title">Comunicados Oficiais</div>
+  <div class="sec-sub">Publicações do Banco Central do Mercado Jovem</div>
+  <div class="com-grid" id="comGrid"></div>
+</div>
 
-    <div class="pregao-status" id="pregaoStatus"></div>
-
-    <div class="table-wrap">
-      <div class="table-header">
-        <h3>📅 Calendário de Pregões</h3>
-        <span>Sessões bimestrais</span>
-      </div>
-      <table>
-        <thead><tr>
-          <th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th>
-        </tr></thead>
-        <tbody id="pregaoBody"></tbody>
-      </table>
-    </div>
+<!-- ── PREGÃO ── -->
+<div class="page" id="page-pregao">
+  <div class="sec-title">Pregão</div>
+  <div class="sec-sub">Calendário de sessões de negociação</div>
+  <div class="pregao-status" id="pregaoStatus"></div>
+  <div class="tbl-wrap">
+    <div class="tbl-head"><h3>📅 Calendário de Pregões</h3></div>
+    <table><thead><tr><th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th></tr></thead>
+    <tbody id="pregaoBody"></tbody></table>
   </div>
+</div>
 
-  <!-- ADMIN -->
-  <div class="page" id="page-admin">
-    <div class="section-title">⚙️ Painel Administrativo</div>
-    <div class="section-sub">Banco Central do Mercado Jovem — Acesso restrito ao professor</div>
-
-    <div class="admin-grid">
-      <div class="admin-card">
-        <h3>📈 Atualizar Cotação de Empresa</h3>
-        <label>Empresa</label>
-        <select id="adminEmpresa"></select>
-        <label>Novo Valor Total (JCV)</label>
-        <input type="number" id="adminValor" placeholder="ex: 1200000"/>
-        <label>Variação (%) — informativo</label>
-        <input type="number" id="adminVar" placeholder="ex: 5.2 ou -3.1"/>
-        <button class="btn" onclick="atualizarCotacao()">Atualizar Cotação</button>
+<!-- ── ADMIN ── -->
+<div class="page" id="page-admin">
+  <div class="sec-title">Painel Administrativo</div>
+  <div class="sec-sub">Banco Central do Mercado Jovem — Controle total do sistema</div>
+  <div class="admin-wrap">
+    <!-- SIDEBAR -->
+    <div class="admin-sidebar">
+      <div class="admin-sidebar-hdr">
+        <h3>🏛️ Banco Central</h3>
+        <p id="adminUserLbl">—</p>
       </div>
-
-      <div class="admin-card">
-        <h3>⚡ Definir Taxa Selic JCV</h3>
-        <label>Nova Taxa (% a.p.)</label>
-        <input type="number" id="adminSelic" step="0.1" placeholder="ex: 3.5"/>
-        <label>Período / Bimestre</label>
-        <input type="text" id="adminSelicPeriodo" placeholder="ex: Bimestre 3"/>
-        <label>Decisão do COPOM</label>
-        <select id="adminDecisao">
-          <option>Alta</option><option>Manutenção</option><option>Baixa</option>
-        </select>
-        <label>Motivo</label>
-        <input type="text" id="adminMotivo" placeholder="ex: Controle da inflação JCV"/>
-        <button class="btn" onclick="atualizarSelic()">Publicar Nova Selic</button>
+      <div class="admin-nav">
+        <button class="admin-nav-btn active" onclick="showAdminSec('empresas',this)"><span class="icon">🏢</span>Empresas</button>
+        <button class="admin-nav-btn" onclick="showAdminSec('selic',this)"><span class="icon">⚡</span>Selic JCV</button>
+        <button class="admin-nav-btn" onclick="showAdminSec('titulos',this)"><span class="icon">📋</span>Títulos TJV</button>
+        <button class="admin-nav-btn" onclick="showAdminSec('comunicados',this)"><span class="icon">📢</span>Comunicados</button>
+        <button class="admin-nav-btn" onclick="showAdminSec('pregao',this)"><span class="icon">🔔</span>Pregão</button>
+        <div class="admin-nav-sep"></div>
+        <button class="admin-nav-btn" onclick="showAdminSec('ticker',this)"><span class="icon">📡</span>Faixa Superior</button>
+        <button class="admin-nav-btn" onclick="showAdminSec('config',this)"><span class="icon">⚙️</span>Configurações</button>
       </div>
-
-      <div class="admin-card">
-        <h3>📢 Publicar Comunicado</h3>
-        <label>Título</label>
-        <input type="text" id="adminComTitulo" placeholder="ex: Crise do Petróleo JCV"/>
-        <label>Categoria</label>
-        <select id="adminComTag">
-          <option value="tag-info">Informativo</option>
-          <option value="tag-urgente">Urgente</option>
-          <option value="tag-copom">COPOM</option>
-          <option value="tag-pregao">Pregão</option>
-        </select>
-        <label>Texto</label>
-        <textarea id="adminComTexto" placeholder="Escreva o comunicado oficial..."></textarea>
-        <button class="btn" onclick="publicarComunicado()">Publicar Comunicado</button>
-      </div>
-
-      <div class="admin-card">
-        <h3>📋 Emitir Título TJV</h3>
-        <label>Empresa Compradora</label>
-        <select id="adminTitEmpresa"></select>
-        <label>Tipo de Título</label>
-        <select id="adminTitTipo">
-          <option>Prefixado</option>
-          <option>Pós-fixado (Selic)</option>
-        </select>
-        <label>Capital (JCV)</label>
-        <input type="number" id="adminTitCapital" placeholder="ex: 10000"/>
-        <label>Taxa Contratada (% a.p.) — apenas prefixado</label>
-        <input type="number" id="adminTitTaxa" step="0.1" placeholder="Deixe vazio para Selic vigente"/>
-        <label>Prazo (bimestres)</label>
-        <input type="number" id="adminTitPrazo" placeholder="ex: 2"/>
-        <label>Vencimento</label>
-        <input type="text" id="adminTitVenc" placeholder="ex: 01/10/2026"/>
-        <button class="btn" onclick="emitirTitulo()">Emitir Título</button>
+      <div style="margin-top:auto;padding:12px 0 0">
+        <button class="admin-logout" onclick="doLogout()">↗ Encerrar Sessão</button>
       </div>
     </div>
-  </div>
+    <!-- CONTENT -->
+    <div class="admin-content">
+
+      <!-- EMPRESAS -->
+      <div class="admin-section active" id="asec-empresas">
+        <div class="admin-sec-title">Empresas</div>
+        <div class="admin-sec-sub">Cadastre, edite e remova empresas do Mercado Jovem</div>
+        <div class="admin-toolbar">
+          <button class="btn-add" onclick="openModal('empresa')">＋ Nova Empresa</button>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)" id="lblEmpresasAdmin"></span>
+        </div>
+        <div class="tbl-wrap" style="margin-bottom:0">
+          <table><thead><tr><th>Código</th><th>Empresa</th><th>Setor</th><th>Turma</th><th>Valor (JCV)</th><th>Var.%</th><th>CEO</th><th>Ações</th></tr></thead>
+          <tbody id="adminEmpresasBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- SELIC -->
+      <div class="admin-section" id="asec-selic">
+        <div class="admin-sec-title">Taxa Selic JCV</div>
+        <div class="admin-sec-sub">Gerencie o histórico de decisões do COPOM Jovem</div>
+        <div class="admin-toolbar">
+          <button class="btn-add" onclick="openModal('selic')">＋ Nova Decisão COPOM</button>
+        </div>
+        <div class="tbl-wrap" style="margin-bottom:0">
+          <table><thead><tr><th>Período</th><th>Data</th><th>Taxa %</th><th>Decisão</th><th>Motivo</th><th>Próx. COPOM</th><th>Ações</th></tr></thead>
+          <tbody id="adminSelicBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- TÍTULOS -->
+      <div class="admin-section" id="asec-titulos">
+        <div class="admin-sec-title">Títulos TJV</div>
+        <div class="admin-sec-sub">Emita, edite e gerencie os títulos do Banco Central</div>
+        <div class="admin-toolbar">
+          <button class="btn-add" onclick="openModal('titulo')">＋ Emitir Título</button>
+        </div>
+        <div class="tbl-wrap" style="margin-bottom:0">
+          <table><thead><tr><th>Código</th><th>Empresa</th><th>Tipo</th><th>Capital</th><th>Taxa</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="adminTitulosBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- COMUNICADOS -->
+      <div class="admin-section" id="asec-comunicados">
+        <div class="admin-sec-title">Comunicados</div>
+        <div class="admin-sec-sub">Publique, edite e remova comunicados oficiais</div>
+        <div class="admin-toolbar">
+          <button class="btn-add" onclick="openModal('comunicado')">＋ Novo Comunicado</button>
+        </div>
+        <div class="tbl-wrap" style="margin-bottom:0">
+          <table><thead><tr><th>Data</th><th>Categoria</th><th>Título</th><th>Ações</th></tr></thead>
+          <tbody id="adminComBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- PREGÃO -->
+      <div class="admin-section" id="asec-pregao">
+        <div class="admin-sec-title">Pregão</div>
+        <div class="admin-sec-sub">Agende e gerencie as sessões de negociação</div>
+        <div class="admin-toolbar">
+          <button class="btn-add" onclick="openModal('pregao')">＋ Novo Pregão</button>
+        </div>
+        <div class="tbl-wrap" style="margin-bottom:0">
+          <table><thead><tr><th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th><th>Ações</th></tr></thead>
+          <tbody id="adminPregaoBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- TICKER -->
+      <div class="admin-section" id="asec-ticker">
+        <div class="admin-sec-title">Faixa Superior</div>
+        <div class="admin-sec-sub">Controle a faixa de informações no topo do site</div>
+        <div class="tbl-wrap" style="margin-bottom:18px;padding:20px">
+          <div class="admin-sec-title" style="font-size:14px;margin-bottom:10px">Pré-visualização</div>
+          <div class="ticker-admin-preview">
+            <div class="ticker-scroll"><div class="ticker-inner" id="tickerPreview"></div></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Exibir faixa superior?</label>
+          <select id="tickerVisivel" onchange="applyTickerConfig()">
+            <option value="1">✅ Visível</option>
+            <option value="0">❌ Oculta</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Texto do rótulo (ex: 📊 MERCADO JOVEM)</label>
+          <input type="text" id="tickerLabelInput" placeholder="📊 MERCADO JOVEM" oninput="applyTickerConfig()"/>
+        </div>
+        <div class="form-group">
+          <label>Modo da faixa</label>
+          <select id="tickerModo" onchange="applyTickerConfig()">
+            <option value="auto">🔄 Automático (cotações das empresas)</option>
+            <option value="manual">✏️ Manual (texto personalizado)</option>
+          </select>
+        </div>
+        <div id="tickerManualArea" style="display:none">
+          <div class="form-group">
+            <label>Itens da faixa (um por linha — formato: CÓDIGO | Texto | +/-variação%)</label>
+            <textarea id="tickerManualText" rows="6" placeholder="BAN1 | Banco Alfa | +5.2%&#10;SEG1 | Seguradora Beta | -2.0%"></textarea>
+          </div>
+        </div>
+        <div class="ticker-source-note">💡 No modo automático, a faixa exibe as cotações de todas as empresas cadastradas em tempo real.</div>
+        <button class="btn-navy" onclick="saveTickerConfig()">💾 Salvar Configurações da Faixa</button>
+      </div>
+
+      <!-- CONFIG -->
+      <div class="admin-section" id="asec-config">
+        <div class="admin-sec-title">Configurações Gerais</div>
+        <div class="admin-sec-sub">Customize textos e informações do site público</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome do projeto (título)</label>
+            <input type="text" id="cfgNomeProjeto" placeholder="Mercado Jovem"/>
+          </div>
+          <div class="form-group">
+            <label>Subtítulo do cabeçalho</label>
+            <input type="text" id="cfgSubtitulo" placeholder="Bolsa Escolar · JCV"/>
+          </div>
+        </div>
+        <div class="form-group form-row full">
+          <div class="form-group">
+            <label>Subtítulo da página inicial</label>
+            <input type="text" id="cfgHomeSub" placeholder="Visão consolidada do Mercado Jovem"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Usuário admin</label>
+            <input type="text" id="cfgAdminUser" placeholder="bancoCentral"/>
+          </div>
+          <div class="form-group">
+            <label>Nova senha admin</label>
+            <input type="password" id="cfgAdminPass" placeholder="••••••••"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Confirmar nova senha</label>
+          <input type="password" id="cfgAdminPassConf" placeholder="••••••••"/>
+        </div>
+        <button class="btn-navy" onclick="saveConfig()" style="margin-right:10px">💾 Salvar Configurações</button>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-wrap -->
+</div>
 
 </main>
 
 <footer>
   <strong>MERCADO JOVEM</strong> · Banco Central JCV · Plataforma Educacional &copy; 2026
 </footer>
-
-<div id="toast">✓ Atualizado com sucesso!</div>
+<div id="toast"></div>
 
 <script>
-// =====================================================
-// DATA STORE
-// =====================================================
-const DATA = {
-  selic: {
-    atual: 3.0,
-    periodo: "Bimestre 2",
-    proximoCopom: "Bimestre 3",
-    historico: [
-      { periodo: "Bimestre 1", data: "01/04/2026", taxa: 2.5, decisao: "Alta", motivo: "Abertura do mercado" },
-      { periodo: "Bimestre 2", data: "01/06/2026", taxa: 3.0, decisao: "Alta", motivo: "Aquecimento econômico" },
+// ══════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════
+let CRED = { user:'bancoCentral', pass:'MercadoJovem@2026' };
+let isAdmin = false;
+
+function openLogin(){ document.getElementById('loginOverlay').classList.add('show'); setTimeout(()=>document.getElementById('loginUser').focus(),100); }
+function closeLogin(){ document.getElementById('loginOverlay').classList.remove('show'); document.getElementById('loginErr').classList.remove('show'); document.getElementById('loginUser').value=''; document.getElementById('loginPass').value=''; }
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim(), p=document.getElementById('loginPass').value;
+  if(u===CRED.user && p===CRED.pass){
+    isAdmin=true; closeLogin();
+    document.getElementById('navAdmin').classList.add('show');
+    const btn=document.getElementById('btnLoginTrigger');
+    btn.textContent='✓ Admin'; btn.className='btn-login-trigger logged';
+    btn.onclick=()=>{document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));const nb=document.getElementById('navAdmin');nb.classList.add('active');showPage('admin',nb);};
+    document.getElementById('adminUserLbl').textContent='Logado: '+u;
+    buildAdminAll(); showPage('admin',document.getElementById('navAdmin'));
+    showToast('✓ Acesso autorizado!');
+  } else {
+    document.getElementById('loginErr').classList.add('show');
+    document.getElementById('loginPass').value='';
+    document.getElementById('loginPass').focus();
+  }
+}
+function doLogout(){
+  isAdmin=false;
+  document.getElementById('navAdmin').classList.remove('show','active');
+  const btn=document.getElementById('btnLoginTrigger');
+  btn.textContent='⚙ Admin'; btn.className='btn-login-trigger'; btn.onclick=openLogin;
+  showPage('home',document.querySelector('.nav-btn'));
+  showToast('Sessão encerrada.');
+}
+
+// ══════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════
+let D = {
+  config:{ nomeProjeto:'Mercado Jovem', subtitulo:'Bolsa Escolar · JCV', homeSub:'Visão consolidada do Mercado Jovem' },
+  ticker:{ visivel:true, label:'📊 MERCADO JOVEM', modo:'auto', manual:'' },
+  selic:{ atual:3.0, periodo:'Bimestre 2', proximoCopom:'Bimestre 3',
+    historico:[
+      {id:1,periodo:'Bimestre 1',data:'01/04/2026',taxa:2.5,decisao:'Alta',motivo:'Abertura do mercado',proximoCopom:'Bimestre 2'},
+      {id:2,periodo:'Bimestre 2',data:'01/06/2026',taxa:3.0,decisao:'Alta',motivo:'Aquecimento econômico',proximoCopom:'Bimestre 3'},
     ]
   },
-  empresas: [
-    { codigo:"BAN1", nome:"Banco Alfa S.A.", setor:"Banco", turma:"3º Ano A", valor:1250000, cotas:1000000, ceo:"Ana Souza", var:+5.2, hist:[90,95,100,108,112,120,125] },
-    { codigo:"SEG1", nome:"Seguradora Beta", setor:"Seguradora", turma:"3º Ano A", valor:980000, cotas:1000000, ceo:"Bruno Lima", var:-2.0, hist:[100,102,105,99,96,98,98] },
-    { codigo:"TEC1", nome:"TechJovem Ltda.", setor:"Tecnologia", turma:"2º Ano B", valor:1100000, cotas:1000000, ceo:"Carla Reis", var:+10.0, hist:[80,85,90,100,103,108,110] },
-    { codigo:"ALI1", nome:"NutriFood S.A.", setor:"Alimentos", turma:"2º Ano A", valor:870000, cotas:1000000, ceo:"Diego Matos", var:-13.0, hist:[100,98,95,90,88,87,87] },
-    { codigo:"SAN1", nome:"AguaPura S.A.", setor:"Saneamento", turma:"1º Ano B", valor:1050000, cotas:1000000, ceo:"Elisa Nunes", var:+5.0, hist:[95,97,100,101,103,104,105] },
-    { codigo:"ENE1", nome:"EnergiaJCV", setor:"Energia", turma:"1º Ano A", valor:1020000, cotas:1000000, ceo:"Felipe Dias", var:+2.0, hist:[98,99,100,100,101,102,102] },
-    { codigo:"VAR1", nome:"MegaVarejo", setor:"Varejo", turma:"2º Ano B", valor:760000, cotas:1000000, ceo:"Gabi Ferreira", var:-24.0, hist:[100,98,92,85,80,77,76] },
-    { codigo:"TRA1", nome:"MoveJovem", setor:"Transporte", turma:"1º Ano A", valor:930000, cotas:1000000, ceo:"Henrique Costa", var:-7.0, hist:[100,99,97,96,94,93,93] },
-    { codigo:"ASS1", nome:"JCV Asset Mgmt", setor:"Asset Mgmt", turma:"3º Ano B", valor:1180000, cotas:1000000, ceo:"Isabela Rocha", var:+18.0, hist:[85,90,95,100,108,115,118] },
-    { codigo:"COM1", nome:"GlobalTrade JCV", setor:"Com. Exterior", turma:"3º Ano B", valor:1040000, cotas:1000000, ceo:"João Pires", var:+4.0, hist:[98,99,100,101,102,103,104] },
+  empresas:[
+    {id:1,codigo:'BAN1',nome:'Banco Alfa S.A.',setor:'Banco',turma:'3º Ano A',valor:1250000,cotas:1000000,ceo:'Ana Souza',var:5.2,hist:[90,95,100,108,112,120,125]},
+    {id:2,codigo:'SEG1',nome:'Seguradora Beta',setor:'Seguradora',turma:'3º Ano A',valor:980000,cotas:1000000,ceo:'Bruno Lima',var:-2.0,hist:[100,102,105,99,96,98,98]},
+    {id:3,codigo:'TEC1',nome:'TechJovem Ltda.',setor:'Tecnologia',turma:'2º Ano B',valor:1100000,cotas:1000000,ceo:'Carla Reis',var:10.0,hist:[80,85,90,100,103,108,110]},
+    {id:4,codigo:'ALI1',nome:'NutriFood S.A.',setor:'Alimentos',turma:'2º Ano A',valor:870000,cotas:1000000,ceo:'Diego Matos',var:-13.0,hist:[100,98,95,90,88,87,87]},
+    {id:5,codigo:'SAN1',nome:'AguaPura S.A.',setor:'Saneamento',turma:'1º Ano B',valor:1050000,cotas:1000000,ceo:'Elisa Nunes',var:5.0,hist:[95,97,100,101,103,104,105]},
+    {id:6,codigo:'ENE1',nome:'EnergiaJCV',setor:'Energia',turma:'1º Ano A',valor:1020000,cotas:1000000,ceo:'Felipe Dias',var:2.0,hist:[98,99,100,100,101,102,102]},
+    {id:7,codigo:'VAR1',nome:'MegaVarejo',setor:'Varejo',turma:'2º Ano B',valor:760000,cotas:1000000,ceo:'Gabi Ferreira',var:-24.0,hist:[100,98,92,85,80,77,76]},
+    {id:8,codigo:'TRA1',nome:'MoveJovem',setor:'Transporte',turma:'1º Ano A',valor:930000,cotas:1000000,ceo:'Henrique Costa',var:-7.0,hist:[100,99,97,96,94,93,93]},
+    {id:9,codigo:'ASS1',nome:'JCV Asset Mgmt',setor:'Asset Mgmt',turma:'3º Ano B',valor:1180000,cotas:1000000,ceo:'Isabela Rocha',var:18.0,hist:[85,90,95,100,108,115,118]},
+    {id:10,codigo:'COM1',nome:'GlobalTrade JCV',setor:'Com. Exterior',turma:'3º Ano B',valor:1040000,cotas:1000000,ceo:'João Pires',var:4.0,hist:[98,99,100,101,102,103,104]},
   ],
-  titulos: [
-    { codigo:"TJV-001", empresa:"Banco Alfa S.A.", tipo:"Prefixado", capital:10000, taxa:2.5, prazo:2, vencimento:"01/08/2026", status:"Ativo" },
-    { codigo:"TJV-002", empresa:"Seguradora Beta", tipo:"Pós-fixado (Selic)", capital:5000, taxa:null, prazo:3, vencimento:"01/10/2026", status:"Ativo" },
-    { codigo:"TJV-003", empresa:"JCV Asset Mgmt", tipo:"Prefixado", capital:8000, taxa:3.0, prazo:2, vencimento:"01/10/2026", status:"Ativo" },
+  titulos:[
+    {id:1,codigo:'TJV-001',empresa:'Banco Alfa S.A.',tipo:'Prefixado',capital:10000,taxa:2.5,prazo:2,vencimento:'01/08/2026',status:'Ativo'},
+    {id:2,codigo:'TJV-002',empresa:'Seguradora Beta',tipo:'Pós-fixado (Selic)',capital:5000,taxa:null,prazo:3,vencimento:'01/10/2026',status:'Ativo'},
+    {id:3,codigo:'TJV-003',empresa:'JCV Asset Mgmt',tipo:'Prefixado',capital:8000,taxa:3.0,prazo:2,vencimento:'01/10/2026',status:'Ativo'},
   ],
-  comunicados: [
-    { titulo:"Reunião COPOM — Alta da Selic para 3,0% a.p.", tag:"tag-copom", tagLabel:"COPOM", data:"01/06/2026", corpo:"O Comitê de Política Monetária do Mercado Jovem decidiu, por unanimidade, elevar a Taxa Selic JCV de 2,5% para 3,0% ao período, em resposta ao aquecimento da atividade econômica e crescimento do crédito." },
-    { titulo:"Abertura do 2º Pregão — Confirmado para 15/06", tag:"tag-pregao", tagLabel:"PREGÃO", data:"10/06/2026", corpo:"O Banco Central confirma a realização do 2º Pregão do Mercado Jovem no dia 15/06/2026 às 14h. Todas as empresas devem preparar seus Livros-Caixa atualizados para apresentação." },
-    { titulo:"Aviso: Empresa MegaVarejo sob Investigação", tag:"tag-urgente", tagLabel:"URGENTE", data:"05/06/2026", corpo:"O Banco Central está investigando possível irregularidade contábil na empresa MegaVarejo. Negociações de suas cotas estão temporariamente suspensas até nova deliberação." },
-    { titulo:"Emissão de Novos Títulos TJV disponível", tag:"tag-info", tagLabel:"INFO", data:"01/04/2026", corpo:"A partir deste bimestre, bancos e seguradoras poderão adquirir Títulos JCV (TJV) junto ao Banco Central. Acesse a aba Títulos para consultar as condições vigentes." },
+  comunicados:[
+    {id:1,titulo:'Reunião COPOM — Alta da Selic para 3,0% a.p.',tag:'tag-copom',tagLabel:'COPOM',tipo:'copom',data:'01/06/2026',corpo:'O Comitê de Política Monetária decidiu, por unanimidade, elevar a Taxa Selic JCV de 2,5% para 3,0% ao período.'},
+    {id:2,titulo:'2º Pregão Confirmado — 15/06/2026 às 14h',tag:'tag-pregao',tagLabel:'PREGÃO',tipo:'pregao',data:'10/06/2026',corpo:'O Banco Central confirma a realização do 2º Pregão. Todas as empresas devem apresentar o Livro-Caixa atualizado.'},
+    {id:3,titulo:'MegaVarejo sob Investigação do Banco Central',tag:'tag-urgente',tagLabel:'URGENTE',tipo:'urgente',data:'05/06/2026',corpo:'Possível irregularidade contábil detectada. Negociações temporariamente suspensas até nova deliberação.'},
+    {id:4,titulo:'Emissão de Títulos TJV disponível',tag:'tag-info',tagLabel:'INFO',tipo:'',data:'01/04/2026',corpo:'Bancos e seguradoras poderão adquirir Títulos JCV junto ao Banco Central. Consulte as condições na aba Títulos.'},
   ],
-  pregoes: [
-    { n:1, data:"15/04/2026", hora:"14h – 16h", tipo:"Regular", status:"Encerrado", destaque:"Volume: JCV 42.500" },
-    { n:2, data:"15/06/2026", hora:"14h – 16h", tipo:"Regular", status:"Próximo", destaque:"⚡ Confirmado" },
-    { n:3, data:"15/08/2026", hora:"14h – 16h", tipo:"Regular", status:"Agendado", destaque:"—" },
-    { n:4, data:"15/10/2026", hora:"14h – 16h", tipo:"Regular", status:"Agendado", destaque:"—" },
-    { n:5, data:"15/11/2026", hora:"14h – 16h", tipo:"Especial (Final)", status:"Agendado", destaque:"🏆 Encerramento" },
-  ]
+  pregoes:[
+    {id:1,n:1,data:'15/04/2026',hora:'14h – 16h',tipo:'Regular',status:'Encerrado',destaque:'Volume: JCV 42.500'},
+    {id:2,n:2,data:'15/06/2026',hora:'14h – 16h',tipo:'Regular',status:'Próximo',destaque:'⚡ Confirmado'},
+    {id:3,n:3,data:'15/08/2026',hora:'14h – 16h',tipo:'Regular',status:'Agendado',destaque:'—'},
+    {id:4,n:4,data:'15/10/2026',hora:'14h – 16h',tipo:'Regular',status:'Agendado',destaque:'—'},
+    {id:5,n:5,data:'15/11/2026',hora:'14h – 16h',tipo:'Especial (Final)',status:'Agendado',destaque:'🏆 Encerramento'},
+  ],
+  nextId:{empresa:11,selic:3,titulo:4,comunicado:5,pregao:6}
 };
 
-// =====================================================
+// ══════════════════════════════════════════════════════
 // UTILS
-// =====================================================
-const fJCV = v => 'JCV ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-const fPct = v => (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%';
-const selicCores = { Alta: 'up', Baixa: 'dn', Manutenção: 'neutral' };
-const setorCores = {
-  "Banco":"#3498DB", "Seguradora":"#9B59B6", "Tecnologia":"#2ECC71",
-  "Alimentos":"#E67E22", "Saneamento":"#1ABC9C", "Energia":"#F1C40F",
-  "Varejo":"#E74C3C", "Transporte":"#34495E", "Asset Mgmt":"#D4A843", "Com. Exterior":"#16A085"
-};
+// ══════════════════════════════════════════════════════
+const fJCV=v=>'JCV '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fPct=v=>(v>=0?'+':'')+Number(v).toFixed(2)+'%';
+const SC={Banco:'#1A3A5C',Seguradora:'#6235A0',Tecnologia:'#6ABF2E',Alimentos:'#D4720A',Saneamento:'#0A8A7A',Energia:'#C4A000',Varejo:'#D94040',Transporte:'#4A6A8A','Asset Mgmt':'#1A5C8A','Com. Exterior':'#0A7A5A'};
+function spark(hist){const mx=Math.max(...hist),mn=Math.min(...hist);return '<div class="sparkbar">'+hist.map(v=>{const h=Math.max(3,Math.round(((v-mn)/(mx-mn||1))*18)+3);return `<span style="height:${h}px"></span>`;}).join('')+'</div>';}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function latestSelic(){const h=D.selic.historico;return h.length?h[h.length-1]:null;}
 
-function sparkBars(hist) {
-  const mx = Math.max(...hist), mn = Math.min(...hist);
-  return '<div class="sparkbar">' + hist.map((v,i) => {
-    const h = Math.max(4, Math.round(((v-mn)/(mx-mn||1))*20)+4);
-    const isLast = i === hist.length - 1;
-    return `<span style="height:${h}px;${isLast?'background:var(--gold2)':''}"></span>`;
-  }).join('') + '</div>';
-}
-
-function showToast(msg = '✓ Atualizado!') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// =====================================================
+// ══════════════════════════════════════════════════════
 // CLOCK
-// =====================================================
-function updateClock() {
-  const now = new Date();
-  document.getElementById('realtimeClock').textContent =
-    now.toLocaleDateString('pt-BR') + ' · ' +
-    now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-}
-setInterval(updateClock, 1000); updateClock();
+// ══════════════════════════════════════════════════════
+function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString('pt-BR')+' · '+n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+setInterval(updateClock,1000);updateClock();
 
-// =====================================================
+// ══════════════════════════════════════════════════════
 // TICKER
-// =====================================================
-function buildTicker() {
-  const items = DATA.empresas.map(e =>
-    `<span class="ticker-item">
-      <span class="ticker-name">${e.codigo}</span>
-      <span class="ticker-val">${fJCV(e.valor/1000000).replace('JCV ','JCV ')}M</span>
-      <span class="ticker-chg ${e.var >= 0 ? 'up' : 'dn'}">${fPct(e.var)}</span>
-    </span>`
-  ).join('');
-  const inner = document.getElementById('tickerInner');
-  inner.innerHTML = items + items; // duplicate for seamless loop
+// ══════════════════════════════════════════════════════
+function buildTicker(){
+  const bar=document.getElementById('tickerBar');
+  const lbl=document.getElementById('tickerLabel');
+  const hdr=document.getElementById('mainHeader');
+  const nav=document.getElementById('mainNav');
+  lbl.textContent=D.ticker.label||'📊 MERCADO JOVEM';
+  if(!D.ticker.visivel){bar.classList.remove('visible');hdr.classList.remove('with-ticker');nav.classList.remove('with-ticker');return;}
+  bar.classList.add('visible');hdr.classList.add('with-ticker');nav.classList.add('with-ticker');
+  let items='';
+  if(D.ticker.modo==='manual'&&D.ticker.manual){
+    items=D.ticker.manual.split('\n').filter(l=>l.trim()).map(l=>{const p=l.split('|');return `<span class="ti"><span class="ti-name">${(p[0]||'').trim()}</span><span class="ti-val">${(p[1]||'').trim()}</span><span class="ti-chg ${((p[2]||'').trim().startsWith('-'))?'dn':'up'}">${(p[2]||'').trim()}</span></span>`;}).join('');
+  } else {
+    items=D.empresas.map(e=>`<span class="ti"><span class="ti-name">${e.codigo}</span><span class="ti-val">JCV ${(e.valor/1000000).toFixed(2)}M</span><span class="ti-chg ${e.var>=0?'up':'dn'}">${fPct(e.var)}</span></span>`).join('');
+  }
+  const el=document.getElementById('tickerInner');
+  el.innerHTML=items+items;
 }
 buildTicker();
 
-// =====================================================
-// HOME PAGE
-// =====================================================
-function buildHome() {
-  // Header selic
-  document.getElementById('selicHeaderVal').textContent = `Selic JCV: ${DATA.selic.atual.toFixed(1)}% a.p.`;
-  document.getElementById('selicBig').textContent = DATA.selic.atual.toFixed(1) + '%';
-  document.getElementById('selicPeriod').textContent = DATA.selic.periodo + ' · Taxa ao período';
-
-  // Selic history
-  const hist = DATA.selic.historico;
-  document.getElementById('selicHistory').innerHTML = hist.map((h, i) => {
-    const prev = hist[i-1];
-    const vr = prev ? h.taxa - prev.taxa : 0;
-    return `<div class="selic-hist-item">
-      <span class="selic-hist-label">${h.periodo}</span>
-      <span class="selic-hist-val">${h.taxa.toFixed(1)}%</span>
-      <span class="selic-hist-chg ${i===0?'':'(vr>=0?\'up-arrow\':\'dn-arrow\')'}" 
-        style="color:${i===0?'var(--muted)':vr>=0?'var(--green)':'var(--red)'}">
-        ${i===0 ? '—' : fPct(vr)}
-      </span>
-    </div>`;
-  }).join('');
-  document.getElementById('copomBadge').textContent = `🏛️ PRÓXIMO COPOM: ${DATA.selic.proximoCopom}`;
-
-  // Stats
-  const totalMktCap = DATA.empresas.reduce((a, e) => a + e.valor, 0);
-  const gainers = DATA.empresas.filter(e => e.var > 0).length;
-  const totalTitulos = DATA.titulos.reduce((a, t) => a + t.capital, 0);
-  document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-label">Market Cap Total</div>
-      <div class="stat-value gold">${(totalMktCap/1000000).toFixed(2)}M</div>
-      <div class="stat-badge neutral">JovemCoin</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Empresas Listadas</div>
-      <div class="stat-value">${DATA.empresas.length}</div>
-      <div class="stat-badge neutral">Ativas</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Em Alta Hoje</div>
-      <div class="stat-value green">${gainers}</div>
-      <div class="stat-badge up">▲ empresas</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Títulos TJV Emitidos</div>
-      <div class="stat-value">${fJCV(totalTitulos)}</div>
-      <div class="stat-badge neutral">${DATA.titulos.length} títulos</div>
-    </div>
-  `;
-
-  // Ranking
-  const sorted = [...DATA.empresas].sort((a, b) => b.valor - a.valor);
-  document.getElementById('rankingBody').innerHTML = sorted.map((e, i) => {
-    const cotaVal = e.valor / e.cotas;
-    const isUp = e.var >= 0;
-    const setor = e.setor;
-    const cor = setorCores[setor] || '#888';
-    return `<tr>
-      <td class="td-mono" style="color:var(--muted)">${i+1}</td>
-      <td>
-        <div class="td-empresa">${e.nome}</div>
-        <div class="td-sector">${e.codigo}</div>
-      </td>
-      <td><span class="badge-setor" style="background:${cor}22;color:${cor};border:1px solid ${cor}44">${setor}</span></td>
-      <td class="td-mono">${fJCV(e.valor)}</td>
-      <td class="td-mono" style="color:var(--gold)">${fJCV(cotaVal)}</td>
-      <td class="td-mono ${isUp ? 'up-arrow' : 'dn-arrow'}" style="color:${isUp?'var(--green)':'var(--red)'}">${fPct(e.var)}</td>
-      <td>${sparkBars(e.hist)}</td>
-    </tr>`;
-  }).join('');
+// ══════════════════════════════════════════════════════
+// PAGE: HOME
+// ══════════════════════════════════════════════════════
+function buildHome(){
+  const ls=latestSelic();
+  const taxa=ls?ls.taxa:D.selic.atual;
+  document.getElementById('selicHdrVal').textContent=`Selic JCV: ${taxa.toFixed(1)}% a.p.`;
+  document.getElementById('shRate').innerHTML=taxa.toFixed(1)+'<span>% a.p.</span>';
+  document.getElementById('shPeriod').textContent=(ls?ls.periodo:D.selic.periodo)+' · Taxa ao período';
+  const hist=D.selic.historico.slice(-3);
+  document.getElementById('shHist').innerHTML=hist.map((h,i)=>{const prev=hist[i-1];const vr=prev?h.taxa-prev.taxa:0;return `<div class="sh-hist-item"><span class="sh-hist-lbl">${h.periodo}</span><span class="sh-hist-val">${h.taxa.toFixed(1)}%</span><span style="color:${i===0?'rgba(168,216,234,.5)':vr>=0?'#82D93E':'#FF7070'};font-family:'JetBrains Mono',monospace;font-size:11px">${i===0?'—':fPct(vr)}</span></div>`;}).join('');
+  document.getElementById('copomBadge').textContent=`🏛️ PRÓXIMO COPOM: ${ls&&ls.proximoCopom?ls.proximoCopom:D.selic.proximoCopom}`;
+  const totalMkt=D.empresas.reduce((a,e)=>a+e.valor,0);
+  const gainers=D.empresas.filter(e=>e.var>0).length;
+  const losers=D.empresas.filter(e=>e.var<0).length;
+  const totalTit=D.titulos.reduce((a,t)=>a+t.capital,0);
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat-card lime"><div class="stat-lbl">Market Cap Total</div><div class="stat-val lime">${(totalMkt/1000000).toFixed(2)}M</div><div class="badge neu">JovemCoin</div></div>
+    <div class="stat-card"><div class="stat-lbl">Empresas Listadas</div><div class="stat-val">${D.empresas.length}</div><div class="badge neu">Ativas</div></div>
+    <div class="stat-card"><div class="stat-lbl">Alta / Baixa</div><div class="stat-val green">${gainers} <span style="color:var(--muted);font-size:14px">/ </span><span style="color:var(--red)">${losers}</span></div><div class="badge up">Pregão atual</div></div>
+    <div class="stat-card"><div class="stat-lbl">Títulos TJV</div><div class="stat-val">${fJCV(totalTit)}</div><div class="badge neu">${D.titulos.length} emitidos</div></div>`;
+  const sorted=[...D.empresas].sort((a,b)=>b.valor-a.valor);
+  document.getElementById('rankingBody').innerHTML=sorted.map((e,i)=>{const cota=e.valor/e.cotas;const up=e.var>=0;const cor=SC[e.setor]||'#888';return `<tr><td class="mono" style="color:var(--muted);font-weight:700">${i+1}</td><td><div class="empresa-nm">${e.nome}</div><div class="empresa-cd">${e.codigo}</div></td><td><span class="setor-badge" style="background:${cor}18;color:${cor};border:1px solid ${cor}33">${e.setor}</span></td><td class="mono">${fJCV(e.valor)}</td><td class="mono" style="color:var(--lime)">${fJCV(cota)}</td><td class="mono" style="color:${up?'var(--green)':'var(--red)'};font-weight:600">${up?'▲':'▼'} ${fPct(e.var)}</td><td>${spark(e.hist)}</td></tr>`;}).join('');
+  document.getElementById('homeSubtitle').textContent=D.config.homeSub;
 }
 
-// =====================================================
-// EMPRESAS PAGE
-// =====================================================
-function buildEmpresas() {
-  document.getElementById('totalEmpresas').textContent = `${DATA.empresas.length} empresas · ${DATA.empresas.length * 1000000 / 1000000}M cotas totais`;
-  document.getElementById('empresasBody').innerHTML = DATA.empresas.map(e => {
-    const cotaVal = e.valor / e.cotas;
-    const isUp = e.var >= 0;
-    const cor = setorCores[e.setor] || '#888';
-    return `<tr>
-      <td class="td-mono" style="color:var(--gold)">${e.codigo}</td>
-      <td class="td-empresa">${e.nome}</td>
-      <td><span class="badge-setor" style="background:${cor}22;color:${cor};border:1px solid ${cor}44">${e.setor}</span></td>
-      <td class="td-mono" style="color:var(--muted)">${e.turma}</td>
-      <td class="td-mono">${fJCV(e.valor)}</td>
-      <td class="td-mono">${Number(e.cotas).toLocaleString('pt-BR')}</td>
-      <td class="td-mono" style="color:var(--gold)">${fJCV(cotaVal)}</td>
-      <td style="font-size:12px">${e.ceo}</td>
-      <td><span class="stat-badge ${isUp ? 'up' : 'dn'}">${fPct(e.var)}</span></td>
-    </tr>`;
-  }).join('');
+// ══════════════════════════════════════════════════════
+// PAGE: EMPRESAS
+// ══════════════════════════════════════════════════════
+function buildEmpresas(){
+  document.getElementById('lblTotalEmpresas').textContent=`${D.empresas.length} empresas listadas`;
+  document.getElementById('empresasBody').innerHTML=D.empresas.map(e=>{const cota=e.valor/e.cotas;const up=e.var>=0;const cor=SC[e.setor]||'#888';return `<tr><td class="mono" style="color:var(--lime);font-weight:600">${e.codigo}</td><td class="empresa-nm">${e.nome}</td><td><span class="setor-badge" style="background:${cor}18;color:${cor};border:1px solid ${cor}33">${e.setor}</span></td><td class="mono" style="color:var(--muted)">${e.turma}</td><td class="mono">${fJCV(e.valor)}</td><td class="mono">${Number(e.cotas).toLocaleString('pt-BR')}</td><td class="mono" style="color:var(--lime)">${fJCV(cota)}</td><td style="font-size:12px">${e.ceo}</td><td><span class="badge ${up?'up':'dn'}">${up?'▲':'▼'} ${fPct(e.var)}</span></td></tr>`;}).join('');
 }
 
-// =====================================================
-// SELIC PAGE
-// =====================================================
-function buildSelic() {
-  document.getElementById('selicAtualCard').textContent = DATA.selic.atual.toFixed(2) + '%';
-  const diaria = ((1 + DATA.selic.atual/100) ** (1/30) - 1) * 100;
-  document.getElementById('selicDiariaCard').textContent = diaria.toFixed(4) + '%';
-  document.getElementById('proximoCopom').textContent = DATA.selic.proximoCopom;
-
-  const hist = DATA.selic.historico;
-  document.getElementById('selicHistBody').innerHTML = hist.map((h, i) => {
-    const prev = hist[i-1];
-    const vr = prev ? h.taxa - prev.taxa : 0;
-    const decCor = h.decisao === 'Alta' ? 'var(--red)' : h.decisao === 'Baixa' ? 'var(--green)' : 'var(--muted)';
-    return `<tr>
-      <td class="td-mono" style="color:var(--gold)">${h.periodo}</td>
-      <td style="color:var(--muted)">${h.data}</td>
-      <td class="td-mono" style="font-size:16px;font-weight:600;color:var(--cream)">${h.taxa.toFixed(2)}%</td>
-      <td class="td-mono" style="color:${i===0?'var(--muted)':vr>=0?'var(--red)':'var(--green)'}">${i===0 ? '—' : fPct(vr)}</td>
-      <td><span class="stat-badge ${selicCores[h.decisao]||'neutral'}" style="background:${decCor}22;color:${decCor}">${h.decisao}</span></td>
-      <td style="color:var(--muted);font-size:12px">${h.motivo}</td>
-    </tr>`;
-  }).join('');
+// ══════════════════════════════════════════════════════
+// PAGE: SELIC
+// ══════════════════════════════════════════════════════
+function buildSelic(){
+  const ls=latestSelic();const taxa=ls?ls.taxa:D.selic.atual;
+  const diaria=((1+taxa/100)**(1/30)-1)*100;
+  document.getElementById('selicStats').innerHTML=`
+    <div class="stat-card lime"><div class="stat-lbl">Taxa Atual</div><div class="stat-val lime">${taxa.toFixed(2)}%</div><div class="badge neu">ao período</div></div>
+    <div class="stat-card"><div class="stat-lbl">Taxa Diária Equiv.</div><div class="stat-val">${diaria.toFixed(4)}%</div><div class="badge neu">ao dia</div></div>
+    <div class="stat-card"><div class="stat-lbl">Próximo COPOM</div><div class="stat-val" style="font-size:16px;padding-top:4px">${ls&&ls.proximoCopom?ls.proximoCopom:D.selic.proximoCopom}</div><div class="badge neu">Agendado</div></div>`;
+  const hist=D.selic.historico;
+  document.getElementById('selicHistBody').innerHTML=hist.map((h,i)=>{const prev=hist[i-1];const vr=prev?h.taxa-prev.taxa:0;const dc=h.decisao==='Alta'?'var(--red)':h.decisao==='Baixa'?'var(--green)':'var(--muted)';return `<tr><td class="mono" style="color:var(--lime)">${h.periodo}</td><td style="color:var(--muted)">${h.data}</td><td class="mono" style="font-size:18px;font-weight:700;color:var(--navy)">${h.taxa.toFixed(2)}%</td><td class="mono" style="color:${i===0?'var(--muted)':vr>=0?'var(--red)':'var(--green)'}">${i===0?'—':fPct(vr)}</td><td><span class="badge" style="background:${dc}18;color:${dc};border:1px solid ${dc}33">${h.decisao}</span></td><td style="font-size:12px;color:var(--muted)">${h.motivo}</td></tr>`;}).join('');
 }
 
-// =====================================================
-// TÍTULOS PAGE
-// =====================================================
-function buildTitulos() {
-  const totalCap = DATA.titulos.reduce((a, t) => a + t.capital, 0);
-  const totalRend = DATA.titulos.reduce((a, t) => {
-    const tx = t.taxa !== null ? t.taxa : DATA.selic.atual;
-    return a + t.capital * (tx/100) * t.prazo;
-  }, 0);
-
-  document.getElementById('titulosCards').innerHTML = `
-    <div class="titulo-card">
-      <div class="titulo-tipo">VOLUME TOTAL</div>
-      <div class="titulo-cod">${fJCV(totalCap)}</div>
-      <div class="titulo-row"><span>Títulos ativos</span><strong>${DATA.titulos.length}</strong></div>
-    </div>
-    <div class="titulo-card">
-      <div class="titulo-tipo">RENDIMENTO TOTAL</div>
-      <div class="titulo-cod" style="color:var(--green)">${fJCV(totalRend)}</div>
-      <div class="titulo-row"><span>A pagar pelo BC</span><strong>a vencer</strong></div>
-    </div>
-    <div class="titulo-card">
-      <div class="titulo-tipo">SELIC VIGENTE</div>
-      <div class="titulo-cod" style="color:var(--gold)">${DATA.selic.atual.toFixed(1)}%</div>
-      <div class="titulo-row"><span>Base pós-fixado</span><strong>a.p.</strong></div>
-    </div>
-  `;
-
-  document.getElementById('titulosBody').innerHTML = DATA.titulos.map(t => {
-    const tx = t.taxa !== null ? t.taxa : DATA.selic.atual;
-    const rend = t.capital * (tx/100) * t.prazo;
-    const statusCor = t.status === 'Ativo' ? 'var(--green)' : t.status === 'Vencido' ? 'var(--red)' : 'var(--gold)';
-    return `<tr>
-      <td class="td-mono" style="color:var(--gold)">${t.codigo}</td>
-      <td>${t.empresa}</td>
-      <td><span class="stat-badge neutral">${t.tipo}</span></td>
-      <td class="td-mono">${fJCV(t.capital)}</td>
-      <td class="td-mono">${tx.toFixed(2)}% a.p.</td>
-      <td style="color:var(--muted)">${t.vencimento}</td>
-      <td class="td-mono" style="color:var(--green)">${fJCV(rend)}</td>
-      <td><span class="stat-badge" style="background:${statusCor}22;color:${statusCor}">${t.status}</span></td>
-    </tr>`;
-  }).join('');
+// ══════════════════════════════════════════════════════
+// PAGE: TÍTULOS
+// ══════════════════════════════════════════════════════
+function buildTitulos(){
+  const ls=latestSelic();const taxa=ls?ls.taxa:D.selic.atual;
+  const totalCap=D.titulos.reduce((a,t)=>a+t.capital,0);
+  const totalRend=D.titulos.reduce((a,t)=>{const tx=t.taxa!==null&&t.taxa!==''?t.taxa:taxa;return a+t.capital*(tx/100)*(t.prazo||1);},0);
+  document.getElementById('titStats').innerHTML=`
+    <div class="tit-card"><div class="tit-tipo">Volume Total</div><div class="tit-cod">${fJCV(totalCap)}</div><div class="tit-row"><span>Títulos ativos</span><strong>${D.titulos.length}</strong></div></div>
+    <div class="tit-card"><div class="tit-tipo">Juros a Pagar</div><div class="tit-cod" style="color:var(--green)">${fJCV(totalRend)}</div><div class="tit-row"><span>Obrigação do BC</span><strong>a vencer</strong></div></div>
+    <div class="tit-card"><div class="tit-tipo">Selic Vigente</div><div class="tit-cod" style="color:var(--lime)">${taxa.toFixed(1)}%</div><div class="tit-row"><span>base pós-fixado</span><strong>a.p.</strong></div></div>`;
+  document.getElementById('titulosBody').innerHTML=D.titulos.map(t=>{const tx=t.taxa!==null&&t.taxa!==''?t.taxa:taxa;const rend=t.capital*(tx/100)*(t.prazo||1);const sc=t.status==='Ativo'?'var(--green)':t.status==='Vencido'?'var(--red)':'var(--lime)';return `<tr><td class="mono" style="color:var(--lime)">${t.codigo}</td><td>${t.empresa}</td><td><span class="badge neu">${t.tipo}</span></td><td class="mono">${fJCV(t.capital)}</td><td class="mono">${tx.toFixed?tx.toFixed(2):tx}% a.p.</td><td class="mono">${t.prazo} bim.</td><td style="color:var(--muted)">${t.vencimento}</td><td class="mono" style="color:var(--green)">${fJCV(rend)}</td><td><span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}33">${t.status}</span></td></tr>`;}).join('');
 }
 
-// =====================================================
-// COMUNICADOS PAGE
-// =====================================================
-function buildComunicados() {
-  document.getElementById('comunicadosGrid').innerHTML = DATA.comunicados.map(c => `
-    <div class="comunicado-card">
-      <div class="com-header">
-        <span class="com-tag ${c.tag}">${c.tagLabel}</span>
-        <span class="com-date">${c.data}</span>
-      </div>
-      <div class="com-title">${c.titulo}</div>
-      <div class="com-body">${c.corpo}</div>
-    </div>
-  `).join('');
+// ══════════════════════════════════════════════════════
+// PAGE: COMUNICADOS
+// ══════════════════════════════════════════════════════
+function buildComunicados(){
+  document.getElementById('comGrid').innerHTML=D.comunicados.map(c=>`<div class="com-card ${c.tipo}"><div class="com-hdr"><span class="com-tag ${c.tag}">${c.tagLabel}</span><span class="com-date">${c.data}</span></div><div class="com-title">${c.titulo}</div><div class="com-body">${c.corpo}</div></div>`).join('');
 }
 
-// =====================================================
-// PREGÃO PAGE
-// =====================================================
-function buildPregao() {
-  const proximo = DATA.pregoes.find(p => p.status === 'Próximo');
-  document.getElementById('pregaoStatus').innerHTML = proximo ? `
-    <div class="pregao-info">
-      <h3><span class="pulse"></span>Próximo Pregão Confirmado</h3>
-      <p>Pregão nº ${proximo.n} · ${proximo.data} · ${proximo.hora}</p>
-    </div>
-    <div class="pregao-timer">📅 ${proximo.data}</div>
-  ` : `<div class="pregao-info"><h3>Nenhum pregão em breve</h3></div>`;
+// ══════════════════════════════════════════════════════
+// PAGE: PREGÃO
+// ══════════════════════════════════════════════════════
+function buildPregao(){
+  const prox=D.pregoes.find(p=>p.status==='Próximo');
+  document.getElementById('pregaoStatus').innerHTML=prox?`<div class="pregao-info"><h3><span class="pulse"></span>Próximo Pregão Confirmado</h3><p>Pregão nº ${prox.n} · ${prox.data} · ${prox.hora}</p></div><div class="pregao-timer">📅 ${prox.data}</div>`:`<div class="pregao-info"><h3>Nenhum pregão agendado no momento.</h3></div>`;
+  const sc={Encerrado:'var(--muted)',Próximo:'var(--lime)',Agendado:'var(--navy)'};
+  document.getElementById('pregaoBody').innerHTML=D.pregoes.map(p=>`<tr><td class="mono" style="color:var(--lime);font-weight:700">${p.n}</td><td class="mono">${p.data}</td><td style="color:var(--muted)">${p.hora}</td><td>${p.tipo}</td><td><span class="badge" style="background:${sc[p.status]||'var(--navy)'}18;color:${sc[p.status]||'var(--navy)'};border:1px solid ${sc[p.status]||'var(--navy)'}33">${p.status}</span></td><td style="font-size:12px;color:var(--muted)">${p.destaque}</td></tr>`).join('');
+}
 
-  const statusCors = { Encerrado: 'var(--muted)', Próximo: 'var(--green)', Agendado: 'var(--blue)' };
-  document.getElementById('pregaoBody').innerHTML = DATA.pregoes.map(p => `<tr>
-    <td class="td-mono" style="color:var(--gold)">${p.n}</td>
-    <td class="td-mono">${p.data}</td>
-    <td style="color:var(--muted)">${p.hora}</td>
-    <td>${p.tipo}</td>
-    <td><span class="stat-badge" style="background:${statusCors[p.status]}22;color:${statusCors[p.status]}">${p.status}</span></td>
-    <td style="font-size:12px;color:var(--muted)">${p.destaque}</td>
+// ══════════════════════════════════════════════════════
+// ADMIN — SECTION SWITCH
+// ══════════════════════════════════════════════════════
+function showAdminSec(id, btn){
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.admin-nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('asec-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════
+// ADMIN — BUILD TABLES
+// ══════════════════════════════════════════════════════
+function buildAdminAll(){buildAdminEmpresas();buildAdminSelic();buildAdminTitulos();buildAdminComunicados();buildAdminPregao();buildTickerAdmin();buildConfigAdmin();}
+
+function buildAdminEmpresas(){
+  document.getElementById('lblEmpresasAdmin').textContent=`${D.empresas.length} empresa(s) cadastrada(s)`;
+  document.getElementById('adminEmpresasBody').innerHTML=D.empresas.map(e=>`<tr>
+    <td class="mono" style="color:var(--lime)">${e.codigo}</td>
+    <td class="empresa-nm">${e.nome}</td>
+    <td style="font-size:12px">${e.setor}</td>
+    <td style="font-size:12px;color:var(--muted)">${e.turma}</td>
+    <td class="mono">${fJCV(e.valor)}</td>
+    <td class="mono" style="color:${e.var>=0?'var(--green)':'var(--red)'}">${fPct(e.var)}</td>
+    <td style="font-size:12px">${e.ceo}</td>
+    <td style="display:flex;gap:6px;padding:10px 16px">
+      <button class="btn-edit" onclick="openModal('empresa',${e.id})">✏️ Editar</button>
+      <button class="btn-del" onclick="confirmDelete('empresa',${e.id},'${e.nome.replace(/'/g,"\\'")}')">🗑 Excluir</button>
+    </td>
   </tr>`).join('');
 }
 
-// =====================================================
-// ADMIN
-// =====================================================
-function buildAdmin() {
-  const opts = DATA.empresas.map(e => `<option value="${e.nome}">${e.nome}</option>`).join('');
-  document.getElementById('adminEmpresa').innerHTML = opts;
-  document.getElementById('adminTitEmpresa').innerHTML = opts;
+function buildAdminSelic(){
+  document.getElementById('adminSelicBody').innerHTML=D.selic.historico.map(h=>`<tr>
+    <td class="mono" style="color:var(--lime)">${h.periodo}</td>
+    <td style="color:var(--muted)">${h.data}</td>
+    <td class="mono" style="font-weight:700">${h.taxa.toFixed(2)}%</td>
+    <td style="font-size:12px">${h.decisao}</td>
+    <td style="font-size:12px;color:var(--muted)">${h.motivo}</td>
+    <td style="font-size:12px">${h.proximoCopom||'—'}</td>
+    <td style="display:flex;gap:6px;padding:10px 16px">
+      <button class="btn-edit" onclick="openModal('selic',${h.id})">✏️ Editar</button>
+      <button class="btn-del" onclick="confirmDelete('selic',${h.id},'${h.periodo}')">🗑 Excluir</button>
+    </td>
+  </tr>`).join('');
 }
 
-function atualizarCotacao() {
-  const nome = document.getElementById('adminEmpresa').value;
-  const val = parseFloat(document.getElementById('adminValor').value);
-  const vari = parseFloat(document.getElementById('adminVar').value);
-  if (!val) { showToast('⚠️ Informe o valor!'); return; }
-  const emp = DATA.empresas.find(e => e.nome === nome);
-  if (emp) {
-    emp.hist.push(Math.round(val / 10000));
-    emp.hist = emp.hist.slice(-7);
-    emp.valor = val;
-    if (!isNaN(vari)) emp.var = vari;
-    buildTicker(); buildHome(); buildEmpresas();
-    showToast(`✓ ${emp.codigo} atualizado para ${fJCV(val)}`);
+function buildAdminTitulos(){
+  document.getElementById('adminTitulosBody').innerHTML=D.titulos.map(t=>`<tr>
+    <td class="mono" style="color:var(--lime)">${t.codigo}</td>
+    <td style="font-size:12px">${t.empresa}</td>
+    <td style="font-size:12px">${t.tipo}</td>
+    <td class="mono">${fJCV(t.capital)}</td>
+    <td class="mono">${t.taxa!==null&&t.taxa!==''?Number(t.taxa).toFixed(2)+'%':'Selic'}</td>
+    <td style="font-size:12px;color:var(--muted)">${t.vencimento}</td>
+    <td><span class="badge" style="background:${t.status==='Ativo'?'var(--green)':'var(--red)'}18;color:${t.status==='Ativo'?'var(--green)':'var(--red)'};">${t.status}</span></td>
+    <td style="display:flex;gap:6px;padding:10px 16px">
+      <button class="btn-edit" onclick="openModal('titulo',${t.id})">✏️ Editar</button>
+      <button class="btn-del" onclick="confirmDelete('titulo',${t.id},'${t.codigo}')">🗑 Excluir</button>
+    </td>
+  </tr>`).join('');
+}
+
+function buildAdminComunicados(){
+  document.getElementById('adminComBody').innerHTML=D.comunicados.map(c=>`<tr>
+    <td style="font-size:12px;color:var(--muted)">${c.data}</td>
+    <td><span class="com-tag ${c.tag}">${c.tagLabel}</span></td>
+    <td style="font-size:13px;font-weight:600;max-width:300px">${c.titulo}</td>
+    <td style="display:flex;gap:6px;padding:10px 16px">
+      <button class="btn-edit" onclick="openModal('comunicado',${c.id})">✏️ Editar</button>
+      <button class="btn-del" onclick="confirmDelete('comunicado',${c.id},'${c.titulo.replace(/'/g,"\\'")}')">🗑 Excluir</button>
+    </td>
+  </tr>`).join('');
+}
+
+function buildAdminPregao(){
+  document.getElementById('adminPregaoBody').innerHTML=D.pregoes.map(p=>`<tr>
+    <td class="mono" style="color:var(--lime)">${p.n}</td>
+    <td class="mono">${p.data}</td>
+    <td style="color:var(--muted)">${p.hora}</td>
+    <td style="font-size:12px">${p.tipo}</td>
+    <td style="font-size:12px">${p.status}</td>
+    <td style="font-size:12px;color:var(--muted)">${p.destaque}</td>
+    <td style="display:flex;gap:6px;padding:10px 16px">
+      <button class="btn-edit" onclick="openModal('pregao',${p.id})">✏️ Editar</button>
+      <button class="btn-del" onclick="confirmDelete('pregao',${p.id},'Pregão nº ${p.n}')">🗑 Excluir</button>
+    </td>
+  </tr>`).join('');
+}
+
+function buildTickerAdmin(){
+  const t=D.ticker;
+  document.getElementById('tickerVisivel').value=t.visivel?'1':'0';
+  document.getElementById('tickerLabelInput').value=t.label;
+  document.getElementById('tickerModo').value=t.modo;
+  document.getElementById('tickerManualText').value=t.manual||'';
+  document.getElementById('tickerManualArea').style.display=t.modo==='manual'?'block':'none';
+  buildTickerPreview();
+}
+
+function buildTickerPreview(){
+  let items='';
+  if(D.ticker.modo==='manual'&&D.ticker.manual){
+    items=D.ticker.manual.split('\n').filter(l=>l.trim()).map(l=>{const p=l.split('|');return `<span class="ti"><span class="ti-name">${(p[0]||'').trim()}</span><span class="ti-val">${(p[1]||'').trim()}</span><span class="ti-chg ${((p[2]||'').trim().startsWith('-'))?'dn':'up'}">${(p[2]||'').trim()}</span></span>`;}).join('');
+  } else {
+    items=D.empresas.map(e=>`<span class="ti"><span class="ti-name">${e.codigo}</span><span class="ti-val">JCV ${(e.valor/1000000).toFixed(2)}M</span><span class="ti-chg ${e.var>=0?'up':'dn'}">${fPct(e.var)}</span></span>`).join('');
   }
+  const el=document.getElementById('tickerPreview');
+  if(el)el.innerHTML=items+items;
 }
 
-function atualizarSelic() {
-  const taxa = parseFloat(document.getElementById('adminSelic').value);
-  const periodo = document.getElementById('adminSelicPeriodo').value;
-  const decisao = document.getElementById('adminDecisao').value;
-  const motivo = document.getElementById('adminMotivo').value;
-  if (!taxa || !periodo) { showToast('⚠️ Preencha todos os campos!'); return; }
-  DATA.selic.atual = taxa;
-  DATA.selic.periodo = periodo;
-  DATA.selic.historico.push({
-    periodo, data: new Date().toLocaleDateString('pt-BR'), taxa, decisao, motivo
-  });
-  buildHome(); buildSelic(); buildTitulos();
-  showToast(`✓ Selic JCV → ${taxa.toFixed(2)}% a.p.`);
+function applyTickerConfig(){
+  const modo=document.getElementById('tickerModo').value;
+  document.getElementById('tickerManualArea').style.display=modo==='manual'?'block':'none';
+  buildTickerPreview();
 }
 
-function publicarComunicado() {
-  const titulo = document.getElementById('adminComTitulo').value;
-  const tag = document.getElementById('adminComTag').value;
-  const corpo = document.getElementById('adminComTexto').value;
-  if (!titulo || !corpo) { showToast('⚠️ Preencha todos os campos!'); return; }
-  const tagLabels = { 'tag-info':'INFO', 'tag-urgente':'URGENTE', 'tag-copom':'COPOM', 'tag-pregao':'PREGÃO' };
-  DATA.comunicados.unshift({
-    titulo, tag, tagLabel: tagLabels[tag],
-    data: new Date().toLocaleDateString('pt-BR'), corpo
-  });
-  buildComunicados();
-  document.getElementById('adminComTitulo').value = '';
-  document.getElementById('adminComTexto').value = '';
-  showToast('✓ Comunicado publicado!');
+function saveTickerConfig(){
+  D.ticker.visivel=document.getElementById('tickerVisivel').value==='1';
+  D.ticker.label=document.getElementById('tickerLabelInput').value||'📊 MERCADO JOVEM';
+  D.ticker.modo=document.getElementById('tickerModo').value;
+  D.ticker.manual=document.getElementById('tickerManualText').value;
+  buildTicker();showToast('✓ Faixa atualizada!');
 }
 
-function emitirTitulo() {
-  const empresa = document.getElementById('adminTitEmpresa').value;
-  const tipo = document.getElementById('adminTitTipo').value;
-  const capital = parseFloat(document.getElementById('adminTitCapital').value);
-  const taxaRaw = document.getElementById('adminTitTaxa').value;
-  const taxa = taxaRaw ? parseFloat(taxaRaw) : null;
-  const prazo = parseInt(document.getElementById('adminTitPrazo').value);
-  const vencimento = document.getElementById('adminTitVenc').value;
-  if (!capital || !prazo || !vencimento) { showToast('⚠️ Preencha os campos!'); return; }
-  const n = DATA.titulos.length + 1;
-  DATA.titulos.push({
-    codigo: `TJV-${String(n).padStart(3,'0')}`,
-    empresa, tipo, capital, taxa, prazo, vencimento, status: 'Ativo'
-  });
-  buildTitulos();
-  document.getElementById('adminTitCapital').value = '';
-  document.getElementById('adminTitTaxa').value = '';
-  document.getElementById('adminTitPrazo').value = '';
-  document.getElementById('adminTitVenc').value = '';
-  showToast('✓ Título TJV emitido!');
+function buildConfigAdmin(){
+  document.getElementById('cfgNomeProjeto').value=D.config.nomeProjeto;
+  document.getElementById('cfgSubtitulo').value=D.config.subtitulo;
+  document.getElementById('cfgHomeSub').value=D.config.homeSub;
+  document.getElementById('cfgAdminUser').value=CRED.user;
 }
 
-// =====================================================
+function saveConfig(){
+  const nome=document.getElementById('cfgNomeProjeto').value;
+  const sub=document.getElementById('cfgSubtitulo').value;
+  const homeSub=document.getElementById('cfgHomeSub').value;
+  const newUser=document.getElementById('cfgAdminUser').value.trim();
+  const newPass=document.getElementById('cfgAdminPass').value;
+  const newPassConf=document.getElementById('cfgAdminPassConf').value;
+  if(newPass&&newPass!==newPassConf){showToast('⚠️ Senhas não coincidem!');return;}
+  D.config.nomeProjeto=nome||D.config.nomeProjeto;
+  D.config.subtitulo=sub||D.config.subtitulo;
+  D.config.homeSub=homeSub||D.config.homeSub;
+  if(newUser)CRED.user=newUser;
+  if(newPass)CRED.pass=newPass;
+  document.querySelector('.logo-text h1').textContent=D.config.nomeProjeto;
+  document.getElementById('headerSubtitle').textContent=D.config.subtitulo;
+  document.getElementById('cfgAdminPass').value='';
+  document.getElementById('cfgAdminPassConf').value='';
+  showToast('✓ Configurações salvas!');
+}
+
+// ══════════════════════════════════════════════════════
+// MODAL FORMS
+// ══════════════════════════════════════════════════════
+let currentModalType='';
+let currentModalId=null;
+
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
+
+function openModal(type, id=null){
+  currentModalType=type;currentModalId=id;
+  const overlay=document.getElementById('modalOverlay');
+  const titles={empresa:'empresa',selic:'decisão COPOM',titulo:'título TJV',comunicado:'comunicado',pregao:'pregão'};
+  document.getElementById('modalTitle').textContent=(id?'Editar ':'Novo ')+(titles[type]||type);
+  document.getElementById('modalBody').innerHTML=getFormHTML(type,id);
+  document.getElementById('modalSaveBtn').onclick=()=>saveModal(type,id);
+  overlay.classList.add('show');
+}
+
+function getFormHTML(type,id){
+  if(type==='empresa'){
+    const e=id?D.empresas.find(x=>x.id===id):{};
+    return `<div class="form-row">
+      <div class="form-group"><label>Código</label><input id="f_codigo" value="${e.codigo||''}" placeholder="BAN1"/></div>
+      <div class="form-group"><label>Turma</label><input id="f_turma" value="${e.turma||''}" placeholder="3º Ano A"/></div>
+    </div>
+    <div class="form-group form-row full"><div class="form-group"><label>Nome da Empresa</label><input id="f_nome" value="${e.nome||''}" placeholder="Banco Alfa S.A."/></div></div>
+    <div class="form-row">
+      <div class="form-group"><label>Setor</label>
+        <select id="f_setor">${['Banco','Seguradora','Tecnologia','Alimentos','Saneamento','Energia','Varejo','Transporte','Asset Mgmt','Com. Exterior'].map(s=>`<option ${e.setor===s?'selected':''}>${s}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>CEO (Nome)</label><input id="f_ceo" value="${e.ceo||''}" placeholder="Nome do aluno"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Valor Total (JCV)</label><input id="f_valor" type="number" value="${e.valor||1000000}"/></div>
+      <div class="form-group"><label>Total de Cotas</label><input id="f_cotas" type="number" value="${e.cotas||1000000}"/></div>
+    </div>
+    <div class="form-group"><label>Variação % (ex: 5.2 ou -3.1)</label><input id="f_var" type="number" step="0.1" value="${e.var||0}"/></div>`;
+  }
+  if(type==='selic'){
+    const h=id?D.selic.historico.find(x=>x.id===id):{};
+    return `<div class="form-row">
+      <div class="form-group"><label>Período</label><input id="f_periodo" value="${h.periodo||''}" placeholder="Bimestre 3"/></div>
+      <div class="form-group"><label>Data (dd/mm/aaaa)</label><input id="f_data" value="${h.data||''}" placeholder="01/08/2026"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Taxa Selic JCV (% a.p.)</label><input id="f_taxa" type="number" step="0.1" value="${h.taxa||''}" placeholder="3.5"/></div>
+      <div class="form-group"><label>Decisão COPOM</label>
+        <select id="f_decisao"><option ${h.decisao==='Alta'?'selected':''}>Alta</option><option ${h.decisao==='Manutenção'?'selected':''}>Manutenção</option><option ${h.decisao==='Baixa'?'selected':''}>Baixa</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Motivo da Decisão</label><input id="f_motivo" value="${h.motivo||''}" placeholder="ex: Controle da inflação JCV"/></div>
+    <div class="form-group"><label>Próximo COPOM</label><input id="f_proximoCopom" value="${h.proximoCopom||''}" placeholder="Bimestre 4"/></div>`;
+  }
+  if(type==='titulo'){
+    const t=id?D.titulos.find(x=>x.id===id):{};
+    const empOpts=D.empresas.map(e=>`<option ${t.empresa===e.nome?'selected':''}>${e.nome}</option>`).join('');
+    return `<div class="form-row">
+      <div class="form-group"><label>Empresa Compradora</label><select id="f_empresa">${empOpts}</select></div>
+      <div class="form-group"><label>Tipo</label>
+        <select id="f_tipo"><option ${t.tipo==='Prefixado'?'selected':''}>Prefixado</option><option ${t.tipo==='Pós-fixado (Selic)'?'selected':''}>Pós-fixado (Selic)</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Capital (JCV)</label><input id="f_capital" type="number" value="${t.capital||''}" placeholder="10000"/></div>
+      <div class="form-group"><label>Taxa % a.p. (vazio = Selic vigente)</label><input id="f_taxa" type="number" step="0.1" value="${t.taxa||''}" placeholder="Selic vigente"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Prazo (bimestres)</label><input id="f_prazo" type="number" value="${t.prazo||''}" placeholder="2"/></div>
+      <div class="form-group"><label>Vencimento (dd/mm/aaaa)</label><input id="f_vencimento" value="${t.vencimento||''}" placeholder="01/10/2026"/></div>
+    </div>
+    <div class="form-group"><label>Status</label>
+      <select id="f_status"><option ${t.status==='Ativo'?'selected':''}>Ativo</option><option ${t.status==='Vencido'?'selected':''}>Vencido</option><option ${t.status==='Resgatado'?'selected':''}>Resgatado</option></select>
+    </div>`;
+  }
+  if(type==='comunicado'){
+    const c=id?D.comunicados.find(x=>x.id===id):{};
+    const tagOpts=[['tag-info','INFO',''],['tag-copom','COPOM','copom'],['tag-urgente','URGENTE','urgente'],['tag-pregao','PREGÃO','pregao']];
+    return `<div class="form-group"><label>Título</label><input id="f_titulo" value="${c.titulo||''}" placeholder="Título do comunicado"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Categoria</label>
+        <select id="f_tag">${tagOpts.map(([tag,lbl])=>`<option value="${tag}" ${c.tag===tag?'selected':''}>${lbl}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>Data (dd/mm/aaaa)</label><input id="f_data" value="${c.data||''}" placeholder="01/06/2026"/></div>
+    </div>
+    <div class="form-group"><label>Texto do comunicado</label><textarea id="f_corpo" rows="5">${c.corpo||''}</textarea></div>`;
+  }
+  if(type==='pregao'){
+    const p=id?D.pregoes.find(x=>x.id===id):{};
+    return `<div class="form-row">
+      <div class="form-group"><label>Número do Pregão</label><input id="f_n" type="number" value="${p.n||D.pregoes.length+1}"/></div>
+      <div class="form-group"><label>Data (dd/mm/aaaa)</label><input id="f_data" value="${p.data||''}" placeholder="15/08/2026"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Horário</label><input id="f_hora" value="${p.hora||''}" placeholder="14h – 16h"/></div>
+      <div class="form-group"><label>Tipo</label>
+        <select id="f_tipo"><option ${p.tipo==='Regular'?'selected':''}>Regular</option><option ${p.tipo==='Especial (Final)'?'selected':''}>Especial (Final)</option><option ${p.tipo==='Extraordinário'?'selected':''}>Extraordinário</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Status</label>
+        <select id="f_status"><option ${p.status==='Agendado'?'selected':''}>Agendado</option><option ${p.status==='Próximo'?'selected':''}>Próximo</option><option ${p.status==='Encerrado'?'selected':''}>Encerrado</option></select>
+      </div>
+      <div class="form-group"><label>Destaque (texto livre)</label><input id="f_destaque" value="${p.destaque||''}" placeholder="ex: Volume: JCV 42.500"/></div>
+    </div>`;
+  }
+  return '';
+}
+
+function g(id){const el=document.getElementById(id);return el?el.value:'';}
+
+function saveModal(type,id){
+  if(type==='empresa'){
+    const obj={id:id||D.nextId.empresa++,codigo:g('f_codigo').toUpperCase(),nome:g('f_nome'),setor:g('f_setor'),turma:g('f_turma'),valor:parseFloat(g('f_valor'))||1000000,cotas:parseFloat(g('f_cotas'))||1000000,ceo:g('f_ceo'),var:parseFloat(g('f_var'))||0,hist:id?(D.empresas.find(x=>x.id===id).hist):[100]};
+    if(!obj.codigo||!obj.nome){showToast('⚠️ Código e nome são obrigatórios!');return;}
+    if(id){const i=D.empresas.findIndex(x=>x.id===id);D.empresas[i]={...D.empresas[i],...obj};}
+    else D.empresas.push(obj);
+    buildAdminEmpresas();buildTicker();showToast(id?'✓ Empresa atualizada!':'✓ Empresa cadastrada!');
+  }
+  else if(type==='selic'){
+    const taxa=parseFloat(g('f_taxa'));
+    if(!taxa){showToast('⚠️ Informe a taxa!');return;}
+    const obj={id:id||D.nextId.selic++,periodo:g('f_periodo'),data:g('f_data')||new Date().toLocaleDateString('pt-BR'),taxa,decisao:g('f_decisao'),motivo:g('f_motivo'),proximoCopom:g('f_proximoCopom')};
+    if(id){const i=D.selic.historico.findIndex(x=>x.id===id);D.selic.historico[i]=obj;}
+    else D.selic.historico.push(obj);
+    D.selic.atual=taxa;
+    buildAdminSelic();showToast(id?'✓ Decisão COPOM atualizada!':'✓ Nova Selic publicada!');
+  }
+  else if(type==='titulo'){
+    const cap=parseFloat(g('f_capital'));
+    if(!cap){showToast('⚠️ Informe o capital!');return;}
+    const taxaRaw=g('f_taxa');const n=D.titulos.length+1;
+    const obj={id:id||D.nextId.titulo++,codigo:id?(D.titulos.find(x=>x.id===id).codigo):`TJV-${String(n).padStart(3,'0')}`,empresa:g('f_empresa'),tipo:g('f_tipo'),capital:cap,taxa:taxaRaw?parseFloat(taxaRaw):null,prazo:parseInt(g('f_prazo'))||1,vencimento:g('f_vencimento'),status:g('f_status')};
+    if(id){const i=D.titulos.findIndex(x=>x.id===id);D.titulos[i]=obj;}
+    else D.titulos.push(obj);
+    buildAdminTitulos();showToast(id?'✓ Título atualizado!':'✓ Título emitido!');
+  }
+  else if(type==='comunicado'){
+    const titulo=g('f_titulo'),corpo=g('f_corpo');
+    if(!titulo||!corpo){showToast('⚠️ Preencha título e texto!');return;}
+    const tag=g('f_tag');const labels={'tag-info':'INFO','tag-urgente':'URGENTE','tag-copom':'COPOM','tag-pregao':'PREGÃO'};const tipos={'tag-info':'','tag-urgente':'urgente','tag-copom':'copom','tag-pregao':'pregao'};
+    const obj={id:id||D.nextId.comunicado++,titulo,tag,tagLabel:labels[tag],tipo:tipos[tag],data:g('f_data')||new Date().toLocaleDateString('pt-BR'),corpo};
+    if(id){const i=D.comunicados.findIndex(x=>x.id===id);D.comunicados[i]=obj;}
+    else D.comunicados.unshift(obj);
+    buildAdminComunicados();showToast(id?'✓ Comunicado atualizado!':'✓ Comunicado publicado!');
+  }
+  else if(type==='pregao'){
+    const obj={id:id||D.nextId.pregao++,n:parseInt(g('f_n'))||D.pregoes.length+1,data:g('f_data'),hora:g('f_hora'),tipo:g('f_tipo'),status:g('f_status'),destaque:g('f_destaque')};
+    if(!obj.data){showToast('⚠️ Informe a data!');return;}
+    if(id){const i=D.pregoes.findIndex(x=>x.id===id);D.pregoes[i]=obj;}
+    else D.pregoes.push(obj);
+    buildAdminPregao();showToast(id?'✓ Pregão atualizado!':'✓ Pregão agendado!');
+  }
+  closeModal();
+}
+
+// ══════════════════════════════════════════════════════
+// CONFIRM DELETE
+// ══════════════════════════════════════════════════════
+let pendingDelete={type:null,id:null};
+function confirmDelete(type,id,name){
+  pendingDelete={type,id};
+  document.getElementById('confirmMsg').textContent=`Deseja excluir "${name}"? Esta ação não pode ser desfeita.`;
+  document.getElementById('confirmYes').onclick=executeDelete;
+  document.getElementById('confirmOverlay').classList.add('show');
+}
+function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('show');pendingDelete={type:null,id:null};}
+function executeDelete(){
+  const {type,id}=pendingDelete;
+  if(type==='empresa'){D.empresas=D.empresas.filter(x=>x.id!==id);buildAdminEmpresas();buildTicker();showToast('🗑 Empresa removida.');}
+  else if(type==='selic'){D.selic.historico=D.selic.historico.filter(x=>x.id!==id);buildAdminSelic();showToast('🗑 Decisão removida.');}
+  else if(type==='titulo'){D.titulos=D.titulos.filter(x=>x.id!==id);buildAdminTitulos();showToast('🗑 Título removido.');}
+  else if(type==='comunicado'){D.comunicados=D.comunicados.filter(x=>x.id!==id);buildAdminComunicados();showToast('🗑 Comunicado removido.');}
+  else if(type==='pregao'){D.pregoes=D.pregoes.filter(x=>x.id!==id);buildAdminPregao();showToast('🗑 Pregão removido.');}
+  closeConfirm();
+}
+
+// ══════════════════════════════════════════════════════
 // NAVIGATION
-// =====================================================
-const builders = {
-  home: buildHome, empresas: buildEmpresas, selic: buildSelic,
-  titulos: buildTitulos, comunicados: buildComunicados,
-  pregao: buildPregao, admin: buildAdmin
-};
-
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  event.target.classList.add('active');
-  if (builders[id]) builders[id]();
+// ══════════════════════════════════════════════════════
+const builders={home:buildHome,empresas:buildEmpresas,selic:buildSelic,titulos:buildTitulos,comunicados:buildComunicados,pregao:buildPregao};
+function showPage(id,btn){
+  if(id==='admin'&&!isAdmin){openLogin();return;}
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(builders[id])builders[id]();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// =====================================================
+// ══════════════════════════════════════════════════════
 // INIT
-// =====================================================
+// ══════════════════════════════════════════════════════
 buildHome();
 </script>
 </body>
