@@ -779,6 +779,29 @@ async function saveTicker(){const u={ticker_visivel:g('tVis')==='1',ticker_label
 
 async function saveConfig(){const nome=g('cNome'),sub=g('cSub'),hSub=g('cHSub'),nu=g('cUser').trim(),np=g('cPass'),npc=g('cPassC');if(np&&np!==npc){toast('⚠️ Senhas não coincidem!',true);return;}const u={};if(nome)u.nome_projeto=nome;if(sub)u.subtitulo=sub;if(hSub)u.home_sub=hSub;const{error}=await sb.from('config').update(u).eq('id',1);if(error){toast('⚠️ Erro ao salvar.',true);return;}C.config={...C.config,...u};if(nu)CRED.user=nu;if(np)CRED.pass=np;applyConfig();document.getElementById('cPass').value='';document.getElementById('cPassC').value='';toast('✓ Configurações salvas!');}
 
+// AUTO VARIAÇÃO
+function autoCalcVar(valorAnterior){
+  if(!valorAnterior) return;
+  const novoValor=parseFloat(document.getElementById('f5')?.value)||0;
+  if(!novoValor||novoValor<=0) return;
+  const variacao=((novoValor-valorAnterior)/valorAnterior)*100;
+  const f7=document.getElementById('f7');
+  const badge=document.getElementById('varBadge');
+  const msg=document.getElementById('varMsg');
+  if(f7) f7.value=variacao.toFixed(2);
+  if(badge){
+    const up=variacao>=0;
+    badge.style.color=up?'var(--green)':'var(--red)';
+    badge.textContent=`${up?'▲':'▼'} ${Math.abs(variacao).toFixed(2)}%`;
+  }
+  if(msg){
+    const up=variacao>=0;
+    const diff=Math.abs(novoValor-valorAnterior);
+    msg.style.color=up?'var(--green)':'var(--red)';
+    msg.textContent=`${up?'▲ Alta':'▼ Queda'} de JCV ${diff.toLocaleString('pt-BR',{minimumFractionDigits:2})} em relação ao período anterior`;
+  }
+}
+
 // MODAL
 let mT='',mId=null;
 function closeModal(){document.getElementById('mOv').classList.remove('show');}
@@ -793,7 +816,46 @@ function openM(type,id=null){
 
 function getForm(type,id){
   const q=(arr,id,key='id')=>id?arr.find(x=>x[key]===id):{};
-  if(type==='empresa'){const e=q(C.empresas,id);return `<div class="fr"><div class="fg"><label>Código</label><input id="f0" value="${e.codigo||''}" placeholder="BAN1"/></div><div class="fg"><label>Turma</label><input id="f1" value="${e.turma||''}" placeholder="3º Ano A"/></div></div><div class="fg"><label>Nome da Empresa</label><input id="f2" value="${e.nome||''}" placeholder="Banco Alfa S.A."/></div><div class="fr"><div class="fg"><label>Setor</label><select id="f3">${['Banco','Seguradora','Tecnologia','Alimentos','Saneamento','Energia','Varejo','Transporte','Asset Mgmt','Com. Exterior'].map(s=>`<option ${e.setor===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="fg"><label>CEO</label><input id="f4" value="${e.ceo||''}" placeholder="Nome do aluno"/></div></div><div class="fr"><div class="fg"><label>Valor Total (JCV)</label><input id="f5" type="number" value="${e.valor||1000000}"/></div><div class="fg"><label>Total de Cotas</label><input id="f6" type="number" value="${e.cotas||1000000}"/></div></div><div class="fg"><label>Variação % (ex: 5.2 ou -3.1)</label><input id="f7" type="number" step="0.1" value="${e.variacao||0}"/></div>`;}
+  if(type==='empresa'){
+    const e=q(C.empresas,id);
+    const valorAnterior=id?(e.valor||1000000):null;
+    const isEdit=!!id;
+    return `
+      <div class="fr">
+        <div class="fg"><label>Código</label><input id="f0" value="${e.codigo||''}" placeholder="BAN1"/></div>
+        <div class="fg"><label>Turma</label><input id="f1" value="${e.turma||''}" placeholder="3º Ano A"/></div>
+      </div>
+      <div class="fg"><label>Nome da Empresa</label><input id="f2" value="${e.nome||''}" placeholder="Banco Alfa S.A."/></div>
+      <div class="fr">
+        <div class="fg"><label>Setor</label><select id="f3">${['Banco','Seguradora','Tecnologia','Alimentos','Saneamento','Energia','Varejo','Transporte','Asset Mgmt','Com. Exterior'].map(s=>`<option ${e.setor===s?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="fg"><label>CEO</label><input id="f4" value="${e.ceo||''}" placeholder="Nome do aluno"/></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Valor Total (JCV)</label>
+          <input id="f5" type="number" value="${e.valor||1000000}"
+            oninput="autoCalcVar(${valorAnterior})"
+            style="border-color:var(--lime)"/>
+          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-top:4px">
+            ${isEdit?`Valor anterior: <strong style="color:var(--navy)">${Number(valorAnterior).toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong>`:'Novo cadastro — variação = 0%'}
+          </div>
+        </div>
+        <div class="fg"><label>Total de Cotas</label><input id="f6" type="number" value="${e.cotas||1000000}"/></div>
+      </div>
+      <div class="fg">
+        <label>Variação % <span style="font-weight:400;color:var(--lime);font-size:10px">— calculada automaticamente</span></label>
+        <div style="position:relative">
+          <input id="f7" type="number" step="0.01" value="${e.variacao||0}" readonly
+            style="background:var(--off);cursor:default;font-weight:700;padding-right:110px"
+            title="Calculado automaticamente com base no novo valor"/>
+          <div id="varBadge" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${Number(e.variacao||0)>=0?'var(--green)':'var(--red)'}">
+            ${Number(e.variacao||0)>=0?'▲':'▼'} ${Math.abs(Number(e.variacao||0)).toFixed(2)}%
+          </div>
+        </div>
+        <div id="varMsg" style="font-size:11px;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace">
+          ${isEdit?'Digite o novo valor acima para recalcular automaticamente':''}
+        </div>
+      </div>`;
+  }
   if(type==='selic'){const h=q(C.selic,id);return `<div class="fr"><div class="fg"><label>Período</label><input id="f0" value="${h.periodo||''}" placeholder="Bimestre 3"/></div><div class="fg"><label>Data (dd/mm/aaaa)</label><input id="f1" value="${h.data||''}" placeholder="01/08/2026"/></div></div><div class="fr"><div class="fg"><label>Taxa Selic JCV (% a.p.)</label><input id="f2" type="number" step="0.1" value="${h.taxa||''}" placeholder="3.5"/></div><div class="fg"><label>Decisão COPOM</label><select id="f3"><option ${h.decisao==='Alta'?'selected':''}>Alta</option><option ${h.decisao==='Manutenção'?'selected':''}>Manutenção</option><option ${h.decisao==='Baixa'?'selected':''}>Baixa</option></select></div></div><div class="fg"><label>Motivo da Decisão</label><input id="f4" value="${h.motivo||''}" placeholder="ex: Controle da inflação"/></div><div class="fg"><label>Próximo COPOM</label><input id="f5" value="${h.proximo_copom||''}" placeholder="Bimestre 4"/></div>`;}
   if(type==='titulo'){const t=q(C.titulos,id);const opts=C.empresas.map(e=>`<option ${t.empresa===e.nome?'selected':''}>${e.nome}</option>`).join('');return `<div class="fr"><div class="fg"><label>Empresa Compradora</label><select id="f0">${opts||'<option>Cadastre uma empresa primeiro</option>'}</select></div><div class="fg"><label>Tipo</label><select id="f1"><option ${t.tipo==='Prefixado'?'selected':''}>Prefixado</option><option ${t.tipo==='Pós-fixado (Selic)'?'selected':''}>Pós-fixado (Selic)</option></select></div></div><div class="fr"><div class="fg"><label>Capital (JCV)</label><input id="f2" type="number" value="${t.capital||''}" placeholder="10000"/></div><div class="fg"><label>Taxa % a.p. (vazio = Selic)</label><input id="f3" type="number" step="0.1" value="${t.taxa||''}" placeholder="Selic vigente"/></div></div><div class="fr"><div class="fg"><label>Prazo (bimestres)</label><input id="f4" type="number" value="${t.prazo||''}" placeholder="2"/></div><div class="fg"><label>Vencimento (dd/mm/aaaa)</label><input id="f5" value="${t.vencimento||''}" placeholder="01/10/2026"/></div></div><div class="fg"><label>Status</label><select id="f6"><option ${t.status==='Ativo'?'selected':''}>Ativo</option><option ${t.status==='Vencido'?'selected':''}>Vencido</option><option ${t.status==='Resgatado'?'selected':''}>Resgatado</option></select></div>`;}
   if(type==='comunicado'){const c=q(C.comunicados,id);const to=[['tag-info','INFO'],['tag-copom','COPOM'],['tag-urgente','URGENTE'],['tag-pregao','PREGÃO']];return `<div class="fg"><label>Título</label><input id="f0" value="${c.titulo||''}" placeholder="Título do comunicado"/></div><div class="fr"><div class="fg"><label>Categoria</label><select id="f1">${to.map(([tag,lbl])=>`<option value="${tag}" ${c.tag===tag?'selected':''}>${lbl}</option>`).join('')}</select></div><div class="fg"><label>Data (dd/mm/aaaa)</label><input id="f2" value="${c.data||''}" placeholder="01/06/2026"/></div></div><div class="fg"><label>Texto do comunicado</label><textarea id="f3" rows="5">${c.corpo||''}</textarea></div>`;}
