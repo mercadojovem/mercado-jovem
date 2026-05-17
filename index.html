@@ -210,6 +210,7 @@ footer strong{color:var(--navy)}
   header,main,nav{padding-left:16px;padding-right:16px}
   .sr{grid-template-columns:1fr 1fr}.cg{grid-template-columns:1fr}.sh{flex-direction:column}.ts{grid-template-columns:1fr}
   .aw{grid-template-columns:1fr}.fr{grid-template-columns:1fr}
+  #titTribGrid{grid-template-columns:1fr!important}
 }
 </style>
 </head>
@@ -296,10 +297,128 @@ footer strong{color:var(--navy)}
 </div>
 
 <div class="pg" id="pg-titulos">
-  <div class="st">Títulos TJV</div><div class="ss">Títulos emitidos pelo Banco Central do Mercado Jovem</div>
+  <div class="st">Títulos Públicos JCV</div>
+  <div class="ss">Condições de emissão, tributação e simulador de rendimento — Banco Central do Mercado Jovem</div>
+
+  <!-- RESUMO GERAL -->
   <div class="ts" id="titSt"></div>
-  <div class="tw"><div class="th"><h3>📋 Títulos Emitidos</h3></div>
-  <table><thead><tr><th>Código</th><th>Empresa</th><th>Tipo</th><th>Capital (JCV)</th><th>Taxa</th><th>Prazo</th><th>Vencimento</th><th>Rendimento (JCV)</th><th>Status</th></tr></thead><tbody id="titB"></tbody></table></div>
+
+  <!-- FAIXAS DE RENTABILIDADE -->
+  <div class="tw" style="margin-bottom:28px">
+    <div class="th"><h3>📊 Rentabilidade Escalonada por Volume de Aporte</h3><span>Quanto maior o aporte, maior a taxa obtida</span></div>
+    <table>
+      <thead><tr><th>Faixa</th><th>Volume de Aporte</th><th>TJV-PÓS-01 (Pós-fixado)</th><th>TJV-PRÉ-01 (Prefixado)</th><th>Quem acessa</th><th>Diferencial</th></tr></thead>
+      <tbody id="titFaixasB"></tbody>
+    </table>
+    <div style="padding:12px 20px;background:rgba(106,191,46,.07);border-top:1px solid var(--border);font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">
+      ★ Faixa 4: única faixa com rentabilidade ACIMA da Selic — exclusiva para bancos e fundos com aporte superior a JCV 2.000.000. Permite revenda no mercado secundário.
+    </div>
+  </div>
+
+  <!-- SISTEMA TRIBUTÁRIO -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px" id="titTribGrid">
+
+    <div class="tw" style="margin-bottom:0">
+      <div class="th"><h3>🏛️ IRJCV — Imposto de Renda JCV</h3><span>Tabela regressiva por prazo</span></div>
+      <table>
+        <thead><tr><th>Prazo</th><th>Bimestres</th><th>Alíquota</th><th>Impacto</th></tr></thead>
+        <tbody id="titIrjcvB"></tbody>
+      </table>
+      <div style="padding:10px 16px;background:var(--off);font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;border-top:1px solid var(--border)">
+        ℹ️ Incide apenas sobre o rendimento bruto — nunca sobre o capital investido.
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="tw" style="margin-bottom:0;flex:1">
+        <div class="th"><h3>⚡ IOF-JCV</h3><span>Resgate antecipado</span></div>
+        <table>
+          <thead><tr><th>Situação</th><th>Alíquota</th></tr></thead>
+          <tbody>
+            <tr><td style="font-size:12px">Antes de 30 dias</td><td class="mn" style="color:var(--red)">5,0%</td></tr>
+            <tr><td style="font-size:12px">Entre 30–60 dias</td><td class="mn" style="color:var(--red)">2,0%</td></tr>
+            <tr><td style="font-size:12px">No vencimento</td><td class="mn" style="color:var(--green);font-weight:700">ISENTO ✓</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tw" style="margin-bottom:0;flex:1">
+        <div class="th"><h3>🏦 ISS-JCV</h3><span>Intermediação financeira</span></div>
+        <table>
+          <thead><tr><th>Base de Cálculo</th><th>Alíquota</th></tr></thead>
+          <tbody>
+            <tr><td style="font-size:12px">Spread líquido da revenda</td><td class="mn" style="color:var(--navy);font-weight:700">5,0%</td></tr>
+            <tr><td style="font-size:12px;color:var(--muted);font-style:italic" colspan="2">Cobrado dos bancos e fundos no mercado secundário</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMULADOR -->
+  <div class="tw" style="margin-bottom:28px">
+    <div class="th"><h3>🧮 Simulador de Rendimento Líquido</h3><span>Calcule o retorno do seu investimento após impostos</span></div>
+    <div style="padding:24px 28px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+        <div>
+          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Tipo de Título</div>
+          <select id="simTipo" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;outline:none">
+            <option value="pos">TJV-PÓS-01 (Pós-fixado)</option>
+            <option value="pre">TJV-PRÉ-01 (Prefixado)</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Capital a Investir (JCV)</div>
+          <input id="simCapital" type="number" value="100000" oninput="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;outline:none"/>
+        </div>
+        <div>
+          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Prazo (bimestres)</div>
+          <select id="simPrazo" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;outline:none">
+            <option value="1">1 bimestre</option>
+            <option value="2" selected>2 bimestres</option>
+            <option value="3">3 bimestres</option>
+            <option value="4">4 bimestres</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Resgate Antecipado?</div>
+          <select id="simAntec" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;outline:none">
+            <option value="0">Não (no vencimento)</option>
+            <option value="1">Sim (antes de 30 dias)</option>
+            <option value="2">Sim (entre 30–60 dias)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- RESULTADO SIMULADOR -->
+      <div id="simResult" style="background:var(--navy);border-radius:14px;padding:24px 28px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-radius:10px;overflow:hidden">
+          <div style="background:rgba(255,255,255,.05);padding:18px 20px;border-right:1px solid rgba(255,255,255,.08)">
+            <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Faixa Detectada</div>
+            <div id="simFaixa" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:#fff">—</div>
+          </div>
+          <div style="background:rgba(255,255,255,.05);padding:18px 20px;border-right:1px solid rgba(255,255,255,.08)">
+            <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Taxa Bruta (a.p.)</div>
+            <div id="simTaxa" style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:22px;color:var(--lime2)">—</div>
+          </div>
+          <div style="background:rgba(255,255,255,.05);padding:18px 20px;border-right:1px solid rgba(255,255,255,.08)">
+            <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Total de Impostos</div>
+            <div id="simImp" style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:18px;color:#FF9090">—</div>
+          </div>
+          <div style="background:rgba(106,191,46,.12);padding:18px 20px">
+            <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--lime);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Resgate Total Líquido</div>
+            <div id="simLiq" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:var(--lime2)">—</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px" id="simDetalhes"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTAL EMITIDO (sem detalhe por empresa) -->
+  <div class="tw" style="margin-bottom:0">
+    <div class="th"><h3>📈 Emissões em Andamento</h3><span>Volume total de títulos TJV ativos no mercado</span></div>
+    <div id="titResumoEmissao" style="padding:24px 28px"></div>
+  </div>
 </div>
 
 <div class="pg" id="pg-comunicados">
@@ -493,9 +612,131 @@ function buildSelic(){
 
 function buildTitulos(){
   const hist=C.selic,ls=hist.length?hist[hist.length-1]:null,taxa=ls?Number(ls.taxa):0,tits=C.titulos;
-  const totC=tits.reduce((a,t)=>a+Number(t.capital),0),totR=tits.reduce((a,t)=>{const tx=t.taxa!==null&&t.taxa!==''?Number(t.taxa):taxa;return a+Number(t.capital)*(tx/100)*(t.prazo||1);},0);
-  document.getElementById('titSt').innerHTML=`<div class="tc"><div class="tt">Volume Total</div><div class="tv">${fJ(totC)}</div><div class="tr2"><span>Títulos</span><strong>${tits.length}</strong></div></div><div class="tc"><div class="tt">Juros a Pagar</div><div class="tv" style="color:var(--green)">${fJ(totR)}</div><div class="tr2"><span>Obrigação BC</span><strong>a vencer</strong></div></div><div class="tc"><div class="tt">Selic Vigente</div><div class="tv" style="color:var(--lime)">${taxa.toFixed(1)}%</div><div class="tr2"><span>pós-fixado</span><strong>a.p.</strong></div></div>`;
-  document.getElementById('titB').innerHTML=tits.map(t=>{const tx=t.taxa!==null&&t.taxa!==''?Number(t.taxa):taxa;const rend=Number(t.capital)*(tx/100)*(t.prazo||1);const sc=t.status==='Ativo'?'var(--green)':t.status==='Vencido'?'var(--red)':'var(--lime)';return `<tr><td class="mn" style="color:var(--lime)">${t.codigo}</td><td>${t.empresa}</td><td><span class="bdg ne">${t.tipo}</span></td><td class="mn">${fJ(t.capital)}</td><td class="mn">${tx.toFixed(2)}% a.p.</td><td class="mn">${t.prazo} bim.</td><td style="color:var(--muted)">${t.vencimento}</td><td class="mn" style="color:var(--green)">${fJ(rend)}</td><td><span class="bdg" style="background:${sc}18;color:${sc};border:1px solid ${sc}33">${t.status}</span></td></tr>`;}).join('')||'<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted)">Nenhum título emitido.</td></tr>';
+  const totC=tits.reduce((a,t)=>a+Number(t.capital),0);
+  const totR=tits.reduce((a,t)=>{const tx=t.taxa!==null&&t.taxa!==''?Number(t.taxa):taxa;return a+Number(t.capital)*(tx/100)*(t.prazo||1);},0);
+  const totLiq=tits.reduce((a,t)=>{
+    const tx=t.taxa!==null&&t.taxa!==''?Number(t.taxa):taxa;
+    const rB=Number(t.capital)*(tx/100)*(t.prazo||1);
+    const irAliq=t.prazo>=4?0.125:t.prazo===3?0.15:t.prazo===2?0.175:0.20;
+    return a+rB*(1-irAliq);
+  },0);
+
+  // STAT CARDS
+  document.getElementById('titSt').innerHTML=`
+    <div class="tc"><div class="tt">Volume Total Emitido</div><div class="tv">${fJ(totC)}</div><div class="tr2"><span>Títulos ativos</span><strong>${tits.length}</strong></div></div>
+    <div class="tc"><div class="tt">Rendimento Bruto Total</div><div class="tv" style="color:var(--muted)">${fJ(totR)}</div><div class="tr2"><span>Antes de impostos</span><strong>a vencer</strong></div></div>
+    <div class="tc"><div class="tt">Rendimento Líquido Total</div><div class="tv" style="color:var(--green)">${fJ(totLiq)}</div><div class="tr2"><span>Após IRJCV</span><strong>estimado</strong></div></div>`;
+
+  // FAIXAS
+  const faixas=[
+    {f:'Faixa 1',min:'Até JCV 500.000',pos:(taxa-0.005)*100,pre:(taxa-0.0075)*100,quem:'Qualquer empresa',star:false},
+    {f:'Faixa 2',min:'JCV 500K a 1MM',pos:(taxa-0.0025)*100,pre:(taxa-0.005)*100,quem:'Empresas médias',star:false},
+    {f:'Faixa 3',min:'JCV 1MM a 2MM',pos:taxa*100,pre:(taxa-0.0025)*100,quem:'Bancos e Fundos',star:false},
+    {f:'Faixa 4 ★',min:'Acima de JCV 2MM',pos:(taxa+0.0025)*100,pre:taxa*100,quem:'Exclusivo: Bancos/Fundos',star:true},
+  ];
+  document.getElementById('titFaixasB').innerHTML=faixas.map((f,i)=>{
+    const bg=f.star?'rgba(106,191,46,.08)':'';
+    const nm=f.star?`<strong style="color:var(--lime)">${f.f}</strong>`:f.f;
+    const diff=f.star?`<span class="bdg up">+${(f.pos-taxa*100).toFixed(2)} p.p.</span>`:`<span style="font-size:11px;color:var(--muted)">—</span>`;
+    return `<tr style="background:${bg}">
+      <td class="mn" style="font-weight:700">${nm}</td>
+      <td style="font-size:12px">${f.min}</td>
+      <td class="mn" style="color:${f.star?'var(--lime)':'var(--text)'};font-weight:${f.star?700:400}">${f.pos.toFixed(2)}% a.p.</td>
+      <td class="mn" style="color:${f.star?'var(--lime)':'var(--text)'};font-weight:${f.star?700:400}">${f.pre.toFixed(2)}% a.p.</td>
+      <td style="font-size:12px;color:var(--muted)">${f.quem}</td>
+      <td>${diff}</td>
+    </tr>`;
+  }).join('');
+
+  // IRJCV
+  const irRows=[
+    {nome:'Curto Prazo',bim:'1',aliq:'20,0%',imp:'Menor rendimento líquido',cor:'var(--red)'},
+    {nome:'Médio Prazo',bim:'2',aliq:'17,5%',imp:'Intermediário',cor:'var(--muted)'},
+    {nome:'Longo Prazo',bim:'3',aliq:'15,0%',imp:'Melhor custo-benefício',cor:'var(--green)'},
+    {nome:'Longo Prazo +',bim:'4+',aliq:'12,5%',imp:'Maior benefício tributário',cor:'var(--green)'},
+  ];
+  document.getElementById('titIrjcvB').innerHTML=irRows.map(r=>`<tr>
+    <td style="font-size:12px;font-weight:600">${r.nome}</td>
+    <td class="mn" style="color:var(--muted)">${r.bim}</td>
+    <td class="mn" style="color:${r.cor};font-weight:700">${r.aliq}</td>
+    <td style="font-size:12px;color:var(--muted)">${r.imp}</td>
+  </tr>`).join('');
+
+  // RESUMO EMISSÃO (sem detalhar por empresa)
+  const porTipo={pos:{count:0,vol:0},pre:{count:0,vol:0}};
+  tits.forEach(t=>{
+    if(t.tipo&&t.tipo.includes('Pós')){porTipo.pos.count++;porTipo.pos.vol+=Number(t.capital);}
+    else{porTipo.pre.count++;porTipo.pre.vol+=Number(t.capital);}
+  });
+  document.getElementById('titResumoEmissao').innerHTML=tits.length?`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div style="background:var(--off);border-radius:12px;padding:18px 20px;border:1px solid var(--border)">
+        <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">TJV-PÓS-01 (Pós-fixado)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--navy)">${fJ(porTipo.pos.vol)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">${porTipo.pos.count} subscrição(ões)</div>
+      </div>
+      <div style="background:var(--off);border-radius:12px;padding:18px 20px;border:1px solid var(--border)">
+        <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">TJV-PRÉ-01 (Prefixado)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--navy)">${fJ(porTipo.pre.vol)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">${porTipo.pre.count} subscrição(ões)</div>
+      </div>
+      <div style="background:var(--navy);border-radius:12px;padding:18px 20px">
+        <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Volume Total Emitido</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:var(--lime2)">${fJ(totC)}</div>
+        <div style="font-size:12px;color:var(--sky);margin-top:4px">${tits.length} título(s) · Selic: ${taxa.toFixed(2)}% a.p.</div>
+      </div>
+    </div>`
+    :`<div style="text-align:center;padding:32px;color:var(--muted)">Nenhum título emitido até o momento.</div>`;
+
+  // Init simulator
+  calcSim();
+}
+
+function calcSim(){
+  const tipo=document.getElementById('simTipo')?.value||'pos';
+  const cap=parseFloat(document.getElementById('simCapital')?.value)||0;
+  const prazo=parseInt(document.getElementById('simPrazo')?.value)||2;
+  const antec=parseInt(document.getElementById('simAntec')?.value)||0;
+  if(!cap||cap<=0){
+    ['simFaixa','simTaxa','simImp','simLiq'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+    return;
+  }
+  const hist=C.selic,ls=hist.length?hist[hist.length-1]:null,selicAtual=ls?Number(ls.taxa):0.03;
+  // Faixa
+  let faixaNome,taxaPos,taxaPre;
+  if(cap>=2000000){faixaNome='Faixa 4 ★';taxaPos=selicAtual+0.0025;taxaPre=selicAtual;}
+  else if(cap>=1000000){faixaNome='Faixa 3';taxaPos=selicAtual;taxaPre=selicAtual-0.0025;}
+  else if(cap>=500000){faixaNome='Faixa 2';taxaPos=selicAtual-0.0025;taxaPre=selicAtual-0.005;}
+  else{faixaNome='Faixa 1';taxaPos=selicAtual-0.005;taxaPre=selicAtual-0.0075;}
+  const taxa=tipo==='pos'?taxaPos:taxaPre;
+  const rendB=cap*taxa*prazo;
+  // IRJCV
+  const irAliq=prazo>=4?0.125:prazo===3?0.15:prazo===2?0.175:0.20;
+  const irVal=rendB*irAliq;
+  // IOF
+  const iofAliq=antec===1?0.05:antec===2?0.02:0;
+  const iofVal=rendB*iofAliq;
+  const totalImp=irVal+iofVal;
+  const rendLiq=rendB-totalImp;
+  const resgateTotal=cap+rendLiq;
+
+  document.getElementById('simFaixa').textContent=faixaNome;
+  document.getElementById('simTaxa').textContent=(taxa*100).toFixed(2)+'% a.p.';
+  document.getElementById('simImp').textContent='− '+fJ(totalImp);
+  document.getElementById('simLiq').textContent=fJ(resgateTotal);
+  document.getElementById('simDetalhes').innerHTML=`
+    <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px 16px">
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Rendimento Bruto</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#fff">${fJ(rendB)}</div>
+    </div>
+    <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px 16px">
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">IRJCV (${(irAliq*100).toFixed(1)}%)</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#FF9090">− ${fJ(irVal)}</div>
+    </div>
+    <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px 16px">
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">IOF-JCV (${(iofAliq*100).toFixed(1)}%)</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:${iofVal>0?'#FF9090':'var(--lime2)'}">${iofVal>0?'− '+fJ(iofVal):'Isento ✓'}</div>
+    </div>`;
 }
 
 function buildComunicados(){
