@@ -627,22 +627,23 @@ function buildTitulos(){
     <div class="tc"><div class="tt">Rendimento Bruto Total</div><div class="tv" style="color:var(--muted)">${fJ(totR)}</div><div class="tr2"><span>Antes de impostos</span><strong>a vencer</strong></div></div>
     <div class="tc"><div class="tt">Rendimento Líquido Total</div><div class="tv" style="color:var(--green)">${fJ(totLiq)}</div><div class="tr2"><span>Após IRJCV</span><strong>estimado</strong></div></div>`;
 
-  // FAIXAS
+  // FAIXAS — taxa do Supabase em percentual (ex: 3.0 = 3%)
+  // Deltas em p.p. para somar/subtrair diretamente
   const faixas=[
-    {f:'Faixa 1',min:'Até JCV 500.000',pos:(taxa-0.005)*100,pre:(taxa-0.0075)*100,quem:'Qualquer empresa',star:false},
-    {f:'Faixa 2',min:'JCV 500K a 1MM',pos:(taxa-0.0025)*100,pre:(taxa-0.005)*100,quem:'Empresas médias',star:false},
-    {f:'Faixa 3',min:'JCV 1MM a 2MM',pos:taxa*100,pre:(taxa-0.0025)*100,quem:'Bancos e Fundos',star:false},
-    {f:'Faixa 4 ★',min:'Acima de JCV 2MM',pos:(taxa+0.0025)*100,pre:taxa*100,quem:'Exclusivo: Bancos/Fundos',star:true},
+    {f:'Faixa 1',min:'Até JCV 500.000',pos:taxa-0.50,pre:taxa-0.75,quem:'Qualquer empresa',star:false},
+    {f:'Faixa 2',min:'JCV 500K a 1MM',pos:taxa-0.25,pre:taxa-0.50,quem:'Empresas médias',star:false},
+    {f:'Faixa 3',min:'JCV 1MM a 2MM',pos:taxa,pre:taxa-0.25,quem:'Bancos e Fundos',star:false},
+    {f:'Faixa 4 ★',min:'Acima de JCV 2MM',pos:taxa+0.25,pre:taxa,quem:'Exclusivo: Bancos/Fundos',star:true},
   ];
   document.getElementById('titFaixasB').innerHTML=faixas.map((f,i)=>{
     const bg=f.star?'rgba(106,191,46,.08)':'';
     const nm=f.star?`<strong style="color:var(--lime)">${f.f}</strong>`:f.f;
-    const diff=f.star?`<span class="bdg up">+${(f.pos-taxa*100).toFixed(2)} p.p.</span>`:`<span style="font-size:11px;color:var(--muted)">—</span>`;
+    const diff=f.star?`<span class="bdg up">+0,25 p.p.</span>`:`<span style="font-size:11px;color:var(--muted)">—</span>`;
     return `<tr style="background:${bg}">
       <td class="mn" style="font-weight:700">${nm}</td>
       <td style="font-size:12px">${f.min}</td>
-      <td class="mn" style="color:${f.star?'var(--lime)':'var(--text)'};font-weight:${f.star?700:400}">${f.pos.toFixed(2)}% a.p.</td>
-      <td class="mn" style="color:${f.star?'var(--lime)':'var(--text)'};font-weight:${f.star?700:400}">${f.pre.toFixed(2)}% a.p.</td>
+      <td class="mn" style="color:${f.star?'var(--lime)':'var(--text)'};font-weight:${f.star?700:400}">${Number(f.pos).toFixed(2)}% a.p.</td>
+      <td class="mn" style="color:${f.star?'var(--lime)':'var(--text)'};font-weight:${f.star?700:400}">${Number(f.pre).toFixed(2)}% a.p.</td>
       <td style="font-size:12px;color:var(--muted)">${f.quem}</td>
       <td>${diff}</td>
     </tr>`;
@@ -701,15 +702,21 @@ function calcSim(){
     ['simFaixa','simTaxa','simImp','simLiq'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
     return;
   }
-  const hist=C.selic,ls=hist.length?hist[hist.length-1]:null,selicAtual=ls?Number(ls.taxa):0.03;
-  // Faixa
+  // Selic vem do Supabase em percentual (ex: 3.0 = 3%)
+  // Dividimos por 100 para trabalhar em decimal (0.03)
+  const hist=C.selic,ls=hist.length?hist[hist.length-1]:null;
+  const selicPct=ls?Number(ls.taxa):3.0;   // ex: 3.0
+  const selicDec=selicPct/100;             // ex: 0.03
+
+  // Faixas — deltas também em decimal
   let faixaNome,taxaPos,taxaPre;
-  if(cap>=2000000){faixaNome='Faixa 4 ★';taxaPos=selicAtual+0.0025;taxaPre=selicAtual;}
-  else if(cap>=1000000){faixaNome='Faixa 3';taxaPos=selicAtual;taxaPre=selicAtual-0.0025;}
-  else if(cap>=500000){faixaNome='Faixa 2';taxaPos=selicAtual-0.0025;taxaPre=selicAtual-0.005;}
-  else{faixaNome='Faixa 1';taxaPos=selicAtual-0.005;taxaPre=selicAtual-0.0075;}
-  const taxa=tipo==='pos'?taxaPos:taxaPre;
-  const rendB=cap*taxa*prazo;
+  if(cap>=2000000){faixaNome='Faixa 4 ★';taxaPos=selicDec+0.0025;taxaPre=selicDec;}
+  else if(cap>=1000000){faixaNome='Faixa 3';taxaPos=selicDec;taxaPre=selicDec-0.0025;}
+  else if(cap>=500000){faixaNome='Faixa 2';taxaPos=selicDec-0.0025;taxaPre=selicDec-0.005;}
+  else{faixaNome='Faixa 1';taxaPos=selicDec-0.005;taxaPre=selicDec-0.0075;}
+
+  const taxa=tipo==='pos'?taxaPos:taxaPre;   // decimal, ex: 0.0325
+  const rendB=cap*taxa*prazo;                // correto: 3.000.000 × 0.0325 × 2 = 195.000
   // IRJCV
   const irAliq=prazo>=4?0.125:prazo===3?0.15:prazo===2?0.175:0.20;
   const irVal=rendB*irAliq;
