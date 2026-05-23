@@ -2,6 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://eqqezdzzznyatfdbovyt.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; connect-src https://eqqezdzzznyatfdbovyt.supabase.co;"/>
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta http-equiv="X-Frame-Options" content="DENY"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
 <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAAAIAD4AAAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAL9JREFUeJylkrENgkAUhr+7uAQWlpQ3gAWGDRzAxs64gSFUxhWIhYmNAzDAJYSGASgtLYilG2ihRwDDIefXvOr/3n+XJ/gwna+edNicbwDEfs7+ugDguJ4BUBUXASD7wobYz1uzu1DawkC92cyuRNrC9+rRCpv6TSY2QVPy5lvQ22B5KAEIPJ3ZFlif8AtWQeDpk5PA1HdukEaKwNM7Z8EY/haIoUscoj6kMR9nSCOFANhmyrmFBEjCUriEk7AULyZOMziwG+UKAAAAAElFTkSuQmCC"/>
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABPklEQVR4nGNkwAKkrGL+YxMnBDLmP2JgYGBgqFU7yNB8y56BgYGBYUaiHFz+2bEljOh6mNAtJtdyGKhVO4hCEzKfCVmSEothAOZzGI0NINvFRC3LA1ovMbx49gHFchgfnyNYKLUYHeCzFBtgopbvyQFSVjH/mQgrI97yDdV6JOunKAqQLbeT3LPfbh4Dw6HnLo6kmEF2CKBbTq45FEcBJZaT7QByEx1VHEBpokMHJCVCtHifYzePgYGBgUGZEgcQHQLollNiKVkOoIXlRDuAmomOZAdQO9GR7AA7yT2VMLpvXl8l3R2A7AhaAIpLwlEHjDqAUsBIrdYwuWDAQ2DgHYCtu0Qv8OzYEkaM9gAtKx4YQK5T4L6Xsor5Tw/LYWCa4yVGBgakNPDs2BJGWtR2+CxnYEAKAWRAq6yJLb0BALNTbjHluR8gAAAAAElFTkSuQmCC"/>
 <link rel="apple-touch-icon" sizes="256x256" href="data:image/png;base64,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"/>
@@ -280,7 +284,7 @@ footer strong{color:var(--navy)}
     <div class="sh-r"><div class="sh-hi" id="shhi"></div><div class="cbdg" id="cbdg">🏛️ PRÓXIMO COPOM: —</div></div>
   </div>
   <div class="tw"><div class="th"><h3>📈 Ranking das Empresas</h3><span>Valor de mercado em JovemCoin (JCV)</span></div>
-  <table><thead><tr><th>#</th><th>Empresa</th><th>Setor</th><th>Valor Total (JCV)</th><th>Cota (JCV)</th><th>Variação</th><th>Histórico</th></tr></thead><tbody id="rankB"></tbody></table></div>
+  <table><thead><tr><th>#</th><th>Empresa</th><th>Setor</th><th>Valor Total (JCV)</th><th>Cota (JCV)</th><th>Variação</th><th>Rating</th></tr></thead><tbody id="rankB"></tbody></table></div>
 </div>
 
 <div class="pg" id="pg-empresas">
@@ -330,7 +334,7 @@ footer strong{color:var(--navy)}
     </div>
 
     <div style="display:flex;flex-direction:column;gap:16px">
-      <div class="tw" style="margin-bottom:0;flex:1">
+      <div class="tw" style="margin-bottom:0">
         <div class="th"><h3>⚡ IOF-JCV</h3><span>Resgate antecipado</span></div>
         <table>
           <thead><tr><th>Situação</th><th>Alíquota</th></tr></thead>
@@ -341,7 +345,7 @@ footer strong{color:var(--navy)}
           </tbody>
         </table>
       </div>
-      <div class="tw" style="margin-bottom:0;flex:1">
+      <div class="tw" style="margin-bottom:0">
         <div class="th"><h3>🏦 ISS-JCV</h3><span>Intermediação financeira</span></div>
         <table>
           <thead><tr><th>Base de Cálculo</th><th>Alíquota</th></tr></thead>
@@ -454,7 +458,7 @@ footer strong{color:var(--navy)}
       <div class="asec active" id="as-empresas">
         <div class="ast">Empresas</div><div class="ass">Cadastre, edite e remova empresas</div>
         <div class="atb"><button class="btn-add" onclick="openM('empresa')">＋ Nova Empresa</button></div>
-        <div class="tw" style="margin-bottom:0"><table><thead><tr><th>Código</th><th>Empresa</th><th>Setor</th><th>Turma</th><th>Valor (JCV)</th><th>Var.%</th><th>CEO</th><th>Ações</th></tr></thead><tbody id="aEmpB"></tbody></table></div>
+        <div class="tw" style="margin-bottom:0"><table><thead><tr><th>Código</th><th>Empresa</th><th>Setor</th><th>Turma</th><th>Valor (JCV)</th><th>Var.%</th><th>CEO</th><th>Rating</th><th>Ações</th></tr></thead><tbody id="aEmpB"></tbody></table></div>
       </div>
       <div class="asec" id="as-selic">
         <div class="ast">Selic JCV</div><div class="ass">Gerencie as decisões do COPOM Jovem</div>
@@ -514,11 +518,44 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let CRED={user:'bancoCentral',pass:'MercadoJovem@2026'};
 let isAdmin=false;
+
+// ── SECURITY: login rate limit ──
+const LOGIN_LIMIT={attempts:0,lockedUntil:0,MAX:5,LOCKOUT_MS:60000};
+
+// ── SECURITY: sanitize text to prevent XSS ──
+function sanitize(str){
+  if(str===null||str===undefined)return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#x27;')
+    .replace(/\//g,'&#x2F;');
+}
+
+// ── SECURITY: validate field length ──
+function safeVal(val,maxLen=500){
+  const s=String(val||'').trim();
+  return s.substring(0,maxLen);
+}
 let C={empresas:[],selic:[],titulos:[],comunicados:[],pregoes:[],config:{}};
 
 const fJ=v=>'JCV '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fP=v=>(v>=0?'+':'')+Number(v).toFixed(2)+'%';
 const SC={Banco:'#1A3A5C',Seguradora:'#6235A0',Tecnologia:'#6ABF2E',Alimentos:'#D4720A',Saneamento:'#0A8A7A',Energia:'#C4A000',Varejo:'#D94040',Transporte:'#4A6A8A','Asset Mgmt':'#1A5C8A','Com. Exterior':'#0A7A5A'};
+
+// RATING CONFIG — professor define os critérios
+const RATING_CFG = {
+  'AAA': { bg:'#E8F5E9', color:'#1B5E20', border:'#4CAF50', label:'Excelente' },
+  'AA':  { bg:'#F1F8E9', color:'#33691E', border:'#8BC34A', label:'Muito Bom' },
+  'A':   { bg:'#E3F2FD', color:'#0D47A1', border:'#2196F3', label:'Bom' },
+  'BBB': { bg:'#FFF8E1', color:'#E65100', border:'#FF9800', label:'Regular' },
+  'BB':  { bg:'#FFF3E0', color:'#BF360C', border:'#FF5722', label:'Atenção' },
+  'B':   { bg:'#FFEBEE', color:'#B71C1C', border:'#F44336', label:'Risco' },
+  'CCC': { bg:'#FCE4EC', color:'#880E4F', border:'#E91E63', label:'Alto Risco' },
+  'D':   { bg:'#F3E5F5', color:'#4A148C', border:'#9C27B0', label:'Default' },
+};
 
 function spk(h){let a=[100];try{a=String(h||'100').split(',').map(Number).filter(n=>!isNaN(n));}catch(e){}if(a.length<2)return '<div class="spk"><span style="height:14px"></span></div>';const mx=Math.max(...a),mn=Math.min(...a);return '<div class="spk">'+a.map(v=>`<span style="height:${Math.max(3,Math.round(((v-mn)/(mx-mn||1))*18)+3)}px"></span>`).join('')+'</div>';}
 
@@ -532,15 +569,42 @@ setInterval(updateClock,1000);updateClock();
 function openLogin(){document.getElementById('loginOv').classList.add('show');setTimeout(()=>document.getElementById('lu').focus(),100);}
 function closeLogin(){document.getElementById('loginOv').classList.remove('show');document.getElementById('lErr').classList.remove('show');document.getElementById('lu').value='';document.getElementById('lp').value='';}
 function doLogin(){
-  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;
+  // Rate limit check
+  const now=Date.now();
+  if(LOGIN_LIMIT.lockedUntil>now){
+    const secs=Math.ceil((LOGIN_LIMIT.lockedUntil-now)/1000);
+    document.getElementById('lErr').textContent=`Muitas tentativas. Aguarde ${secs}s.`;
+    document.getElementById('lErr').classList.add('show');
+    return;
+  }
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  // Validate input length
+  if(u.length>100||p.length>200){
+    document.getElementById('lErr').textContent='Credenciais inválidas.';
+    document.getElementById('lErr').classList.add('show');
+    return;
+  }
   if(u===CRED.user&&p===CRED.pass){
+    LOGIN_LIMIT.attempts=0;
     isAdmin=true;closeLogin();
     document.getElementById('navAdmin').classList.add('show');
     const b=document.getElementById('btnLt');b.textContent='✓ Admin';b.className='btn-lt logged';
     b.onclick=()=>{document.querySelectorAll('.nb').forEach(x=>x.classList.remove('active'));const nb=document.getElementById('navAdmin');nb.classList.add('active');showPg('admin',nb);};
     document.getElementById('aUser').textContent='Logado: '+u;
     buildAdminAll();showPg('admin',document.getElementById('navAdmin'));toast('✓ Acesso autorizado!');
-  }else{document.getElementById('lErr').classList.add('show');document.getElementById('lp').value='';document.getElementById('lp').focus();}
+  }else{
+    LOGIN_LIMIT.attempts++;
+    if(LOGIN_LIMIT.attempts>=LOGIN_LIMIT.MAX){
+      LOGIN_LIMIT.lockedUntil=Date.now()+LOGIN_LIMIT.LOCKOUT_MS;
+      LOGIN_LIMIT.attempts=0;
+      document.getElementById('lErr').textContent='Conta bloqueada por 60 segundos após múltiplas tentativas.';
+    } else {
+      document.getElementById('lErr').textContent=`Usuário ou senha incorretos. (${LOGIN_LIMIT.MAX-LOGIN_LIMIT.attempts} tentativa(s) restante(s))`;
+    }
+    document.getElementById('lErr').classList.add('show');
+    document.getElementById('lp').value='';document.getElementById('lp').focus();
+  }
 }
 function doLogout(){isAdmin=false;document.getElementById('navAdmin').classList.remove('show','active');const b=document.getElementById('btnLt');b.textContent='⚙ Admin';b.className='btn-lt';b.onclick=openLogin;showPg('home',document.querySelector('.nb'));toast('Sessão encerrada.');}
 
@@ -596,7 +660,23 @@ function buildHome(){
   document.getElementById('cbdg').textContent=`🏛️ PRÓXIMO COPOM: ${ls&&ls.proximo_copom?ls.proximo_copom:'—'}`;
   const emps=C.empresas,total=emps.reduce((a,e)=>a+Number(e.valor),0),up=emps.filter(e=>Number(e.variacao)>0).length,dn=emps.filter(e=>Number(e.variacao)<0).length,totT=C.titulos.reduce((a,t)=>a+Number(t.capital),0);
   document.getElementById('sr').innerHTML=`<div class="sc lm"><div class="sl">Market Cap Total</div><div class="sv lm">${(total/1e6).toFixed(2)}M</div><div class="bdg ne">JovemCoin</div></div><div class="sc"><div class="sl">Empresas Listadas</div><div class="sv">${emps.length}</div><div class="bdg ne">Ativas</div></div><div class="sc"><div class="sl">Alta / Baixa</div><div class="sv gn">${up} <span style="color:var(--muted);font-size:14px">/ </span><span style="color:var(--red)">${dn}</span></div><div class="bdg up">Pregão atual</div></div><div class="sc"><div class="sl">Títulos TJV</div><div class="sv">${fJ(totT)}</div><div class="bdg ne">${C.titulos.length} emitidos</div></div>`;
-  document.getElementById('rankB').innerHTML=[...emps].sort((a,b)=>Number(b.valor)-Number(a.valor)).map((e,i)=>{const cor=SC[e.setor]||'#888';const up=Number(e.variacao)>=0;return `<tr><td class="mn" style="color:var(--muted);font-weight:700">${i+1}</td><td><div class="en">${e.nome}</div><div class="ec">${e.codigo}</div></td><td><span class="sb" style="background:${cor}18;color:${cor};border:1px solid ${cor}33">${e.setor}</span></td><td class="mn">${fJ(e.valor)}</td><td class="mn" style="color:var(--lime)">${fJ(Number(e.valor)/Number(e.cotas||1e6))}</td><td class="mn" style="color:${up?'var(--green)':'var(--red)'};font-weight:600">${up?'▲':'▼'} ${fP(e.variacao)}</td><td>${spk(e.hist)}</td></tr>`;}).join('')||'<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma empresa cadastrada.</td></tr>';
+  document.getElementById('rankB').innerHTML=[...emps].sort((a,b)=>Number(b.valor)-Number(a.valor)).map((e,i)=>{
+    const cor=SC[e.setor]||'#888';const up=Number(e.variacao)>=0;
+    const r=e.rating||'';
+    const ratingBadge=r?RATING_CFG[r]
+      ?`<span style="background:${RATING_CFG[r].bg};color:${RATING_CFG[r].color};border:1px solid ${RATING_CFG[r].border};padding:4px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;letter-spacing:1px">${r}</span>`
+      :`<span class="bdg ne">${r}</span>`
+      :'<span style="font-size:11px;color:var(--muted)">—</span>';
+    return `<tr>
+      <td class="mn" style="color:var(--muted);font-weight:700">${i+1}</td>
+      <td><div class="en">${e.nome}</div><div class="ec">${e.codigo}</div></td>
+      <td><span class="sb" style="background:${cor}18;color:${cor};border:1px solid ${cor}33">${e.setor}</span></td>
+      <td class="mn">${fJ(e.valor)}</td>
+      <td class="mn" style="color:var(--lime)">${fJ(Number(e.valor)/Number(e.cotas||1e6))}</td>
+      <td class="mn" style="color:${up?'var(--green)':'var(--red)'};font-weight:600">${up?'▲':'▼'} ${fP(e.variacao)}</td>
+      <td>${ratingBadge}</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma empresa cadastrada.</td></tr>';
 }
 
 function buildEmpresas(){
@@ -761,8 +841,26 @@ function buildPregao(){
 function showAS(id,btn){document.querySelectorAll('.asec').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.anb').forEach(b=>b.classList.remove('active'));document.getElementById('as-'+id).classList.add('active');if(btn)btn.classList.add('active');}
 function buildAdminAll(){bAE();bAS();bAT();bAC();bAP();bATicker();bACfg();}
 
-function bAE(){document.getElementById('aEmpB').innerHTML=C.empresas.length?C.empresas.map(e=>`<tr><td class="mn" style="color:var(--lime)">${e.codigo}</td><td class="en">${e.nome}</td><td style="font-size:12px">${e.setor}</td><td style="font-size:12px;color:var(--muted)">${e.turma||'—'}</td><td class="mn">${fJ(e.valor)}</td><td class="mn" style="color:${Number(e.variacao)>=0?'var(--green)':'var(--red)'}">${fP(e.variacao)}</td><td style="font-size:12px">${e.ceo||'—'}</td><td style="display:flex;gap:6px;padding:10px 16px"><button class="be" onclick="openM('empresa',${e.id})">✏️ Editar</button><button class="bd" onclick="openCf('empresa',${e.id},'${String(e.nome).replace(/'/g,"\\'")}')">🗑 Excluir</button></td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma empresa.</td></tr>';}
-
+function bAE(){
+  const mkR=r=>{if(!r)return '<span style="color:var(--muted);font-size:11px">—</span>';const cfg=RATING_CFG[r];if(!cfg)return '<span class="bdg ne">'+r+'</span>';return '<span style="background:'+cfg.bg+';color:'+cfg.color+';border:1px solid '+cfg.border+';padding:3px 8px;border-radius:5px;font-family:JetBrains Mono,monospace;font-weight:700;font-size:11px">'+r+'</span>';};
+  document.getElementById('aEmpB').innerHTML=C.empresas.length?C.empresas.map(e=>{
+    const safeName=e.nome.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<tr>'
+      +'<td class="mn" style="color:var(--lime)">'+e.codigo+'</td>'
+      +'<td class="en">'+e.nome+'</td>'
+      +'<td style="font-size:12px">'+e.setor+'</td>'
+      +'<td style="font-size:12px;color:var(--muted)">'+(e.turma||'—')+'</td>'
+      +'<td class="mn">'+fJ(e.valor)+'</td>'
+      +'<td class="mn" style="color:'+(Number(e.variacao)>=0?'var(--green)':'var(--red)')+'">'+fP(e.variacao)+'</td>'
+      +'<td style="font-size:12px">'+(e.ceo||'—')+'</td>'
+      +'<td>'+mkR(e.rating||'')+'</td>'
+      +'<td style="display:flex;gap:6px;padding:10px 16px">'
+        +'<button class="be" onclick="openM(\'empresa\','+e.id+')">✏️ Editar</button>'
+        +'<button class="bd" onclick="openCf(\'empresa\','+e.id+',\''+safeName+'\')">🗑 Excluir</button>'
+      +'</td>'
+    +'</tr>';
+  }).join(''):'<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma empresa.</td></tr>';
+}
 function bAS(){document.getElementById('aSelB').innerHTML=C.selic.length?C.selic.map(h=>`<tr><td class="mn" style="color:var(--lime)">${h.periodo}</td><td style="color:var(--muted)">${h.data}</td><td class="mn" style="font-weight:700">${Number(h.taxa).toFixed(2)}%</td><td style="font-size:12px">${h.decisao}</td><td style="font-size:12px;color:var(--muted)">${h.motivo||'—'}</td><td style="font-size:12px">${h.proximo_copom||'—'}</td><td style="display:flex;gap:6px;padding:10px 16px"><button class="be" onclick="openM('selic',${h.id})">✏️ Editar</button><button class="bd" onclick="openCf('selic',${h.id},'${h.periodo}')">🗑 Excluir</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma decisão.</td></tr>';}
 
 function bAT(){document.getElementById('aTitB').innerHTML=C.titulos.length?C.titulos.map(t=>`<tr><td class="mn" style="color:var(--lime)">${t.codigo}</td><td style="font-size:12px">${t.empresa}</td><td style="font-size:12px">${t.tipo}</td><td class="mn">${fJ(t.capital)}</td><td class="mn">${t.taxa!==null&&t.taxa!==''?Number(t.taxa).toFixed(2)+'%':'Selic'}</td><td style="font-size:12px;color:var(--muted)">${t.vencimento}</td><td><span class="bdg" style="background:${t.status==='Ativo'?'var(--green)':'var(--red)'}18;color:${t.status==='Ativo'?'var(--green)':'var(--red)'};">${t.status}</span></td><td style="display:flex;gap:6px;padding:10px 16px"><button class="be" onclick="openM('titulo',${t.id})">✏️ Editar</button><button class="bd" onclick="openCf('titulo',${t.id},'${t.codigo}')">🗑 Excluir</button></td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Nenhum título.</td></tr>';}
@@ -854,6 +952,13 @@ function getForm(type,id){
         <div id="varMsg" style="font-size:11px;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace">
           ${isEdit?'Digite o novo valor acima para recalcular automaticamente':''}
         </div>
+      </div>
+      <div class="fg">
+        <label>Rating <span style="font-weight:400;color:var(--muted);font-size:10px">— classificação da empresa</span></label>
+        <select id="f8" style="font-weight:700">
+          <option value="">— Sem rating —</option>
+          ${Object.entries(RATING_CFG).map(([k,v])=>`<option value="${k}" ${e.rating===k?'selected':''}>${k} — ${v.label}</option>`).join('')}
+        </select>
       </div>`;
   }
   if(type==='selic'){const h=q(C.selic,id);return `<div class="fr"><div class="fg"><label>Período</label><input id="f0" value="${h.periodo||''}" placeholder="Bimestre 3"/></div><div class="fg"><label>Data (dd/mm/aaaa)</label><input id="f1" value="${h.data||''}" placeholder="01/08/2026"/></div></div><div class="fr"><div class="fg"><label>Taxa Selic JCV (% a.p.)</label><input id="f2" type="number" step="0.1" value="${h.taxa||''}" placeholder="3.5"/></div><div class="fg"><label>Decisão COPOM</label><select id="f3"><option ${h.decisao==='Alta'?'selected':''}>Alta</option><option ${h.decisao==='Manutenção'?'selected':''}>Manutenção</option><option ${h.decisao==='Baixa'?'selected':''}>Baixa</option></select></div></div><div class="fg"><label>Motivo da Decisão</label><input id="f4" value="${h.motivo||''}" placeholder="ex: Controle da inflação"/></div><div class="fg"><label>Próximo COPOM</label><input id="f5" value="${h.proximo_copom||''}" placeholder="Bimestre 4"/></div>`;}
@@ -864,10 +969,12 @@ function getForm(type,id){
 }
 
 async function saveM(){
+  // Security guard — double check admin status
+  if(!isAdmin){toast('⚠️ Acesso não autorizado.',true);closeModal();return;}
   const sv=document.getElementById('mSave');sv.disabled=true;sv.textContent='Salvando...';
   try{
     let data={},table='';
-    if(mT==='empresa'){table='empresas';data={codigo:g('f0').toUpperCase(),turma:g('f1'),nome:g('f2'),setor:g('f3'),ceo:g('f4'),valor:parseFloat(g('f5'))||1e6,cotas:parseFloat(g('f6'))||1e6,variacao:parseFloat(g('f7'))||0};if(!data.codigo||!data.nome){toast('⚠️ Código e nome obrigatórios!',true);sv.disabled=false;sv.textContent='Salvar';return;}}
+    if(mT==='empresa'){table='empresas';data={codigo:g('f0').toUpperCase(),turma:g('f1'),nome:g('f2'),setor:g('f3'),ceo:g('f4'),valor:parseFloat(g('f5'))||1e6,cotas:parseFloat(g('f6'))||1e6,variacao:parseFloat(g('f7'))||0,rating:g('f8')||null};if(!data.codigo||!data.nome){toast('⚠️ Código e nome obrigatórios!',true);sv.disabled=false;sv.textContent='Salvar';return;}}
     else if(mT==='selic'){table='selic';const tx=parseFloat(g('f2'));if(!tx){toast('⚠️ Informe a taxa!',true);sv.disabled=false;sv.textContent='Salvar';return;}data={periodo:g('f0'),data:g('f1')||new Date().toLocaleDateString('pt-BR'),taxa:tx,decisao:g('f3'),motivo:g('f4'),proximo_copom:g('f5')};}
     else if(mT==='titulo'){table='titulos';const cap=parseFloat(g('f2'));if(!cap){toast('⚠️ Informe o capital!',true);sv.disabled=false;sv.textContent='Salvar';return;}const tr=g('f3');const n=C.titulos.length+1;data={codigo:mId?(C.titulos.find(x=>x.id===mId)||{}).codigo||`TJV-${String(n).padStart(3,'0')}`:`TJV-${String(n).padStart(3,'0')}`,empresa:g('f0'),tipo:g('f1'),capital:cap,taxa:tr?parseFloat(tr):null,prazo:parseInt(g('f4'))||1,vencimento:g('f5'),status:g('f6')};}
     else if(mT==='comunicado'){table='comunicados';const tit=g('f0'),corpo=g('f3');if(!tit||!corpo){toast('⚠️ Preencha título e texto!',true);sv.disabled=false;sv.textContent='Salvar';return;}const tag=g('f1');const lbls={'tag-info':'INFO','tag-urgente':'URGENTE','tag-copom':'COPOM','tag-pregao':'PREGÃO'};const tipos={'tag-info':'','tag-urgente':'urgente','tag-copom':'copom','tag-pregao':'pregao'};data={titulo:tit,tag,tag_label:lbls[tag],tipo:tipos[tag],data:g('f2')||new Date().toLocaleDateString('pt-BR'),corpo};}
@@ -885,6 +992,7 @@ let pDel={type:null,id:null};
 function openCf(type,id,name){pDel={type,id};document.getElementById('cfMsg').textContent=`Deseja excluir "${name}"? Esta ação não pode ser desfeita.`;document.getElementById('cfYes').onclick=execDel;document.getElementById('cfOv').classList.add('show');}
 function closeCf(){document.getElementById('cfOv').classList.remove('show');pDel={type:null,id:null};}
 async function execDel(){
+  if(!isAdmin){toast('⚠️ Acesso não autorizado.',true);closeCf();return;}
   const tmap={empresa:'empresas',selic:'selic',titulo:'titulos',comunicado:'comunicados',pregao:'pregoes'};
   const table=tmap[pDel.type];if(!table){closeCf();return;}
   const{error}=await sb.from(table).delete().eq('id',pDel.id);
