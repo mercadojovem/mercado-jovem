@@ -17,7 +17,7 @@
 <style>
 :root{--navy:#1A3A5C;--navy2:#122845;--navy3:#0D1E34;--lime:#6ABF2E;--lime2:#82D93E;--sky:#A8D8EA;--white:#fff;--off:#F4F8FC;--bg:#EEF4FA;--text:#1A3A5C;--muted:#5A7A96;--border:rgba(26,58,92,.12);--green:#2EAB5E;--red:#D94040}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:clip}
 /* LOADING */
 #ls{position:fixed;inset:0;z-index:99999;background:var(--navy3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s}
 #ls.hide{opacity:0;pointer-events:none}
@@ -105,13 +105,18 @@ main{padding:36px 48px;max-width:1440px;margin:0 auto}
 .cbdg{background:rgba(106,191,46,.15);border:1px solid rgba(106,191,46,.4);border-radius:8px;padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--lime);margin-top:16px;letter-spacing:1px;text-align:center}
 /* TABLES */
 .tw{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 2px 12px rgba(26,58,92,.06)}
-.th{padding:15px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--off)}
+.tw table{min-width:600px}
+.tw-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw-scroll::-webkit-scrollbar{height:4px}
+.tw-scroll::-webkit-scrollbar-track{background:var(--off)}
+.tw-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.th{padding:15px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--off);flex-wrap:wrap;gap:6px}
 .th h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}
 .th span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
 table{width:100%;border-collapse:collapse}
 thead tr{background:var(--navy3)}
-th{padding:10px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--sky);font-weight:500}
-td{padding:12px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border)}
+th{padding:10px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--sky);font-weight:500;white-space:nowrap}
+td{padding:12px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);white-space:nowrap}
 tbody tr:hover{background:rgba(26,58,92,.03)}tbody tr:last-child td{border-bottom:none}
 .mn{font-family:'JetBrains Mono',monospace;font-weight:500}
 .en{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px}
@@ -216,6 +221,41 @@ footer strong{color:var(--navy)}
   .aw{grid-template-columns:1fr}.fr{grid-template-columns:1fr}
   #titTribGrid{grid-template-columns:1fr!important}
 }
+@media(max-width:640px){
+  /* Nav scroll horizontal */
+  nav{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;gap:0;padding:0 8px}
+  nav::-webkit-scrollbar{display:none}
+  .nb{padding:12px 14px;font-size:12px;flex-shrink:0}
+  /* Header compacto */
+  header{padding:12px 16px;top:0!important}
+  header.wt{top:34px!important}
+  .logo-text h1{font-size:16px}
+  .logo-text span{font-size:9px}
+  .logo-ic{width:36px;height:36px;font-size:16px}
+  .hdr-m{display:none}
+  /* Main padding */
+  main{padding:20px 12px}
+  /* Stat cards — 1 coluna no mobile muito pequeno */
+  .sr{grid-template-columns:1fr 1fr}
+  /* Selic hero */
+  .sh{padding:20px 20px}
+  .sh-r-v{font-size:48px}
+  /* Tabelas — scroll horizontal */
+  .tw table{min-width:480px}
+  /* Admin sidebar vira drawer */
+  .aw{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .asb{padding:12px 0}
+  .anav{display:flex;overflow-x:auto;padding:0 8px;gap:4px}
+  .anav::-webkit-scrollbar{display:none}
+  .anb{border-left:none!important;border-bottom:2px solid transparent;white-space:nowrap;padding:8px 12px;font-size:12px;flex-shrink:0}
+  .anb.active{border-left:none!important;border-bottom-color:var(--lime)!important}
+  .ac{padding:16px}
+  /* Simulador — 1 coluna */
+  #simGrid{grid-template-columns:1fr 1fr!important}
+  /* Modal full screen */
+  #mOv{padding:0}
+  .mbox{max-height:100vh;border-radius:0;max-width:100%}
+}
 </style>
 </head>
 <body>
@@ -284,20 +324,20 @@ footer strong{color:var(--navy)}
     <div class="sh-r"><div class="sh-hi" id="shhi"></div><div class="cbdg" id="cbdg">🏛️ PRÓXIMO COPOM: —</div></div>
   </div>
   <div class="tw"><div class="th"><h3>📈 Ranking das Empresas</h3><span>Valor de mercado em JovemCoin (JCV)</span></div>
-  <table><thead><tr><th>#</th><th>Empresa</th><th>Setor</th><th>Valor Total (JCV)</th><th>Cota (JCV)</th><th>Variação</th><th>Rating</th></tr></thead><tbody id="rankB"></tbody></table></div>
+  <div class="tw-scroll"><table><thead><tr><th>#</th><th>Empresa</th><th>Setor</th><th>Valor Total (JCV)</th><th>Cota (JCV)</th><th>Variação</th><th>Rating</th></tr></thead><tbody id="rankB"></tbody></table></div></div>
 </div>
 
 <div class="pg" id="pg-empresas">
   <div class="st">Empresas Listadas</div><div class="ss">Todas as empresas registradas no Mercado Jovem</div>
   <div class="tw"><div class="th"><h3>📋 Cadastro Completo</h3><span id="lblEmp"></span></div>
-  <table><thead><tr><th>Código</th><th>Empresa</th><th>Setor</th><th>Turma</th><th>Valor (JCV)</th><th>Cotas</th><th>Valor/Cota</th><th>CEO</th><th>Variação</th></tr></thead><tbody id="empB"></tbody></table></div>
+  <div class="tw-scroll"><table><thead><tr><th>Código</th><th>Empresa</th><th>Setor</th><th>Turma</th><th>Valor (JCV)</th><th>Cotas</th><th>Valor/Cota</th><th>CEO</th><th>Variação</th></tr></thead><tbody id="empB"></tbody></table></div></div>
 </div>
 
 <div class="pg" id="pg-selic">
   <div class="st">Taxa Selic JCV</div><div class="ss">Histórico de decisões do COPOM Jovem</div>
   <div class="sr" style="grid-template-columns:repeat(3,1fr)" id="selicSt"></div>
   <div class="tw"><div class="th"><h3>📊 Histórico COPOM</h3></div>
-  <table><thead><tr><th>Período</th><th>Data</th><th>Taxa (% a.p.)</th><th>Variação</th><th>Decisão</th><th>Motivo</th></tr></thead><tbody id="selicB"></tbody></table></div>
+  <div class="tw-scroll"><table><thead><tr><th>Período</th><th>Data</th><th>Taxa (% a.p.)</th><th>Variação</th><th>Decisão</th><th>Motivo</th></tr></thead><tbody id="selicB"></tbody></table></div></div>
 </div>
 
 <div class="pg" id="pg-titulos">
@@ -362,7 +402,7 @@ footer strong{color:var(--navy)}
   <div class="tw" style="margin-bottom:28px">
     <div class="th"><h3>🧮 Simulador de Rendimento Líquido</h3><span>Calcule o retorno do seu investimento após impostos</span></div>
     <div style="padding:24px 28px">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+      <div id="simGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
         <div>
           <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Tipo de Título</div>
           <select id="simTipo" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;outline:none">
@@ -434,7 +474,7 @@ footer strong{color:var(--navy)}
   <div class="st">Pregão</div><div class="ss">Calendário de sessões de negociação</div>
   <div class="ps" id="preS"></div>
   <div class="tw"><div class="th"><h3>📅 Calendário de Pregões</h3></div>
-  <table><thead><tr><th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th></tr></thead><tbody id="preB"></tbody></table></div>
+  <div class="tw-scroll"><table><thead><tr><th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th></tr></thead><tbody id="preB"></tbody></table></div></div>
 </div>
 
 <div class="pg" id="pg-admin">
@@ -458,27 +498,27 @@ footer strong{color:var(--navy)}
       <div class="asec active" id="as-empresas">
         <div class="ast">Empresas</div><div class="ass">Cadastre, edite e remova empresas</div>
         <div class="atb"><button class="btn-add" onclick="openM('empresa')">＋ Nova Empresa</button></div>
-        <div class="tw" style="margin-bottom:0"><table><thead><tr><th>Código</th><th>Empresa</th><th>Setor</th><th>Turma</th><th>Valor (JCV)</th><th>Var.%</th><th>CEO</th><th>Rating</th><th>Ações</th></tr></thead><tbody id="aEmpB"></tbody></table></div>
+        <div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>Código</th><th>Empresa</th><th>Setor</th><th>Turma</th><th>Valor (JCV)</th><th>Var.%</th><th>CEO</th><th>Rating</th><th>Ações</th></tr></thead><tbody id="aEmpB"></tbody></table></div>
       </div>
       <div class="asec" id="as-selic">
         <div class="ast">Selic JCV</div><div class="ass">Gerencie as decisões do COPOM Jovem</div>
         <div class="atb"><button class="btn-add" onclick="openM('selic')">＋ Nova Decisão COPOM</button></div>
-        <div class="tw" style="margin-bottom:0"><table><thead><tr><th>Período</th><th>Data</th><th>Taxa %</th><th>Decisão</th><th>Motivo</th><th>Próx. COPOM</th><th>Ações</th></tr></thead><tbody id="aSelB"></tbody></table></div>
+        <div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>Período</th><th>Data</th><th>Taxa %</th><th>Decisão</th><th>Motivo</th><th>Próx. COPOM</th><th>Ações</th></tr></thead><tbody id="aSelB"></tbody></table></div>
       </div>
       <div class="asec" id="as-titulos">
         <div class="ast">Títulos TJV</div><div class="ass">Emita, edite e gerencie os títulos</div>
         <div class="atb"><button class="btn-add" onclick="openM('titulo')">＋ Emitir Título</button></div>
-        <div class="tw" style="margin-bottom:0"><table><thead><tr><th>Código</th><th>Empresa</th><th>Tipo</th><th>Capital</th><th>Taxa</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead><tbody id="aTitB"></tbody></table></div>
+        <div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>Código</th><th>Empresa</th><th>Tipo</th><th>Capital</th><th>Taxa</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead><tbody id="aTitB"></tbody></table></div>
       </div>
       <div class="asec" id="as-comunicados">
         <div class="ast">Comunicados</div><div class="ass">Publique, edite e remova comunicados</div>
         <div class="atb"><button class="btn-add" onclick="openM('comunicado')">＋ Novo Comunicado</button></div>
-        <div class="tw" style="margin-bottom:0"><table><thead><tr><th>Data</th><th>Categoria</th><th>Título</th><th>Ações</th></tr></thead><tbody id="aComB"></tbody></table></div>
+        <div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>Data</th><th>Categoria</th><th>Título</th><th>Ações</th></tr></thead><tbody id="aComB"></tbody></table></div>
       </div>
       <div class="asec" id="as-pregao">
         <div class="ast">Pregão</div><div class="ass">Agende e gerencie as sessões de negociação</div>
         <div class="atb"><button class="btn-add" onclick="openM('pregao')">＋ Novo Pregão</button></div>
-        <div class="tw" style="margin-bottom:0"><table><thead><tr><th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th><th>Ações</th></tr></thead><tbody id="aPreB"></tbody></table></div>
+        <div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th><th>Ações</th></tr></thead><tbody id="aPreB"></tbody></table></div>
       </div>
       <div class="asec" id="as-ticker">
         <div class="ast">Faixa Superior</div><div class="ass">Controle a faixa de informações no topo do site</div>
