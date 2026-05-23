@@ -1,0 +1,109 @@
+name: Teste Conexões Mercado Jovem
+
+on:
+  workflow_dispatch:
+
+jobs:
+  testar-conexoes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Instalar dependências
+        run: pip install requests supabase
+
+      - name: 2. Testar Telegram
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "chat_id": "${{ secrets.TELEGRAM_CHAT_ID }}",
+              "text": "✅ *TESTE 1/3 — Telegram OK*\nGitHub Actions consegue enviar mensagens!",
+              "parse_mode": "Markdown"
+            }'
+
+      - name: 3. Testar Supabase
+        run: |
+          python3 << 'EOF'
+          import requests, os, sys
+
+          url = "${{ secrets.SUPABASE_URL }}"
+          key = "${{ secrets.SUPABASE_SERVICE_KEY }}"
+
+          headers = {
+              "apikey": key,
+              "Authorization": f"Bearer {key}",
+              "Content-Type": "application/json"
+          }
+
+          # Tenta inserir uma notícia de teste
+          resp = requests.post(
+              f"{url}/rest/v1/noticias",
+              headers=headers,
+              json={
+                  "titulo": "TESTE AUTOMATICO — pode apagar",
+                  "status": "pendente",
+                  "setor": "Teste",
+                  "impacto": "neutro",
+                  "intensidade": "leve"
+              }
+          )
+
+          if resp.status_code in [200, 201]:
+              print("✅ Supabase: inserção OK")
+          else:
+              print(f"❌ Supabase erro: {resp.status_code} — {resp.text}")
+              sys.exit(1)
+          EOF
+
+      - name: 4. Notificar resultado Supabase no Telegram
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "chat_id": "${{ secrets.TELEGRAM_CHAT_ID }}",
+              "text": "✅ *TESTE 2/3 — Supabase OK*\nGitHub Actions consegue gravar na tabela noticias!",
+              "parse_mode": "Markdown"
+            }'
+
+      - name: 5. Testar Claude API
+        run: |
+          python3 << 'EOF'
+          import requests, sys
+
+          resp = requests.post(
+              "https://api.anthropic.com/v1/messages",
+              headers={
+                  "x-api-key": "${{ secrets.ANTHROPIC_API_KEY }}",
+                  "anthropic-version": "2023-06-01",
+                  "content-type": "application/json"
+              },
+              json={
+                  "model": "claude-sonnet-4-20250514",
+                  "max_tokens": 50,
+                  "messages": [{
+                      "role": "user",
+                      "content": "Responda apenas: OK"
+                  }]
+              }
+          )
+
+          if resp.status_code == 200:
+              print("✅ Claude API: conexão OK")
+              print("Resposta:", resp.json()["content"][0]["text"])
+          else:
+              print(f"❌ Claude API erro: {resp.status_code} — {resp.text}")
+              sys.exit(1)
+          EOF
+
+      - name: 6. Notificar resultado final no Telegram
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "chat_id": "${{ secrets.TELEGRAM_CHAT_ID }}",
+              "text": "✅ *TESTE 3/3 — Claude API OK*\n\n🎉 *TODOS OS SISTEMAS CONECTADOS!*\n\nMercado Jovem está pronto para o Jornal Automático.",
+              "parse_mode": "Markdown"
+            }'
