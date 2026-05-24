@@ -1,0 +1,48 @@
+name: Jornal Mercado Jovem — Notícias Diárias
+
+on:
+  schedule:
+    # Roda todo dia útil às 7h (horário de Brasília = 10h UTC)
+    - cron: '0 10 * * 1-5'
+  workflow_dispatch:
+    # Permite rodar manualmente pelo GitHub para testes
+
+jobs:
+  buscar-e-enviar-noticias:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependências
+        run: |
+          pip install requests
+
+      - name: Executar busca de notícias
+        env:
+          SUPABASE_URL:      ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_TOKEN:    ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID:  ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python scripts/buscar_noticias.py
+
+      - name: Notificar erro se falhar
+        if: failure()
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\",
+              \"text\": \"⚠️ *Jornal MJ — Erro*\nO workflow falhou hoje. Verifique o GitHub Actions.\",
+              \"parse_mode\": \"Markdown\"
+            }"
