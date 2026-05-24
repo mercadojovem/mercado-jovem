@@ -12,18 +12,22 @@
 <meta name="theme-color" content="#1A3A5C"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Mercado Jovem</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,400;1,700&family=Ubuntu+Mono:wght@400;700&family=Ubuntu+Condensed&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--navy:#1A3A5C;--navy2:#122845;--navy3:#0D1E34;--lime:#6ABF2E;--lime2:#82D93E;--sky:#A8D8EA;--white:#fff;--off:#F4F8FC;--bg:#EEF4FA;--text:#1A3A5C;--muted:#5A7A96;--border:rgba(26,58,92,.12);--green:#2EAB5E;--red:#D94040}
+:root{--navy:#1A3A5C;--navy2:#122845;--navy3:#0D1E34;--lime:#6ABF2E;--lime2:#82D93E;--sky:#A8D8EA;--white:#fff;--off:#F4F8FC;--bg:#EEF4FA;--text:#1A3A5C;--muted:#5A7A96;--border:rgba(26,58,92,.12);--green:#2EAB5E;--red:#D94040;
+  --f-body:'Ubuntu',sans-serif;
+  --f-mono:'Ubuntu Mono',monospace;
+  --f-cond:'Ubuntu Condensed','Ubuntu',sans-serif;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:clip}
+body{font-family:var(--f-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:clip}
 /* LOADING */
 #ls{position:fixed;inset:0;z-index:99999;background:var(--navy3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s}
 #ls.hide{opacity:0;pointer-events:none}
 #ls .ico{font-size:52px;animation:pp 1.5s ease infinite}
-#ls h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:#fff;text-transform:uppercase;letter-spacing:2px}
-#ls p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sky);letter-spacing:2px}
+#ls h2{font-family:var(--f-cond);font-weight:900;font-size:28px;color:#fff;text-transform:uppercase;letter-spacing:2px}
+#ls p{font-family:var(--f-mono);font-size:11px;color:var(--sky);letter-spacing:2px}
 .lbar{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
 .lbar-i{height:100%;background:var(--lime);border-radius:2px;animation:lb 1.5s ease-in-out infinite}
 @keyframes lb{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
@@ -33,23 +37,23 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 #loginOv.show{display:flex;animation:fi .2s ease}
 .lbox{background:#fff;border-radius:20px;padding:44px 48px;width:100%;max-width:400px;box-shadow:0 40px 100px rgba(26,58,92,.35);text-align:center}
 .lbox-ico{width:60px;height:60px;background:var(--navy);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:18px}
-.lbox h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.lbox h2{font-family:var(--f-cond);font-weight:800;font-size:24px;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
 .lbox > p{font-size:13px;color:var(--muted);margin-bottom:26px}
 .lf{margin-bottom:14px;text-align:left}
-.lf label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;font-family:'JetBrains Mono',monospace}
-.lf input{width:100%;background:var(--off);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:14px;padding:11px 16px;outline:none;transition:border-color .2s}
+.lf label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;font-family:var(--f-mono)}
+.lf input{width:100%;background:var(--off);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--f-mono);font-size:14px;padding:11px 16px;outline:none;transition:border-color .2s}
 .lf input:focus{border-color:var(--navy)}
-#lErr{background:#fee;border:1px solid #fcc;color:var(--red);font-size:12px;border-radius:8px;padding:8px 14px;margin-bottom:14px;display:none;font-family:'JetBrains Mono',monospace}
+#lErr{background:#fee;border:1px solid #fcc;color:var(--red);font-size:12px;border-radius:8px;padding:8px 14px;margin-bottom:14px;display:none;font-family:var(--f-mono)}
 #lErr.show{display:block}
-.btn-login{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:4px}
+.btn-login{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:13px;font-family:var(--f-cond);font-weight:800;font-size:16px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:4px}
 .btn-login:hover{background:var(--navy2)}
 .btn-cancel-l{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:14px;text-decoration:underline}
 /* TICKER */
 .tbar{background:var(--navy3);overflow:hidden;height:0;max-height:0;display:flex;align-items:center;position:sticky;top:0;z-index:100;transition:max-height .3s,height .3s}
 .tbar.vis{height:34px;max-height:34px}
-.tlbl{background:var(--lime);color:var(--navy3);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:10px;padding:0 14px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;letter-spacing:1.5px}
+.tlbl{background:var(--lime);color:var(--navy3);font-family:var(--f-mono);font-weight:700;font-size:10px;padding:0 14px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;letter-spacing:1.5px}
 .tscroll{display:flex;overflow:hidden;flex:1}
-.tinner{display:flex;gap:48px;animation:tk 35s linear infinite;white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:11px}
+.tinner{display:flex;gap:48px;animation:tk 35s linear infinite;white-space:nowrap;font-family:var(--f-mono);font-size:11px}
 .ti{display:flex;align-items:center;gap:8px}
 .ti-n{color:var(--sky)}.ti-v{color:#fff;font-weight:500}
 .ti-c.up{color:var(--lime2)}.ti-c.dn{color:#ff7070}
@@ -59,18 +63,18 @@ header{background:#fff;border-bottom:3px solid var(--lime);padding:16px 48px;dis
 header.wt{top:34px}
 .logo-bl{display:flex;align-items:center;gap:14px}
 .logo-ic{width:44px;height:44px;background:var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
-.logo-tx h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}
-.logo-tx span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--lime);letter-spacing:2px;display:block;text-transform:uppercase}
+.logo-tx h1{font-family:var(--f-cond);font-weight:900;font-size:20px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}
+.logo-tx span{font-family:var(--f-mono);font-size:10px;color:var(--lime);letter-spacing:2px;display:block;text-transform:uppercase}
 .hdr-r{display:flex;align-items:center;gap:16px}
-.hdr-m{text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);line-height:2}
+.hdr-m{text-align:right;font-family:var(--f-mono);font-size:10px;color:var(--muted);line-height:2}
 .hdr-m strong{color:var(--navy);font-size:12px}
-.btn-lt{background:none;border:2px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Barlow',sans-serif}
+.btn-lt{background:none;border:2px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--f-body)}
 .btn-lt:hover{border-color:var(--navy);color:var(--navy)}
 .btn-lt.logged{border-color:var(--lime);color:#2a8a10}
 /* NAV */
 nav{background:var(--navy);padding:0 48px;display:flex;gap:2px;position:sticky;top:67px;z-index:98;transition:top .3s}
 nav.wt{top:101px}
-.nb{background:none;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.8px;color:rgba(255,255,255,.5);padding:13px 18px;border-bottom:3px solid transparent;transition:all .2s;text-transform:uppercase}
+.nb{background:none;border:none;cursor:pointer;font-family:var(--f-cond);font-weight:700;font-size:14px;letter-spacing:.8px;color:rgba(255,255,255,.5);padding:13px 18px;border-bottom:3px solid transparent;transition:all .2s;text-transform:uppercase}
 .nb:hover{color:var(--sky)}.nb.active{color:#fff;border-bottom-color:var(--lime)}
 #navAdmin{margin-left:auto;color:var(--lime)!important;opacity:.7;display:none}
 #navAdmin.show{display:block;opacity:1}
@@ -79,30 +83,30 @@ main{padding:36px 48px;max-width:1440px;margin:0 auto}
 .pg{display:none}.pg.active{display:block;animation:fi .3s ease}
 @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 /* TITLES */
-.st{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.st{font-family:var(--f-cond);font-weight:900;font-size:32px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .ss{font-size:13px;color:var(--muted);margin-bottom:28px}
 /* STAT CARDS */
 .sr{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
 .sc{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px;transition:box-shadow .2s,transform .2s;border-top:3px solid var(--navy)}
 .sc:hover{box-shadow:0 8px 24px rgba(26,58,92,.1);transform:translateY(-2px)}.sc.lm{border-top-color:var(--lime)}
-.sl{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
-.sv{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;color:var(--navy);line-height:1;margin-bottom:6px}
+.sl{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;font-family:var(--f-mono)}
+.sv{font-family:var(--f-mono);font-size:24px;font-weight:600;color:var(--navy);line-height:1;margin-bottom:6px}
 .sv.lm{color:var(--lime)}.sv.gn{color:var(--green)}.sv.rd{color:var(--red)}
-.bdg{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:20px;display:inline-block}
+.bdg{font-size:10px;font-family:var(--f-mono);padding:2px 8px;border-radius:20px;display:inline-block}
 .bdg.up{background:rgba(106,191,46,.12);color:#2a7a10}.bdg.dn{background:rgba(217,64,64,.1);color:var(--red)}.bdg.ne{background:rgba(26,58,92,.08);color:var(--navy)}
 /* SELIC HERO */
 .sh{background:var(--navy);border-radius:18px;padding:30px 36px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:24px;position:relative;overflow:hidden}
 .sh::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(106,191,46,.07)}
 .sh::after{content:'';position:absolute;right:60px;bottom:-60px;width:150px;height:150px;border-radius:50%;background:rgba(168,216,234,.05)}
-.sh-l h2{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--lime);text-transform:uppercase;margin-bottom:8px}
-.sh-r-v{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:70px;color:#fff;line-height:1;letter-spacing:-1px}
+.sh-l h2{font-family:var(--f-mono);font-size:10px;letter-spacing:3px;color:var(--lime);text-transform:uppercase;margin-bottom:8px}
+.sh-r-v{font-family:var(--f-cond);font-weight:900;font-size:70px;color:#fff;line-height:1;letter-spacing:-1px}
 .sh-r-v span{font-size:30px;color:var(--lime)}
 .sh-p{font-size:13px;color:var(--sky);margin-top:6px}
 .sh-r{text-align:right;position:relative;z-index:1}
 .sh-hi{display:flex;flex-direction:column;gap:8px}
-.sh-hi-i{display:flex;gap:16px;justify-content:flex-end;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+.sh-hi-i{display:flex;gap:16px;justify-content:flex-end;align-items:center;font-family:var(--f-mono);font-size:12px}
 .sh-hi-l{color:rgba(168,216,234,.7)}.sh-hi-v{color:#fff;font-weight:500}
-.cbdg{background:rgba(106,191,46,.15);border:1px solid rgba(106,191,46,.4);border-radius:8px;padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--lime);margin-top:16px;letter-spacing:1px;text-align:center}
+.cbdg{background:rgba(106,191,46,.15);border:1px solid rgba(106,191,46,.4);border-radius:8px;padding:9px 16px;font-family:var(--f-mono);font-size:10px;color:var(--lime);margin-top:16px;letter-spacing:1px;text-align:center}
 /* TABLES */
 .tw{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 2px 12px rgba(26,58,92,.06)}
 .tw table{min-width:600px}
@@ -111,17 +115,17 @@ main{padding:36px 48px;max-width:1440px;margin:0 auto}
 .tw-scroll::-webkit-scrollbar-track{background:var(--off)}
 .tw-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .th{padding:15px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--off);flex-wrap:wrap;gap:6px}
-.th h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}
-.th span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.th h3{font-family:var(--f-cond);font-weight:700;font-size:15px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}
+.th span{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
 table{width:100%;border-collapse:collapse}
 thead tr{background:var(--navy3)}
-th{padding:10px 16px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--sky);font-weight:500;white-space:nowrap}
+th{padding:10px 16px;text-align:left;font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--sky);font-weight:500;white-space:nowrap}
 td{padding:12px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);white-space:nowrap}
 tbody tr:hover{background:rgba(26,58,92,.03)}tbody tr:last-child td{border-bottom:none}
-.mn{font-family:'JetBrains Mono',monospace;font-weight:500}
-.en{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px}
-.ec{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
-.sb{font-size:9px;letter-spacing:1px;padding:3px 9px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-weight:600}
+.mn{font-family:var(--f-mono);font-weight:500}
+.en{font-family:var(--f-cond);font-weight:700;font-size:15px}
+.ec{font-size:11px;color:var(--muted);font-family:var(--f-mono)}
+.sb{font-size:9px;letter-spacing:1px;padding:3px 9px;border-radius:20px;font-family:var(--f-mono);font-weight:600}
 .spk{display:flex;align-items:flex-end;gap:2px;height:22px}
 .spk span{width:5px;border-radius:2px 2px 0 0;background:var(--navy);opacity:.2}
 .spk span:last-child{background:var(--lime);opacity:1}
@@ -131,89 +135,89 @@ tbody tr:hover{background:rgba(26,58,92,.03)}tbody tr:last-child td{border-botto
 .cc:hover{box-shadow:0 6px 20px rgba(26,58,92,.1);transform:translateY(-2px)}
 .cc.urgente{border-left-color:var(--red)}.cc.copom{border-left-color:var(--lime)}.cc.pregao{border-left-color:var(--sky)}
 .ch{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
-.ctg{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:700}
+.ctg{font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:700}
 .tag-urgente{background:rgba(217,64,64,.1);color:var(--red)}.tag-info{background:rgba(26,58,92,.08);color:var(--navy)}.tag-copom{background:rgba(106,191,46,.12);color:#2a7a10}.tag-pregao{background:rgba(168,216,234,.3);color:#1a5a7a}
-.cdt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
-.ct{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--navy);margin-bottom:7px;line-height:1.3}
+.cdt{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.ct{font-family:var(--f-cond);font-weight:700;font-size:16px;color:var(--navy);margin-bottom:7px;line-height:1.3}
 .cb{font-size:13px;color:var(--muted);line-height:1.6}
 /* PREGÃO */
 .ps{background:linear-gradient(135deg,#ebf7e3,#f4fbf0);border:1px solid rgba(106,191,46,.35);border-radius:14px;padding:22px 26px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between}
 .pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--lime);animation:pa 2s infinite;margin-right:8px}
 @keyframes pa{0%{box-shadow:0 0 0 0 rgba(106,191,46,.4)}70%{box-shadow:0 0 0 10px rgba(106,191,46,0)}100%{box-shadow:0 0 0 0 rgba(106,191,46,0)}}
-.pi h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;color:#2a7a10;text-transform:uppercase;margin-bottom:3px}
+.pi h3{font-family:var(--f-cond);font-weight:800;font-size:17px;color:#2a7a10;text-transform:uppercase;margin-bottom:3px}
 .pi p{font-size:13px;color:var(--muted)}
-.ptm{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:#2a7a10}
+.ptm{font-family:var(--f-mono);font-size:22px;font-weight:600;color:#2a7a10}
 /* TÍTULOS */
 .ts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
 .tc{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 22px;border-top:3px solid var(--lime)}
-.tt{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--lime);margin-bottom:5px;text-transform:uppercase}
-.tv{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--navy);margin-bottom:12px}
+.tt{font-family:var(--f-mono);font-size:10px;letter-spacing:2px;color:var(--lime);margin-bottom:5px;text-transform:uppercase}
+.tv{font-family:var(--f-cond);font-weight:700;font-size:20px;color:var(--navy);margin-bottom:12px}
 .tr2{display:flex;justify-content:space-between;margin-bottom:4px}
-.tr2 span{font-size:12px;color:var(--muted)}.tr2 strong{font-family:'JetBrains Mono',monospace;font-size:12px}
+.tr2 span{font-size:12px;color:var(--muted)}.tr2 strong{font-family:var(--f-mono);font-size:12px}
 /* ADMIN */
 .aw{display:grid;grid-template-columns:220px 1fr;min-height:70vh;background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 4px 24px rgba(26,58,92,.1)}
 .asb{background:var(--navy);padding:24px 0;display:flex;flex-direction:column}
 .asb-h{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
-.asb-h h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
-.asb-h p{font-size:11px;color:rgba(168,216,234,.6);font-family:'JetBrains Mono',monospace}
+.asb-h h3{font-family:var(--f-cond);font-weight:800;font-size:14px;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.asb-h p{font-size:11px;color:rgba(168,216,234,.6);font-family:var(--f-mono)}
 .anav{margin-top:12px;flex:1}
-.anb{width:100%;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px 20px;color:rgba(255,255,255,.55);font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;text-align:left;transition:all .2s;border-left:3px solid transparent}
+.anb{width:100%;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px 20px;color:rgba(255,255,255,.55);font-family:var(--f-body);font-weight:600;font-size:13px;text-align:left;transition:all .2s;border-left:3px solid transparent}
 .anb:hover{color:#fff;background:rgba(255,255,255,.05)}.anb.active{color:#fff;background:rgba(106,191,46,.12);border-left-color:var(--lime)}
 .anb .i{font-size:16px;width:22px;text-align:center;flex-shrink:0}
 .ansep{height:1px;background:rgba(255,255,255,.07);margin:10px 20px}
-.alout{margin:12px;background:rgba(217,64,64,.15);border:1px solid rgba(217,64,64,.25);color:#ff9090;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Barlow',sans-serif;display:flex;align-items:center;gap:8px}
+.alout{margin:12px;background:rgba(217,64,64,.15);border:1px solid rgba(217,64,64,.25);color:#ff9090;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--f-body);display:flex;align-items:center;gap:8px}
 .alout:hover{background:rgba(217,64,64,.25)}
 .ac{padding:32px 36px;overflow-y:auto}
 .asec{display:none}.asec.active{display:block;animation:fi .25s ease}
-.ast{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.ast{font-family:var(--f-cond);font-weight:800;font-size:22px;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .ass{font-size:12px;color:var(--muted);margin-bottom:24px}
 .atb{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
-.btn-add{background:var(--lime);color:var(--navy);border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-add{background:var(--lime);color:var(--navy);border:none;border-radius:8px;padding:9px 18px;font-family:var(--f-cond);font-weight:800;font-size:13px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
 .btn-add:hover{background:var(--lime2);transform:translateY(-1px)}
-.btn-nv{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.btn-nv{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:var(--f-cond);font-weight:700;font-size:13px;text-transform:uppercase;cursor:pointer;transition:background .2s}
 .btn-nv:hover{background:var(--navy2)}
-.be{background:rgba(26,58,92,.08);border:1px solid var(--border);color:var(--navy);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Barlow',sans-serif}
+.be{background:rgba(26,58,92,.08);border:1px solid var(--border);color:var(--navy);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;font-family:var(--f-body)}
 .be:hover{background:var(--navy);color:#fff}
-.bd{background:rgba(217,64,64,.08);border:1px solid rgba(217,64,64,.2);color:var(--red);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Barlow',sans-serif}
+.bd{background:rgba(217,64,64,.08);border:1px solid rgba(217,64,64,.2);color:var(--red);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;font-family:var(--f-body)}
 .bd:hover{background:var(--red);color:#fff}
 /* MODAL */
 #mOv{display:none;position:fixed;inset:0;z-index:9998;background:rgba(13,30,52,.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
 #mOv.show{display:flex;animation:fi .2s ease}
 .mbox{background:#fff;border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(26,58,92,.35)}
 .mhdr{background:var(--navy);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;border-radius:20px 20px 0 0;position:sticky;top:0;z-index:1}
-.mhdr h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:#fff;text-transform:uppercase;letter-spacing:.5px}
+.mhdr h3{font-family:var(--f-cond);font-weight:800;font-size:18px;color:#fff;text-transform:uppercase;letter-spacing:.5px}
 .mclose{background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center}
 .mclose:hover{background:rgba(255,255,255,.2)}
 .mbody{padding:28px}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .fg{margin-bottom:16px}
-.fg label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;font-family:'JetBrains Mono',monospace}
-.fg input,.fg select,.fg textarea{width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 13px;outline:none;transition:border-color .2s}
+.fg label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;font-family:var(--f-mono)}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--f-mono);font-size:13px;padding:9px 13px;outline:none;transition:border-color .2s}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--navy)}
 .fg select option{background:#fff}
-.fg textarea{resize:vertical;min-height:90px;font-family:'Barlow',sans-serif;font-size:13px}
+.fg textarea{resize:vertical;min-height:90px;font-family:var(--f-body);font-size:13px}
 .mftr{padding:20px 28px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;background:var(--off);border-radius:0 0 20px 20px;position:sticky;bottom:0}
-.btn-sv{background:var(--lime);color:var(--navy);border:none;border-radius:8px;padding:10px 24px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-sv{background:var(--lime);color:var(--navy);border:none;border-radius:8px;padding:10px 24px;font-family:var(--f-cond);font-weight:800;font-size:14px;text-transform:uppercase;cursor:pointer;transition:all .2s}
 .btn-sv:hover{background:var(--lime2)}.btn-sv:disabled{opacity:.5;cursor:not-allowed}
-.btn-cm{background:var(--off);border:2px solid var(--border);color:var(--muted);border-radius:8px;padding:10px 20px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer}
+.btn-cm{background:var(--off);border:2px solid var(--border);color:var(--muted);border-radius:8px;padding:10px 20px;font-family:var(--f-cond);font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer}
 /* CONFIRM */
 #cfOv{display:none;position:fixed;inset:0;z-index:10000;background:rgba(13,30,52,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center}
 #cfOv.show{display:flex}
 .cfbox{background:#fff;border-radius:16px;padding:36px 40px;width:100%;max-width:380px;text-align:center;box-shadow:0 30px 80px rgba(26,58,92,.3)}
-.cfbox h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--navy);text-transform:uppercase;margin-bottom:10px}
+.cfbox h3{font-family:var(--f-cond);font-weight:800;font-size:20px;color:var(--navy);text-transform:uppercase;margin-bottom:10px}
 .cfbox p{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
 .cfbts{display:flex;gap:10px;justify-content:center}
-.cfyes{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;cursor:pointer}
-.cfno{background:var(--off);border:2px solid var(--border);color:var(--muted);border-radius:8px;padding:10px 20px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer}
+.cfyes{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-family:var(--f-cond);font-weight:800;font-size:14px;text-transform:uppercase;cursor:pointer}
+.cfno{background:var(--off);border:2px solid var(--border);color:var(--muted);border-radius:8px;padding:10px 20px;font-family:var(--f-cond);font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer}
 /* TICKER ADMIN PREVIEW */
 .tap{background:var(--navy3);border-radius:10px;padding:12px 16px;margin-bottom:16px;overflow:hidden;height:42px;display:flex;align-items:center}
 .tnote{font-size:12px;color:var(--muted);background:rgba(106,191,46,.08);border:1px solid rgba(106,191,46,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px}
 /* TOAST */
-#toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--navy);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;padding:12px 22px;border-radius:10px;border-left:4px solid var(--lime);transform:translateY(80px);opacity:0;transition:all .3s ease;pointer-events:none;box-shadow:0 8px 24px rgba(26,58,92,.2)}
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--navy);color:#fff;font-family:var(--f-cond);font-weight:700;font-size:14px;padding:12px 22px;border-radius:10px;border-left:4px solid var(--lime);transform:translateY(80px);opacity:0;transition:all .3s ease;pointer-events:none;box-shadow:0 8px 24px rgba(26,58,92,.2)}
 #toast.show{transform:translateY(0);opacity:1}
 #toast.err{border-left-color:var(--red)}
 /* FOOTER */
-footer{text-align:center;padding:22px 48px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;background:#fff;margin-top:40px}
+footer{text-align:center;padding:22px 48px;border-top:1px solid var(--border);font-family:var(--f-mono);font-size:10px;color:var(--muted);letter-spacing:1px;background:#fff;margin-top:40px}
 footer strong{color:var(--navy)}
 @media(max-width:960px){
   header,main,nav{padding-left:16px;padding-right:16px}
@@ -255,6 +259,233 @@ footer strong{color:var(--navy)}
   /* Modal full screen */
   #mOv{padding:0}
   .mbox{max-height:100vh;border-radius:0;max-width:100%}
+}
+/* ══ JORNAL ══════════════════════════════════════ */
+.jornal-masthead{
+  background:var(--navy);
+  border-radius:18px;
+  overflow:hidden;
+  margin-bottom:36px;
+  position:relative;
+}
+.jornal-masthead::before{
+  content:'';
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    0deg,transparent,transparent 39px,
+    rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px
+  );
+  pointer-events:none;
+}
+.jornal-masthead-inner{
+  padding:40px 48px 32px;
+  position:relative;z-index:1;
+}
+.jornal-flag{
+  display:inline-block;
+  background:var(--lime);
+  color:var(--navy);
+  font-family:var(--f-mono);
+  font-size:10px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  padding:4px 12px;border-radius:3px;
+  margin-bottom:16px;
+}
+.jornal-title{
+  font-family:var(--f-cond);
+  font-weight:700;
+  font-size:clamp(36px,6vw,72px);
+  color:#fff;
+  line-height:.95;
+  letter-spacing:-1px;
+  margin-bottom:12px;
+  text-transform:uppercase;
+}
+.jornal-title span{color:var(--lime2)}
+.jornal-subtitle{
+  font-size:15px;
+  color:var(--sky);
+  font-style:italic;
+  margin-bottom:16px;
+  opacity:.8;
+}
+.jornal-meta{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--f-mono);
+  font-size:11px;color:rgba(168,216,234,.6);
+  letter-spacing:1px;
+}
+.jornal-sep{opacity:.4}
+.jornal-ticker-strip{
+  background:var(--lime);
+  padding:8px 48px;
+  font-family:var(--f-mono);
+  font-size:11px;font-weight:700;
+  color:var(--navy);
+  letter-spacing:.5px;
+  white-space:nowrap;
+  overflow:hidden;
+}
+
+/* MANCHETE PRINCIPAL */
+.jornal-manchete-card{
+  background:#fff;
+  border-radius:16px;
+  overflow:hidden;
+  margin-bottom:8px;
+  display:grid;
+  grid-template-columns:1fr 380px;
+  min-height:340px;
+  box-shadow:0 4px 24px rgba(26,58,92,.08);
+  border:1px solid var(--border);
+  transition:transform .2s,box-shadow .2s;
+}
+.jornal-manchete-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 40px rgba(26,58,92,.14);
+}
+.jornal-manchete-body{
+  padding:36px 40px;
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.jornal-chapeu{
+  font-family:var(--f-mono);
+  font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;font-weight:700;
+  margin-bottom:12px;
+}
+.jornal-manchete-titulo{
+  font-family:var(--f-cond);
+  font-weight:700;
+  font-size:clamp(24px,3vw,38px);
+  color:var(--navy);
+  line-height:1.1;
+  letter-spacing:-.5px;
+  margin-bottom:16px;
+}
+.jornal-manchete-corpo{
+  font-size:15px;line-height:1.7;
+  color:var(--muted);flex:1;
+  margin-bottom:20px;
+}
+.jornal-manchete-footer{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.jornal-empresas{display:flex;flex-wrap:wrap;gap:8px}
+.jornal-emp-tag{
+  font-family:var(--f-mono);
+  font-size:11px;font-weight:700;
+  padding:4px 10px;border-radius:5px;
+  letter-spacing:.5px;
+}
+.jornal-emp-pos{background:rgba(46,171,94,.1);color:#1a6e3a;border:1px solid rgba(46,171,94,.25)}
+.jornal-emp-neg{background:rgba(217,64,64,.08);color:#a02020;border:1px solid rgba(217,64,64,.2)}
+.jornal-data-tag{
+  font-family:var(--f-mono);font-size:10px;
+  color:var(--muted);letter-spacing:1px;
+}
+.jornal-manchete-visual{
+  background:var(--navy2);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:32px;gap:16px;
+  position:relative;overflow:hidden;
+}
+.jornal-manchete-visual::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 70% 30%,rgba(106,191,46,.15),transparent 60%);
+}
+.jornal-impacto-big{
+  font-family:var(--f-cond);
+  font-weight:700;font-size:72px;
+  line-height:1;z-index:1;
+  letter-spacing:-2px;
+}
+.jornal-setor-big{
+  font-family:var(--f-mono);
+  font-size:11px;letter-spacing:3px;
+  color:var(--sky);text-transform:uppercase;
+  z-index:1;
+}
+.jornal-pergunta{
+  background:rgba(106,191,46,.1);
+  border:1px solid rgba(106,191,46,.25);
+  border-radius:8px;padding:12px 16px;
+  font-size:13px;font-style:italic;
+  color:var(--navy);z-index:1;
+  line-height:1.5;
+}
+
+/* GRID SECUNDÁRIO */
+.jornal-divider{
+  display:flex;align-items:center;gap:16px;
+  margin:28px 0 24px;
+}
+.jornal-divider::before,.jornal-divider::after{
+  content:'';flex:1;height:2px;background:var(--border);
+}
+.jornal-divider span{
+  font-family:var(--f-mono);font-size:10px;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);white-space:nowrap;padding:0 4px;
+}
+.jornal-secondary{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:16px;margin-bottom:32px;
+}
+.jornal-card{
+  background:#fff;border-radius:14px;
+  border:1px solid var(--border);
+  padding:24px;
+  display:flex;flex-direction:column;gap:12px;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 2px 8px rgba(26,58,92,.05);
+}
+.jornal-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 28px rgba(26,58,92,.12);
+}
+.jornal-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.jornal-card-titulo{
+  font-family:var(--f-cond);font-weight:700;
+  font-size:18px;color:var(--navy);line-height:1.2;
+}
+.jornal-card-corpo{
+  font-size:13px;color:var(--muted);line-height:1.6;
+  flex:1;
+  display:-webkit-box;-webkit-line-clamp:4;
+  -webkit-box-orient:vertical;overflow:hidden;
+}
+.jornal-card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px;
+}
+.jornal-impacto-badge{
+  font-family:var(--f-mono);font-size:10px;font-weight:700;
+  padding:4px 10px;border-radius:20px;letter-spacing:1px;
+  text-transform:uppercase;
+}
+.jimp-pos{background:rgba(46,171,94,.1);color:#1a6e3a}
+.jimp-neg{background:rgba(217,64,64,.08);color:#a02020}
+.jimp-neu{background:rgba(26,58,92,.07);color:var(--navy)}
+.jornal-fonte{
+  font-family:var(--f-mono);font-size:10px;
+  color:var(--muted);letter-spacing:.5px;
+}
+.jornal-footer-strip{
+  background:var(--navy3);border-radius:10px;
+  padding:12px 20px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-family:var(--f-mono);font-size:10px;
+  color:rgba(168,216,234,.5);letter-spacing:.5px;
+}
+
+@media(max-width:860px){
+  .jornal-manchete-card{grid-template-columns:1fr}
+  .jornal-manchete-visual{min-height:160px}
+  .jornal-masthead-inner{padding:28px 20px 24px}
+  .jornal-ticker-strip{padding:8px 20px}
 }
 </style>
 </head>
@@ -311,6 +542,7 @@ footer strong{color:var(--navy)}
   <button class="nb" onclick="showPg('titulos',this)">Títulos</button>
   <button class="nb" onclick="showPg('comunicados',this)">Comunicados</button>
   <button class="nb" onclick="showPg('pregao',this)">Pregão</button>
+  <button class="nb" onclick="showPg('jornal',this)">📰 Jornal</button>
   <button class="nb" id="navAdmin" onclick="showPg('admin',this)">⚙ Admin</button>
 </nav>
 
@@ -354,7 +586,7 @@ footer strong{color:var(--navy)}
       <thead><tr><th>Faixa</th><th>Volume de Aporte</th><th>TJV-PÓS-01 (Pós-fixado)</th><th>TJV-PRÉ-01 (Prefixado)</th><th>Quem acessa</th><th>Diferencial</th></tr></thead>
       <tbody id="titFaixasB"></tbody>
     </table>
-    <div style="padding:12px 20px;background:rgba(106,191,46,.07);border-top:1px solid var(--border);font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">
+    <div style="padding:12px 20px;background:rgba(106,191,46,.07);border-top:1px solid var(--border);font-size:12px;color:var(--muted);font-family:var(--f-mono)">
       ★ Faixa 4: única faixa com rentabilidade ACIMA da Selic — exclusiva para bancos e fundos com aporte superior a JCV 2.000.000. Permite revenda no mercado secundário.
     </div>
   </div>
@@ -368,7 +600,7 @@ footer strong{color:var(--navy)}
         <thead><tr><th>Prazo</th><th>Bimestres</th><th>Alíquota</th><th>Impacto</th></tr></thead>
         <tbody id="titIrjcvB"></tbody>
       </table>
-      <div style="padding:10px 16px;background:var(--off);font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;border-top:1px solid var(--border)">
+      <div style="padding:10px 16px;background:var(--off);font-size:11px;color:var(--muted);font-family:var(--f-mono);border-top:1px solid var(--border)">
         ℹ️ Incide apenas sobre o rendimento bruto — nunca sobre o capital investido.
       </div>
     </div>
@@ -404,19 +636,19 @@ footer strong{color:var(--navy)}
     <div style="padding:24px 28px">
       <div id="simGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
         <div>
-          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Tipo de Título</div>
-          <select id="simTipo" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;outline:none">
+          <div style="font-size:10px;font-family:var(--f-mono);color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Tipo de Título</div>
+          <select id="simTipo" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--f-mono);font-size:13px;padding:9px 12px;outline:none">
             <option value="pos">TJV-PÓS-01 (Pós-fixado)</option>
             <option value="pre">TJV-PRÉ-01 (Prefixado)</option>
           </select>
         </div>
         <div>
-          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Capital a Investir (JCV)</div>
-          <input id="simCapital" type="number" value="100000" oninput="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;outline:none"/>
+          <div style="font-size:10px;font-family:var(--f-mono);color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Capital a Investir (JCV)</div>
+          <input id="simCapital" type="number" value="100000" oninput="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--f-mono);font-size:13px;padding:9px 12px;outline:none"/>
         </div>
         <div>
-          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Prazo (bimestres)</div>
-          <select id="simPrazo" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;outline:none">
+          <div style="font-size:10px;font-family:var(--f-mono);color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Prazo (bimestres)</div>
+          <select id="simPrazo" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--f-mono);font-size:13px;padding:9px 12px;outline:none">
             <option value="1">1 bimestre</option>
             <option value="2" selected>2 bimestres</option>
             <option value="3">3 bimestres</option>
@@ -424,8 +656,8 @@ footer strong{color:var(--navy)}
           </select>
         </div>
         <div>
-          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Resgate Antecipado?</div>
-          <select id="simAntec" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:9px 12px;outline:none">
+          <div style="font-size:10px;font-family:var(--f-mono);color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Resgate Antecipado?</div>
+          <select id="simAntec" onchange="calcSim()" style="width:100%;background:var(--off);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--f-mono);font-size:13px;padding:9px 12px;outline:none">
             <option value="0">Não (no vencimento)</option>
             <option value="1">Sim (antes de 30 dias)</option>
             <option value="2">Sim (entre 30–60 dias)</option>
@@ -437,20 +669,20 @@ footer strong{color:var(--navy)}
       <div id="simResult" style="background:var(--navy);border-radius:14px;padding:24px 28px">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-radius:10px;overflow:hidden">
           <div style="background:rgba(255,255,255,.05);padding:18px 20px;border-right:1px solid rgba(255,255,255,.08)">
-            <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Faixa Detectada</div>
-            <div id="simFaixa" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:#fff">—</div>
+            <div style="font-size:10px;font-family:var(--f-mono);color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Faixa Detectada</div>
+            <div id="simFaixa" style="font-family:var(--f-cond);font-weight:700;font-size:16px;color:#fff">—</div>
           </div>
           <div style="background:rgba(255,255,255,.05);padding:18px 20px;border-right:1px solid rgba(255,255,255,.08)">
-            <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Taxa Bruta (a.p.)</div>
-            <div id="simTaxa" style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:22px;color:var(--lime2)">—</div>
+            <div style="font-size:10px;font-family:var(--f-mono);color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Taxa Bruta (a.p.)</div>
+            <div id="simTaxa" style="font-family:var(--f-mono);font-weight:600;font-size:22px;color:var(--lime2)">—</div>
           </div>
           <div style="background:rgba(255,255,255,.05);padding:18px 20px;border-right:1px solid rgba(255,255,255,.08)">
-            <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Total de Impostos</div>
-            <div id="simImp" style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:18px;color:#FF9090">—</div>
+            <div style="font-size:10px;font-family:var(--f-mono);color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Total de Impostos</div>
+            <div id="simImp" style="font-family:var(--f-mono);font-weight:600;font-size:18px;color:#FF9090">—</div>
           </div>
           <div style="background:rgba(106,191,46,.12);padding:18px 20px">
-            <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--lime);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Resgate Total Líquido</div>
-            <div id="simLiq" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:var(--lime2)">—</div>
+            <div style="font-size:10px;font-family:var(--f-mono);color:var(--lime);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Resgate Total Líquido</div>
+            <div id="simLiq" style="font-family:var(--f-cond);font-weight:800;font-size:24px;color:var(--lime2)">—</div>
           </div>
         </div>
         <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px" id="simDetalhes"></div>
@@ -475,6 +707,60 @@ footer strong{color:var(--navy)}
   <div class="ps" id="preS"></div>
   <div class="tw"><div class="th"><h3>📅 Calendário de Pregões</h3></div>
   <div class="tw-scroll"><table><thead><tr><th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th></tr></thead><tbody id="preB"></tbody></table></div></div>
+</div>
+
+<div class="pg" id="pg-jornal">
+  <!-- JORNAL HEADER -->
+  <div class="jornal-masthead">
+    <div class="jornal-masthead-inner">
+      <div class="jornal-flag">📰 Edição do dia</div>
+      <h1 class="jornal-title">JORNAL DO<br><span>MERCADO JOVEM</span></h1>
+      <div class="jornal-subtitle">O que acontece no mundo afeta o seu negócio</div>
+      <div class="jornal-meta">
+        <span id="jornalData"></span>
+        <span class="jornal-sep">·</span>
+        <span id="jornalEdicao"></span>
+        <span class="jornal-sep">·</span>
+        <span>Banco Central JCV</span>
+      </div>
+    </div>
+    <div class="jornal-ticker-strip" id="jornalTickerStrip"></div>
+  </div>
+
+  <!-- ESTADO VAZIO / LOADING -->
+  <div id="jornalLoading" style="text-align:center;padding:64px 24px;color:var(--muted)">
+    <div style="font-size:40px;margin-bottom:12px">📰</div>
+    <div style="font-size:15px;font-weight:500">Carregando notícias...</div>
+  </div>
+
+  <!-- GRID DE NOTÍCIAS -->
+  <div id="jornalGrid" style="display:none">
+
+    <!-- MANCHETE PRINCIPAL -->
+    <div id="jornalManchete"></div>
+
+    <!-- DIVISOR -->
+    <div class="jornal-divider">
+      <span>Mais notícias de hoje</span>
+    </div>
+
+    <!-- GRID SECUNDÁRIO -->
+    <div class="jornal-secondary" id="jornalSecundarias"></div>
+
+    <!-- RODAPÉ JORNAL -->
+    <div class="jornal-footer-strip">
+      <span>📡 Notícias processadas por Inteligência Artificial com base em fontes públicas</span>
+      <span class="jornal-sep">·</span>
+      <span>Aprovadas pelo Banco Central do Mercado Jovem</span>
+    </div>
+  </div>
+
+  <!-- SEM NOTÍCIAS -->
+  <div id="jornalVazio" style="display:none;text-align:center;padding:80px 24px">
+    <div style="font-size:48px;margin-bottom:16px;opacity:.3">📭</div>
+    <div style="font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px">Nenhuma notícia publicada ainda</div>
+    <div style="font-size:14px;color:var(--muted)">As notícias aparecem aqui após aprovação pelo Banco Central às 7h de cada dia útil</div>
+  </div>
 </div>
 
 <div class="pg" id="pg-admin">
@@ -554,6 +840,7 @@ footer strong{color:var(--navy)}
 <script>
 const SB_URL='https://eqqezdzzznyatfdbovyt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxcWV6ZHp6em55YXRmZGJvdnl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNTg1OTksImV4cCI6MjA5MzgzNDU5OX0.s0-b-a04snZiVWdUeL1Y3CeaLdognM308M_ZWTb-3mg';
+const SB_ANON=SB_KEY;
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let CRED={user:'bancoCentral',pass:'MercadoJovem@2026'};
@@ -696,7 +983,7 @@ function buildHome(){
   document.getElementById('shv').innerHTML=taxa?taxa.toFixed(1)+'<span>% a.p.</span>':'<span style="font-size:24px">Sem dados</span>';
   document.getElementById('shp').textContent=ls?(ls.periodo+' · Taxa ao período'):'';
   const rec=hist.slice(-3);
-  document.getElementById('shhi').innerHTML=rec.map((h,i)=>{const prev=rec[i-1];const vr=prev?h.taxa-prev.taxa:0;return `<div class="sh-hi-i"><span class="sh-hi-l">${h.periodo}</span><span class="sh-hi-v">${Number(h.taxa).toFixed(1)}%</span><span style="color:${i===0?'rgba(168,216,234,.5)':vr>=0?'#82d93e':'#ff7070'};font-family:'JetBrains Mono',monospace;font-size:11px">${i===0?'—':fP(vr)}</span></div>`;}).join('');
+  document.getElementById('shhi').innerHTML=rec.map((h,i)=>{const prev=rec[i-1];const vr=prev?h.taxa-prev.taxa:0;return `<div class="sh-hi-i"><span class="sh-hi-l">${h.periodo}</span><span class="sh-hi-v">${Number(h.taxa).toFixed(1)}%</span><span style="color:${i===0?'rgba(168,216,234,.5)':vr>=0?'#82d93e':'#ff7070'};font-family:var(--f-mono);font-size:11px">${i===0?'—':fP(vr)}</span></div>`;}).join('');
   document.getElementById('cbdg').textContent=`🏛️ PRÓXIMO COPOM: ${ls&&ls.proximo_copom?ls.proximo_copom:'—'}`;
   const emps=C.empresas,total=emps.reduce((a,e)=>a+Number(e.valor),0),up=emps.filter(e=>Number(e.variacao)>0).length,dn=emps.filter(e=>Number(e.variacao)<0).length,totT=C.titulos.reduce((a,t)=>a+Number(t.capital),0);
   document.getElementById('sr').innerHTML=`<div class="sc lm"><div class="sl">Market Cap Total</div><div class="sv lm">${(total/1e6).toFixed(2)}M</div><div class="bdg ne">JovemCoin</div></div><div class="sc"><div class="sl">Empresas Listadas</div><div class="sv">${emps.length}</div><div class="bdg ne">Ativas</div></div><div class="sc"><div class="sl">Alta / Baixa</div><div class="sv gn">${up} <span style="color:var(--muted);font-size:14px">/ </span><span style="color:var(--red)">${dn}</span></div><div class="bdg up">Pregão atual</div></div><div class="sc"><div class="sl">Títulos TJV</div><div class="sv">${fJ(totT)}</div><div class="bdg ne">${C.titulos.length} emitidos</div></div>`;
@@ -704,7 +991,7 @@ function buildHome(){
     const cor=SC[e.setor]||'#888';const up=Number(e.variacao)>=0;
     const r=e.rating||'';
     const ratingBadge=r?RATING_CFG[r]
-      ?`<span style="background:${RATING_CFG[r].bg};color:${RATING_CFG[r].color};border:1px solid ${RATING_CFG[r].border};padding:4px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;letter-spacing:1px">${r}</span>`
+      ?`<span style="background:${RATING_CFG[r].bg};color:${RATING_CFG[r].color};border:1px solid ${RATING_CFG[r].border};padding:4px 10px;border-radius:6px;font-family:var(--f-mono);font-weight:700;font-size:12px;letter-spacing:1px">${r}</span>`
       :`<span class="bdg ne">${r}</span>`
       :'<span style="font-size:11px;color:var(--muted)">—</span>';
     return `<tr>
@@ -792,18 +1079,18 @@ function buildTitulos(){
   document.getElementById('titResumoEmissao').innerHTML=tits.length?`
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
       <div style="background:var(--off);border-radius:12px;padding:18px 20px;border:1px solid var(--border)">
-        <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">TJV-PÓS-01 (Pós-fixado)</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--navy)">${fJ(porTipo.pos.vol)}</div>
+        <div style="font-size:10px;font-family:var(--f-mono);color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">TJV-PÓS-01 (Pós-fixado)</div>
+        <div style="font-family:var(--f-mono);font-size:20px;font-weight:600;color:var(--navy)">${fJ(porTipo.pos.vol)}</div>
         <div style="font-size:12px;color:var(--muted);margin-top:4px">${porTipo.pos.count} subscrição(ões)</div>
       </div>
       <div style="background:var(--off);border-radius:12px;padding:18px 20px;border:1px solid var(--border)">
-        <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">TJV-PRÉ-01 (Prefixado)</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--navy)">${fJ(porTipo.pre.vol)}</div>
+        <div style="font-size:10px;font-family:var(--f-mono);color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">TJV-PRÉ-01 (Prefixado)</div>
+        <div style="font-family:var(--f-mono);font-size:20px;font-weight:600;color:var(--navy)">${fJ(porTipo.pre.vol)}</div>
         <div style="font-size:12px;color:var(--muted);margin-top:4px">${porTipo.pre.count} subscrição(ões)</div>
       </div>
       <div style="background:var(--navy);border-radius:12px;padding:18px 20px">
-        <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Volume Total Emitido</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:var(--lime2)">${fJ(totC)}</div>
+        <div style="font-size:10px;font-family:var(--f-mono);color:var(--sky);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Volume Total Emitido</div>
+        <div style="font-family:var(--f-cond);font-size:24px;font-weight:800;color:var(--lime2)">${fJ(totC)}</div>
         <div style="font-size:12px;color:var(--sky);margin-top:4px">${tits.length} título(s) · Selic: ${taxa.toFixed(2)}% a.p.</div>
       </div>
     </div>`
@@ -853,16 +1140,16 @@ function calcSim(){
   document.getElementById('simLiq').textContent=fJ(resgateTotal);
   document.getElementById('simDetalhes').innerHTML=`
     <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px 16px">
-      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Rendimento Bruto</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#fff">${fJ(rendB)}</div>
+      <div style="font-size:10px;font-family:var(--f-mono);color:var(--sky);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Rendimento Bruto</div>
+      <div style="font-family:var(--f-mono);font-size:15px;color:#fff">${fJ(rendB)}</div>
     </div>
     <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px 16px">
-      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">IRJCV (${(irAliq*100).toFixed(1)}%)</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#FF9090">− ${fJ(irVal)}</div>
+      <div style="font-size:10px;font-family:var(--f-mono);color:var(--sky);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">IRJCV (${(irAliq*100).toFixed(1)}%)</div>
+      <div style="font-family:var(--f-mono);font-size:15px;color:#FF9090">− ${fJ(irVal)}</div>
     </div>
     <div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px 16px">
-      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--sky);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">IOF-JCV (${(iofAliq*100).toFixed(1)}%)</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:${iofVal>0?'#FF9090':'var(--lime2)'}">${iofVal>0?'− '+fJ(iofVal):'Isento ✓'}</div>
+      <div style="font-size:10px;font-family:var(--f-mono);color:var(--sky);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">IOF-JCV (${(iofAliq*100).toFixed(1)}%)</div>
+      <div style="font-family:var(--f-mono);font-size:15px;color:${iofVal>0?'#FF9090':'var(--lime2)'}">${iofVal>0?'− '+fJ(iofVal):'Isento ✓'}</div>
     </div>`;
 }
 
@@ -882,7 +1169,7 @@ function showAS(id,btn){document.querySelectorAll('.asec').forEach(s=>s.classLis
 function buildAdminAll(){bAE();bAS();bAT();bAC();bAP();bATicker();bACfg();}
 
 function bAE(){
-  const mkR=r=>{if(!r)return '<span style="color:var(--muted);font-size:11px">—</span>';const cfg=RATING_CFG[r];if(!cfg)return '<span class="bdg ne">'+r+'</span>';return '<span style="background:'+cfg.bg+';color:'+cfg.color+';border:1px solid '+cfg.border+';padding:3px 8px;border-radius:5px;font-family:JetBrains Mono,monospace;font-weight:700;font-size:11px">'+r+'</span>';};
+  const mkR=r=>{if(!r)return '<span style="color:var(--muted);font-size:11px">—</span>';const cfg=RATING_CFG[r];if(!cfg)return '<span class="bdg ne">'+r+'</span>';return '<span style="background:'+cfg.bg+';color:'+cfg.color+';border:1px solid '+cfg.border+';padding:3px 8px;border-radius:5px;font-family:var(--f-mono);font-weight:700;font-size:11px">'+r+'</span>';};
   document.getElementById('aEmpB').innerHTML=C.empresas.length?C.empresas.map(e=>{
     const safeName=e.nome.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return '<tr>'
@@ -973,7 +1260,7 @@ function getForm(type,id){
           <input id="f5" type="number" value="${e.valor||1000000}"
             oninput="autoCalcVar(${valorAnterior})"
             style="border-color:var(--lime)"/>
-          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-top:4px">
+          <div style="font-size:10px;font-family:var(--f-mono);color:var(--muted);margin-top:4px">
             ${isEdit?`Valor anterior: <strong style="color:var(--navy)">${Number(valorAnterior).toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong>`:'Novo cadastro — variação = 0%'}
           </div>
         </div>
@@ -985,11 +1272,11 @@ function getForm(type,id){
           <input id="f7" type="number" step="0.01" value="${e.variacao||0}" readonly
             style="background:var(--off);cursor:default;font-weight:700;padding-right:110px"
             title="Calculado automaticamente com base no novo valor"/>
-          <div id="varBadge" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${Number(e.variacao||0)>=0?'var(--green)':'var(--red)'}">
+          <div id="varBadge" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:12px;font-weight:700;color:${Number(e.variacao||0)>=0?'var(--green)':'var(--red)'}">
             ${Number(e.variacao||0)>=0?'▲':'▼'} ${Math.abs(Number(e.variacao||0)).toFixed(2)}%
           </div>
         </div>
-        <div id="varMsg" style="font-size:11px;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace">
+        <div id="varMsg" style="font-size:11px;color:var(--muted);margin-top:4px;font-family:var(--f-mono)">
           ${isEdit?'Digite o novo valor acima para recalcular automaticamente':''}
         </div>
       </div>
@@ -1041,7 +1328,108 @@ async function execDel(){
 }
 
 // NAVIGATION
-const builders={home:buildHome,empresas:buildEmpresas,selic:buildSelic,titulos:buildTitulos,comunicados:buildComunicados,pregao:buildPregao};
+// ══ JORNAL ═══════════════════════════════════════
+async function buildJornal(){
+  const loading=document.getElementById('jornalLoading');
+  const grid=document.getElementById('jornalGrid');
+  const vazio=document.getElementById('jornalVazio');
+  loading.style.display='block';grid.style.display='none';vazio.style.display='none';
+
+  // Data e edição
+  const hoje=new Date();
+  document.getElementById('jornalData').textContent=hoje.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const ls=C.selic.length?C.selic[C.selic.length-1]:null;
+  document.getElementById('jornalEdicao').textContent=ls?ls.periodo:'Bimestre atual';
+
+  // Ticker strip com empresas
+  const empStr=C.empresas.map(e=>`${e.codigo} ${fP(e.variacao)}`).join('   ·   ');
+  document.getElementById('jornalTickerStrip').textContent='📊 COTAÇÕES: '+empStr;
+
+  // Buscar notícias aprovadas do Supabase
+  try{
+    const resp=await fetch(`${SB_URL}/rest/v1/noticias?status=eq.aprovado&order=published_at.desc&limit=10`,{
+      headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}
+    });
+    const noticias=await resp.json();
+    loading.style.display='none';
+
+    if(!noticias||noticias.length===0){vazio.style.display='block';return;}
+    grid.style.display='block';
+
+    const impEmoji=i=>i==='positivo'?'▲':i==='negativo'?'▼':'◆';
+    const impColor=i=>i==='positivo'?'var(--green)':i==='negativo'?'var(--red)':'var(--muted)';
+    const impClass=i=>i==='positivo'?'jimp-pos':i==='negativo'?'jimp-neg':'jimp-neu';
+    const chapeuColor=i=>i==='positivo'?'#2EAB5E':i==='negativo'?'var(--red)':'var(--muted)';
+
+    // MANCHETE PRINCIPAL — primeira notícia
+    const m=noticias[0];
+    const mEmps=m.empresas_afetadas||[];
+    const mEmpsHTML=mEmps.map(e=>`<span class="jornal-emp-tag ${Number(e.variacao_pct)>=0?'jornal-emp-pos':'jornal-emp-neg'}">${e.codigo} ${e.variacao_display}</span>`).join('');
+    const mData=m.published_at?new Date(m.published_at).toLocaleDateString('pt-BR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'hoje';
+
+    document.getElementById('jornalManchete').innerHTML=`
+      <div class="jornal-manchete-card">
+        <div class="jornal-manchete-body">
+          <div>
+            <div class="jornal-chapeu" style="color:${chapeuColor(m.impacto)}">${m.chapeu||m.setor||'Economia'}</div>
+            <div class="jornal-manchete-titulo">${m.titulo}</div>
+            <div class="jornal-manchete-corpo">${m.corpo}</div>
+          </div>
+          <div class="jornal-manchete-footer">
+            <div class="jornal-empresas">${mEmpsHTML||'<span class="jornal-fonte">Impacto geral no mercado</span>'}</div>
+            <div class="jornal-data-tag">${mData}</div>
+          </div>
+        </div>
+        <div class="jornal-manchete-visual">
+          <div class="jornal-setor-big">${m.setor||'Economia'}</div>
+          <div class="jornal-impacto-big" style="color:${impColor(m.impacto)}">${impEmoji(m.impacto)}</div>
+          <div style="font-family:var(--f-mono);font-size:13px;color:var(--sky);z-index:1;font-weight:700;text-transform:uppercase;letter-spacing:1px">${(m.intensidade||'').toUpperCase()}</div>
+          ${m.pergunta?`<div class="jornal-pergunta">❓ ${m.pergunta}</div>`:''}
+        </div>
+      </div>`;
+
+    // NOTÍCIAS SECUNDÁRIAS
+    const secundarias=noticias.slice(1);
+    if(secundarias.length===0){
+      document.getElementById('jornalSecundarias').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted);font-size:13px">Mais notícias aparecerão aqui ao longo da semana</div>`;
+    } else {
+      document.getElementById('jornalSecundarias').innerHTML=secundarias.map(n=>{
+        const emps=n.empresas_afetadas||[];
+        const empsHTML=emps.slice(0,3).map(e=>`<span class="jornal-emp-tag ${Number(e.variacao_pct)>=0?'jornal-emp-pos':'jornal-emp-neg'}" style="font-size:10px">${e.codigo} ${e.variacao_display}</span>`).join('');
+        const nData=n.published_at?new Date(n.published_at).toLocaleDateString('pt-BR',{day:'numeric',month:'short'}):'';
+        return `<div class="jornal-card">
+          <div class="jornal-card-header">
+            <div>
+              <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${chapeuColor(n.impacto)};margin-bottom:6px;font-weight:700">${n.chapeu||n.setor||'Economia'}</div>
+              <div class="jornal-card-titulo">${n.titulo}</div>
+            </div>
+            <div style="font-size:28px;flex-shrink:0;color:${impColor(n.impacto)};font-family:var(--f-cond);font-weight:700">${impEmoji(n.impacto)}</div>
+          </div>
+          <div class="jornal-card-corpo">${n.corpo}</div>
+          ${n.pergunta?`<div style="font-size:12px;font-style:italic;color:var(--muted);padding:10px 14px;background:var(--off);border-radius:8px;line-height:1.5">❓ ${n.pergunta}</div>`:''}
+          <div class="jornal-card-footer">
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${empsHTML}</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="jornal-impacto-badge ${impClass(n.impacto)}">${n.intensidade||'leve'}</span>
+              <span class="jornal-fonte">${nData}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // Footer rodapé
+    document.getElementById('jornalFooter')?.remove();
+
+  }catch(e){
+    loading.style.display='none';
+    vazio.innerHTML='<div style="font-size:14px;color:var(--red)">⚠️ Erro ao carregar notícias. Tente novamente.</div>';
+    vazio.style.display='block';
+    console.error('Erro jornal:',e);
+  }
+}
+
+const builders={home:buildHome,empresas:buildEmpresas,selic:buildSelic,titulos:buildTitulos,comunicados:buildComunicados,pregao:buildPregao,jornal:buildJornal};
 function showPg(id,btn){
   if(id==='admin'&&!isAdmin){openLogin();return;}
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
