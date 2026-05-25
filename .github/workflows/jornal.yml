@@ -3,7 +3,7 @@ name: Jornal Mercado Jovem — Notícias Diárias
 on:
   schedule:
     # Roda todo dia útil às 7h (horário de Brasília = 10h UTC)
-    - cron: '0 10 * * 1-5'
+    - cron: '0 9 * * 1-5'
   workflow_dispatch:
     # Permite rodar manualmente pelo GitHub para testes
 
