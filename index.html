@@ -23,15 +23,17 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--f-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:clip}
 /* LOADING */
-#ls{position:fixed;inset:0;z-index:99999;background:var(--navy3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s}
+#ls{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .6s ease}
 #ls.hide{opacity:0;pointer-events:none}
-#ls .ico{font-size:52px;animation:pp 1.5s ease infinite}
-#ls h2{font-family:var(--f-cond);font-weight:900;font-size:28px;color:#fff;text-transform:uppercase;letter-spacing:2px}
-#ls p{font-family:var(--f-mono);font-size:11px;color:var(--sky);letter-spacing:2px}
-.lbar{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
-.lbar-i{height:100%;background:var(--lime);border-radius:2px;animation:lb 1.5s ease-in-out infinite}
-@keyframes lb{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
-@keyframes pp{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+#ls-canvas{position:absolute;inset:0;width:100%;height:100%}
+#ls-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:18px}
+#ls-logo{width:64px;height:64px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;animation:pp 2s ease infinite;backdrop-filter:blur(8px)}
+#ls h2{font-family:var(--f-cond);font-weight:900;font-size:26px;color:#fff;text-transform:uppercase;letter-spacing:3px;text-shadow:0 0 40px rgba(106,191,46,.6)}
+#ls p{font-family:var(--f-mono);font-size:10px;color:rgba(168,216,234,.7);letter-spacing:3px;text-transform:uppercase}
+.lbar{width:180px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.lbar-i{height:100%;background:linear-gradient(90deg,var(--lime),var(--sky));border-radius:2px;animation:lb 1.8s ease-in-out infinite}
+@keyframes lb{0%{width:0;margin-left:0}50%{width:55%;margin-left:22%}100%{width:0;margin-left:100%}}
+@keyframes pp{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(106,191,46,0)}50%{transform:scale(1.05);box-shadow:0 0 32px 8px rgba(106,191,46,.2)}}
 /* LOGIN */
 #loginOv{display:none;position:fixed;inset:0;z-index:9999;background:rgba(13,30,52,.85);backdrop-filter:blur(10px);align-items:center;justify-content:center}
 #loginOv.show{display:flex;animation:fi .2s ease}
@@ -490,7 +492,15 @@ footer strong{color:var(--navy)}
 </head>
 <body>
 
-<div id="ls"><div class="ico">🏛️</div><h2>Mercado Jovem</h2><p>Carregando dados...</p><div class="lbar"><div class="lbar-i"></div></div></div>
+<div id="ls">
+  <canvas id="ls-canvas"></canvas>
+  <div id="ls-content">
+    <div id="ls-logo">🏛️</div>
+    <h2>Mercado Jovem</h2>
+    <p>Carregando dados...</p>
+    <div class="lbar"><div class="lbar-i"></div></div>
+  </div>
+</div>
 
 <div id="loginOv">
   <div class="lbox">
@@ -1436,6 +1446,129 @@ function showPg(id,btn){
   if(builders[id])builders[id]();
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+// ── MESH GRADIENT LOADING SCREEN ─────────────────
+(function(){
+  const canvas = document.getElementById('ls-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // Project colors
+  const C = [
+    [13,  30,  52],   // --navy3
+    [26,  58,  92],   // --navy
+    [18,  40,  69],   // --navy2
+    [106, 191, 46],   // --lime
+    [18,  40,  69],   // --navy2
+    [168, 216, 234],  // --sky
+    [13,  30,  52],   // --navy3
+  ];
+
+  let w, h, pts, t = 0;
+  const N = 6; // number of gradient points
+
+  function resize(){
+    w = canvas.width  = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    pts = Array.from({length: N}, (_, i) => ({
+      x: (i % 3) * w * 0.5 + Math.random() * w * 0.3,
+      y: Math.floor(i / 3) * h * 0.5 + Math.random() * h * 0.3,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 0.25 + 0.15, // radius factor
+      ci: i % C.length,
+    }));
+  }
+
+  function lerp(a, b, t){ return a + (b - a) * t; }
+
+  function draw(){
+    ctx.fillStyle = `rgb(13,30,52)`;
+    ctx.fillRect(0, 0, w, h);
+
+    pts.forEach((p, i) => {
+      // Move points
+      p.x += p.vx + Math.sin(t * 0.3 + i) * 0.3;
+      p.y += p.vy + Math.cos(t * 0.2 + i * 1.3) * 0.3;
+
+      // Bounce
+      if(p.x < 0 || p.x > w) p.vx *= -1;
+      if(p.y < 0 || p.y > h) p.vy *= -1;
+      p.x = Math.max(0, Math.min(w, p.x));
+      p.y = Math.max(0, Math.min(h, p.y));
+
+      const c = C[p.ci];
+      const radius = Math.max(w, h) * (p.r + Math.sin(t * 0.5 + i) * 0.05);
+
+      const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius);
+      grd.addColorStop(0,   `rgba(${c[0]},${c[1]},${c[2]},0.55)`);
+      grd.addColorStop(0.5, `rgba(${c[0]},${c[1]},${c[2]},0.18)`);
+      grd.addColorStop(1,   `rgba(${c[0]},${c[1]},${c[2]},0)`);
+
+      ctx.globalCompositeOperation = i === 0 ? 'source-over' : 'screen';
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, w, h);
+    });
+
+    // Lime accent pulse
+    const lx = w * 0.5 + Math.sin(t * 0.4) * w * 0.2;
+    const ly = h * 0.5 + Math.cos(t * 0.3) * h * 0.2;
+    const lr = Math.max(w, h) * (0.15 + Math.sin(t * 0.7) * 0.05);
+    const lg = ctx.createRadialGradient(lx, ly, 0, lx, ly, lr);
+    lg.addColorStop(0,   `rgba(106,191,46,0.12)`);
+    lg.addColorStop(0.6, `rgba(106,191,46,0.04)`);
+    lg.addColorStop(1,   `rgba(106,191,46,0)`);
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = lg;
+    ctx.fillRect(0, 0, w, h);
+
+    // Sky blue accent
+    const sx = w * 0.3 + Math.cos(t * 0.35) * w * 0.25;
+    const sy = h * 0.7 + Math.sin(t * 0.45) * h * 0.2;
+    const sr = Math.max(w, h) * (0.18 + Math.cos(t * 0.5) * 0.04);
+    const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
+    sg.addColorStop(0,   `rgba(168,216,234,0.08)`);
+    sg.addColorStop(0.7, `rgba(168,216,234,0.02)`);
+    sg.addColorStop(1,   `rgba(168,216,234,0)`);
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = sg;
+    ctx.fillRect(0, 0, w, h);
+
+    // Dark overlay to deepen
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(13,30,52,0.35)';
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle grid lines
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+    ctx.lineWidth = 1;
+    const gs = 48;
+    for(let x = 0; x < w; x += gs){
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
+    }
+    for(let y = 0; y < h; y += gs){
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+    }
+
+    t += 0.012;
+  }
+
+  let animId;
+  function loop(){
+    const ls = document.getElementById('ls');
+    if(!ls || ls.classList.contains('hide') || ls.style.display === 'none'){
+      cancelAnimationFrame(animId);
+      return;
+    }
+    draw();
+    animId = requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  loop();
+})();
 
 // INIT
 async function init(){
