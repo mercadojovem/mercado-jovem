@@ -758,7 +758,7 @@ footer strong{color:var(--navy)}
 
     <!-- RODAPÉ JORNAL -->
     <div class="jornal-footer-strip">
-      <span>Notícias processadas por Inteligência Artificial com base em fontes públicas</span>
+      <span>Notícias baseadas em fontes públicas</span>
       <span class="jornal-sep">·</span>
       <span>Aprovadas pelo Banco Central do Mercado Jovem</span>
     </div>
@@ -833,7 +833,7 @@ footer strong{color:var(--navy)}
         </div>
         <div class="fg"><label>Subtítulo da página inicial</label><input type="text" id="cHSub" placeholder="Visão consolidada..."/></div>
         <div class="fr">
-          <div class="fg"><label>Usuário admin</label><input type="text" id="cUser" placeholder="bancoCentral"/></div>
+          <div class="fg"><label>Usuário admin</label><input type="text" id="cUser" placeholder="Novo usuário"/></div>
           <div class="fg"><label>Nova senha admin</label><input type="password" id="cPass" placeholder="••••••••"/></div>
         </div>
         <div class="fg"><label>Confirmar nova senha</label><input type="password" id="cPassC" placeholder="••••••••"/></div>
@@ -843,7 +843,7 @@ footer strong{color:var(--navy)}
   </div>
 </div>
 </main>
-<footer><strong>MERCADO JOVEM</strong> · Banco Central JCV · Plataforma Educacional &copy; 2026</footer>
+<footer><strong>MERCADO JOVEM</strong> · Banco Central JCV &copy; 2026</footer>
 <div id="toast"></div>
 
 <script>
@@ -852,13 +852,17 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const SB_ANON=SB_KEY;
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
-let CRED={user:'bancoCentral',pass:'MercadoJovem@2026'};
+// Credenciais armazenadas como hash SHA-256 — senha não fica exposta
+const CRED={
+  user:'60c625603d58bfd94f6249763a68fd88e9ce8fbd33efebcac1fea6281d5304d9',
+  pass:'1af33e750b02b2086a78e3e03f38ef5a42ee1d78deaa171c1d371a91b3376a7c'
+};
 let isAdmin=false;
 
-// ── SECURITY: login rate limit ──
+// login rate limit
 const LOGIN_LIMIT={attempts:0,lockedUntil:0,MAX:5,LOCKOUT_MS:60000};
 
-// ── SECURITY: sanitize text to prevent XSS ──
+// sanitize
 function sanitize(str){
   if(str===null||str===undefined)return '';
   return String(str)
@@ -870,7 +874,7 @@ function sanitize(str){
     .replace(/\//g,'&#x2F;');
 }
 
-// ── SECURITY: validate field length ──
+// validate length
 function safeVal(val,maxLen=500){
   const s=String(val||'').trim();
   return s.substring(0,maxLen);
@@ -881,7 +885,7 @@ const fJ=v=>'JCV '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,max
 const fP=v=>(v>=0?'+':'')+Number(v).toFixed(2)+'%';
 const SC={Banco:'#1A3A5C',Seguradora:'#6235A0',Tecnologia:'#6ABF2E',Alimentos:'#D4720A',Saneamento:'#0A8A7A',Energia:'#C4A000',Varejo:'#D94040',Transporte:'#4A6A8A','Asset Mgmt':'#1A5C8A','Com. Exterior':'#0A7A5A'};
 
-// RATING CONFIG — professor define os critérios
+// rating scale
 const RATING_CFG = {
   'AAA': { bg:'#E8F5E9', color:'#1B5E20', border:'#4CAF50', label:'Excelente' },
   'AA':  { bg:'#F1F8E9', color:'#33691E', border:'#8BC34A', label:'Muito Bom' },
@@ -901,10 +905,16 @@ function g(id){const e=document.getElementById(id);return e?e.value:'';}
 function updateClock(){const n=new Date();document.getElementById('clk').textContent=n.toLocaleDateString('pt-BR')+' · '+n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
 setInterval(updateClock,1000);updateClock();
 
-// AUTH
+// auth
 function openLogin(){document.getElementById('loginOv').classList.add('show');setTimeout(()=>document.getElementById('lu').focus(),100);}
 function closeLogin(){document.getElementById('loginOv').classList.remove('show');document.getElementById('lErr').classList.remove('show');document.getElementById('lu').value='';document.getElementById('lp').value='';}
-function doLogin(){
+
+async function hashStr(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin(){
   // Rate limit check
   const now=Date.now();
   if(LOGIN_LIMIT.lockedUntil>now){
@@ -915,13 +925,13 @@ function doLogin(){
   }
   const u=document.getElementById('lu').value.trim();
   const p=document.getElementById('lp').value;
-  // Validate input length
   if(u.length>100||p.length>200){
     document.getElementById('lErr').textContent='Credenciais inválidas.';
     document.getElementById('lErr').classList.add('show');
     return;
   }
-  if(u===CRED.user&&p===CRED.pass){
+    const [uHash,pHash]=await Promise.all([hashStr(u),hashStr(p)]);
+  if(uHash===CRED.user&&pHash===CRED.pass){
     LOGIN_LIMIT.attempts=0;
     isAdmin=true;closeLogin();
     document.getElementById('navAdmin').classList.add('show');
@@ -935,7 +945,7 @@ function doLogin(){
       LOGIN_LIMIT.lockedUntil=Date.now()+LOGIN_LIMIT.LOCKOUT_MS;
       LOGIN_LIMIT.attempts=0;
       document.getElementById('lErr').textContent='Conta bloqueada por 60 segundos após múltiplas tentativas.';
-    } else {
+    }else{
       document.getElementById('lErr').textContent=`Usuário ou senha incorretos. (${LOGIN_LIMIT.MAX-LOGIN_LIMIT.attempts} tentativa(s) restante(s))`;
     }
     document.getElementById('lErr').classList.add('show');
@@ -1017,13 +1027,13 @@ function buildHome(){
 
 function buildEmpresas(){
   document.getElementById('lblEmp').textContent=`${C.empresas.length} empresa(s)`;
-  document.getElementById('empB').innerHTML=[...C.empresas].sort((a,b)=>Number(b.valor)-Number(a.valor)).map(e=>{const cor=SC[e.setor]||'#888';const up=Number(e.variacao)>=0;return `<tr><td class="mn" style="color:var(--lime)">${e.codigo}</td><td class="en">${e.nome}</td><td><span class="sb" style="background:${cor}18;color:${cor};border:1px solid ${cor}33">${e.setor}</span></td><td class="mn" style="color:var(--muted)">${e.turma||'—'}</td><td class="mn">${fJ(e.valor)}</td><td class="mn">${Number(e.cotas||1e6).toLocaleString('pt-BR')}</td><td class="mn" style="color:var(--lime)">${fJ(Number(e.valor)/Number(e.cotas||1e6))}</td><td style="font-size:12px">${e.ceo||'—'}</td><td><span class="bdg ${up?'up':'dn'}">${up?'▲':'▼'} ${fP(e.variacao)}</span></td></tr>`;}).join('')||'<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma empresa cadastrada.</td></tr>';
+  document.getElementById('empB').innerHTML=[...C.empresas].sort((a,b)=>Number(b.valor)-Number(a.valor)).map(e=>{const cor=SC[e.setor]||'#888';const up=Number(e.variacao)>=0;return `<tr><td class="mn" style="color:var(--lime)">${sanitize(e.codigo)}</td><td class="en">${sanitize(e.nome)}</td><td><span class="sb" style="background:${cor}18;color:${cor};border:1px solid ${cor}33">${sanitize(e.setor)}</span></td><td class="mn" style="color:var(--muted)">${sanitize(e.turma||'—')}</td><td class="mn">${fJ(e.valor)}</td><td class="mn">${Number(e.cotas||1e6).toLocaleString('pt-BR')}</td><td class="mn" style="color:var(--lime)">${fJ(Number(e.valor)/Number(e.cotas||1e6))}</td><td style="font-size:12px">${sanitize(e.ceo||'—')}</td><td><span class="bdg ${up?'up':'dn'}">${up?'▲':'▼'} ${fP(e.variacao)}</span></td></tr>`;}).join('')||'<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma empresa cadastrada.</td></tr>';
 }
 
 function buildSelic(){
   const hist=C.selic,ls=hist.length?hist[hist.length-1]:null,taxa=ls?Number(ls.taxa):0,dia=taxa?((1+taxa/100)**(1/30)-1)*100:0;
   document.getElementById('selicSt').innerHTML=`<div class="sc lm"><div class="sl">Taxa Atual</div><div class="sv lm">${taxa.toFixed(2)}%</div><div class="bdg ne">ao período</div></div><div class="sc"><div class="sl">Taxa Diária Equiv.</div><div class="sv">${dia.toFixed(4)}%</div><div class="bdg ne">ao dia</div></div><div class="sc"><div class="sl">Próximo COPOM</div><div class="sv" style="font-size:16px;padding-top:4px">${ls&&ls.proximo_copom?ls.proximo_copom:'—'}</div><div class="bdg ne">Agendado</div></div>`;
-  document.getElementById('selicB').innerHTML=hist.map((h,i)=>{const prev=hist[i-1];const vr=prev?h.taxa-prev.taxa:0;const dc=h.decisao==='Alta'?'var(--red)':h.decisao==='Baixa'?'var(--green)':'var(--muted)';return `<tr><td class="mn" style="color:var(--lime)">${h.periodo}</td><td style="color:var(--muted)">${h.data}</td><td class="mn" style="font-size:18px;font-weight:700">${Number(h.taxa).toFixed(2)}%</td><td class="mn" style="color:${i===0?'var(--muted)':vr>=0?'var(--red)':'var(--green)'}">${i===0?'—':fP(vr)}</td><td><span class="bdg" style="background:${dc}18;color:${dc};border:1px solid ${dc}33">${h.decisao}</span></td><td style="font-size:12px;color:var(--muted)">${h.motivo||'—'}</td></tr>`;}).join('')||'<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma decisão registrada.</td></tr>';
+  document.getElementById('selicB').innerHTML=hist.map((h,i)=>{const prev=hist[i-1];const vr=prev?h.taxa-prev.taxa:0;const dc=h.decisao==='Alta'?'var(--red)':h.decisao==='Baixa'?'var(--green)':'var(--muted)';return `<tr><td class="mn" style="color:var(--lime)">${sanitize(h.periodo)}</td><td style="color:var(--muted)">${h.data}</td><td class="mn" style="font-size:18px;font-weight:700">${Number(h.taxa).toFixed(2)}%</td><td class="mn" style="color:${i===0?'var(--muted)':vr>=0?'var(--red)':'var(--green)'}">${i===0?'—':fP(vr)}</td><td><span class="bdg" style="background:${dc}18;color:${dc};border:1px solid ${dc}33">${sanitize(h.decisao)}</span></td><td style="font-size:12px;color:var(--muted)">${sanitize(h.motivo||'—')}</td></tr>`;}).join('')||'<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma decisão registrada.</td></tr>';
 }
 
 function buildTitulos(){
@@ -1105,8 +1115,7 @@ function buildTitulos(){
     </div>`
     :`<div style="text-align:center;padding:32px;color:var(--muted)">Nenhum título emitido até o momento.</div>`;
 
-  // Init simulator
-  calcSim();
+    calcSim();
 }
 
 function calcSim(){
@@ -1163,7 +1172,7 @@ function calcSim(){
 }
 
 function buildComunicados(){
-  document.getElementById('comG').innerHTML=C.comunicados.map(c=>`<div class="cc ${c.tipo||''}"><div class="ch"><span class="ctg ${c.tag}">${c.tag_label}</span><span class="cdt">${c.data}</span></div><div class="ct">${c.titulo}</div><div class="cb">${c.corpo}</div></div>`).join('')||'<div style="text-align:center;padding:48px;color:var(--muted);grid-column:1/-1">Nenhum comunicado publicado.</div>';
+  document.getElementById('comG').innerHTML=C.comunicados.map(c=>`<div class="cc ${sanitize(c.tipo||'')}"><div class="ch"><span class="ctg ${sanitize(c.tag)}">${sanitize(c.tag_label)}</span><span class="cdt">${sanitize(c.data)}</span></div><div class="ct">${sanitize(c.titulo)}</div><div class="cb">${sanitize(c.corpo)}</div></div>`).join('')||'<div style="text-align:center;padding:48px;color:var(--muted);grid-column:1/-1">Nenhum comunicado publicado.</div>';
 }
 
 function buildPregao(){
@@ -1199,9 +1208,9 @@ function bAE(){
 }
 function bAS(){document.getElementById('aSelB').innerHTML=C.selic.length?C.selic.map(h=>`<tr><td class="mn" style="color:var(--lime)">${h.periodo}</td><td style="color:var(--muted)">${h.data}</td><td class="mn" style="font-weight:700">${Number(h.taxa).toFixed(2)}%</td><td style="font-size:12px">${h.decisao}</td><td style="font-size:12px;color:var(--muted)">${h.motivo||'—'}</td><td style="font-size:12px">${h.proximo_copom||'—'}</td><td style="display:flex;gap:6px;padding:10px 16px"><button class="be" onclick="openM('selic',${h.id})">✏️ Editar</button><button class="bd" onclick="openCf('selic',${h.id},'${h.periodo}')">🗑 Excluir</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma decisão.</td></tr>';}
 
-function bAT(){document.getElementById('aTitB').innerHTML=C.titulos.length?C.titulos.map(t=>`<tr><td class="mn" style="color:var(--lime)">${t.codigo}</td><td style="font-size:12px">${t.empresa}</td><td style="font-size:12px">${t.tipo}</td><td class="mn">${fJ(t.capital)}</td><td class="mn">${t.taxa!==null&&t.taxa!==''?Number(t.taxa).toFixed(2)+'%':'Selic'}</td><td style="font-size:12px;color:var(--muted)">${t.vencimento}</td><td><span class="bdg" style="background:${t.status==='Ativo'?'var(--green)':'var(--red)'}18;color:${t.status==='Ativo'?'var(--green)':'var(--red)'};">${t.status}</span></td><td style="display:flex;gap:6px;padding:10px 16px"><button class="be" onclick="openM('titulo',${t.id})">✏️ Editar</button><button class="bd" onclick="openCf('titulo',${t.id},'${t.codigo}')">🗑 Excluir</button></td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Nenhum título.</td></tr>';}
+function bAT(){document.getElementById('aTitB').innerHTML=C.titulos.length?C.titulos.map(t=>`<tr><td class="mn" style="color:var(--lime)">${sanitize(t.codigo)}</td><td style="font-size:12px">${sanitize(t.empresa)}</td><td style="font-size:12px">${sanitize(t.tipo)}</td><td class="mn">${fJ(t.capital)}</td><td class="mn">${t.taxa!==null&&t.taxa!==''?Number(t.taxa).toFixed(2)+'%':'Selic'}</td><td style="font-size:12px;color:var(--muted)">${t.vencimento}</td><td><span class="bdg" style="background:${t.status==='Ativo'?'var(--green)':'var(--red)'}18;color:${t.status==='Ativo'?'var(--green)':'var(--red)'};">${t.status}</span></td><td style="display:flex;gap:6px;padding:10px 16px"><button class="be" onclick="openM('titulo',${t.id})">✏️ Editar</button><button class="bd" onclick="openCf('titulo',${t.id},'${t.codigo}')">🗑 Excluir</button></td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Nenhum título.</td></tr>';}
 
-function bAC(){document.getElementById('aComB').innerHTML=C.comunicados.length?C.comunicados.map(c=>`<tr><td style="font-size:12px;color:var(--muted)">${c.data}</td><td><span class="ctg ${c.tag}">${c.tag_label}</span></td><td style="font-size:13px;font-weight:600;max-width:280px">${c.titulo}</td><td style="display:flex;gap:6px;padding:10px 16px"><button class="be" onclick="openM('comunicado',${c.id})">✏️ Editar</button><button class="bd" onclick="openCf('comunicado',${c.id},'${String(c.titulo).replace(/'/g,"\\'")}')">🗑 Excluir</button></td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--muted)">Nenhum comunicado.</td></tr>';}
+function bAC(){document.getElementById('aComB').innerHTML=C.comunicados.length?C.comunicados.map(c=>`<tr><td style="font-size:12px;color:var(--muted)">${sanitize(c.data)}</td><td><span class="ctg ${sanitize(c.tag)}">${sanitize(c.tag_label)}</span></td><td style="font-size:13px;font-weight:600;max-width:280px">${sanitize(c.titulo)}</td><td style="display:flex;gap:6px;padding:10px 16px"><button class="be" onclick="openM('comunicado',${c.id})">✏️ Editar</button><button class="bd" onclick="openCf('comunicado',${c.id},'${String(c.titulo).replace(/'/g,"\\'")}')">🗑 Excluir</button></td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--muted)">Nenhum comunicado.</td></tr>';}
 
 function bAP(){document.getElementById('aPreB').innerHTML=C.pregoes.length?C.pregoes.map(p=>`<tr><td class="mn" style="color:var(--lime)">${p.numero}</td><td class="mn">${p.data}</td><td style="color:var(--muted)">${p.hora}</td><td style="font-size:12px">${p.tipo}</td><td style="font-size:12px">${p.status}</td><td style="font-size:12px;color:var(--muted)">${p.destaque||'—'}</td><td style="display:flex;gap:6px;padding:10px 16px"><button class="be" onclick="openM('pregao',${p.id})">✏️ Editar</button><button class="bd" onclick="openCf('pregao',${p.id},'Pregão nº ${p.numero}')">🗑 Excluir</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhum pregão.</td></tr>';}
 
@@ -1211,9 +1220,22 @@ function bACfg(){const cfg=C.config;document.getElementById('cNome').value=cfg.n
 
 async function saveTicker(){const u={ticker_visivel:g('tVis')==='1',ticker_label:g('tLbl')||'📊 MERCADO JOVEM',ticker_modo:g('tModo'),ticker_manual:g('tManTxt')};const{error}=await sb.from('config').update(u).eq('id',1);if(error){toast('⚠️ Erro ao salvar faixa.',true);return;}C.config={...C.config,...u};buildTicker();toast('✓ Faixa atualizada!');}
 
-async function saveConfig(){const nome=g('cNome'),sub=g('cSub'),hSub=g('cHSub'),nu=g('cUser').trim(),np=g('cPass'),npc=g('cPassC');if(np&&np!==npc){toast('⚠️ Senhas não coincidem!',true);return;}const u={};if(nome)u.nome_projeto=nome;if(sub)u.subtitulo=sub;if(hSub)u.home_sub=hSub;const{error}=await sb.from('config').update(u).eq('id',1);if(error){toast('⚠️ Erro ao salvar.',true);return;}C.config={...C.config,...u};if(nu)CRED.user=nu;if(np)CRED.pass=np;applyConfig();document.getElementById('cPass').value='';document.getElementById('cPassC').value='';toast('✓ Configurações salvas!');}
+async function saveConfig(){
+  const nome=g('cNome'),sub=g('cSub'),hSub=g('cHSub');
+  const nu=g('cUser').trim(),np=g('cPass'),npc=g('cPassC');
+  if(np&&np!==npc){toast('⚠️ Senhas não coincidem!',true);return;}
+  const u={};
+  if(nome)u.nome_projeto=nome;if(sub)u.subtitulo=sub;if(hSub)u.home_sub=hSub;
+  const{error}=await sb.from('config').update(u).eq('id',1);
+  if(error){toast('⚠️ Erro ao salvar.',true);return;}
+  C.config={...C.config,...u};
+  if(nu){CRED.user=await hashStr(nu);}
+  if(np){CRED.pass=await hashStr(np);}
+  applyConfig();
+  document.getElementById('cPass').value='';document.getElementById('cPassC').value='';
+  toast('✓ Configurações salvas!');
+}
 
-// AUTO VARIAÇÃO
 function autoCalcVar(valorAnterior){
   if(!valorAnterior) return;
   const novoValor=parseFloat(document.getElementById('f5')?.value)||0;
@@ -1262,7 +1284,7 @@ function getForm(type,id){
       <div class="fg"><label>Nome da Empresa</label><input id="f2" value="${e.nome||''}" placeholder="Banco Alfa S.A."/></div>
       <div class="fr">
         <div class="fg"><label>Setor</label><select id="f3">${['Banco','Seguradora','Tecnologia','Alimentos','Saneamento','Energia','Varejo','Transporte','Asset Mgmt','Com. Exterior'].map(s=>`<option ${e.setor===s?'selected':''}>${s}</option>`).join('')}</select></div>
-        <div class="fg"><label>CEO</label><input id="f4" value="${e.ceo||''}" placeholder="Nome do aluno"/></div>
+        <div class="fg"><label>CEO</label><input id="f4" value="${e.ceo||''}" placeholder="Nome do responsável"/></div>
       </div>
       <div class="fr">
         <div class="fg"><label>Valor Total (JCV)</label>
@@ -1305,7 +1327,7 @@ function getForm(type,id){
 }
 
 async function saveM(){
-  // Security guard — double check admin status
+  // admin check
   if(!isAdmin){toast('⚠️ Acesso não autorizado.',true);closeModal();return;}
   const sv=document.getElementById('mSave');sv.disabled=true;sv.textContent='Salvando...';
   try{
@@ -1337,7 +1359,7 @@ async function execDel(){
 }
 
 // NAVIGATION
-// ══ JORNAL ═══════════════════════════════════════
+
 async function buildJornal(){
   const loading=document.getElementById('jornalLoading');
   const grid=document.getElementById('jornalGrid');
@@ -1378,9 +1400,9 @@ async function buildJornal(){
       <div class="jornal-manchete-card">
         <div class="jornal-manchete-body">
           <div>
-            <div class="jornal-chapeu" style="color:${chapeuColor(m.impacto)}">${m.chapeu||m.setor||'Economia'}</div>
-            <div class="jornal-manchete-titulo">${m.titulo}</div>
-            <div class="jornal-manchete-corpo">${m.corpo}</div>
+            <div class="jornal-chapeu" style="color:${chapeuColor(m.impacto)}">${sanitize(m.chapeu||m.setor||'Economia')}</div>
+            <div class="jornal-manchete-titulo">${sanitize(m.titulo)}</div>
+            <div class="jornal-manchete-corpo">${sanitize(m.corpo)}</div>
           </div>
           <div class="jornal-manchete-footer">
             <div class="jornal-empresas">${mEmpsHTML||'<span class="jornal-fonte">Impacto geral no mercado</span>'}</div>
@@ -1388,10 +1410,10 @@ async function buildJornal(){
           </div>
         </div>
         <div class="jornal-manchete-visual">
-          <div class="jornal-setor-big">${m.setor||'Economia'}</div>
+          <div class="jornal-setor-big">${sanitize(m.setor||'Economia')}</div>
           <div class="jornal-impacto-big" style="color:${impColor(m.impacto)}">${impEmoji(m.impacto)}</div>
           <div style="font-family:var(--f-mono);font-size:13px;color:var(--sky);z-index:1;font-weight:700;text-transform:uppercase;letter-spacing:1px">${(m.intensidade||'').toUpperCase()}</div>
-          ${m.pergunta?`<div class="jornal-pergunta">${m.pergunta}</div>`:''}
+          ${m.pergunta?`<div class="jornal-pergunta">${sanitize(m.pergunta)}</div>`:''}
         </div>
       </div>`;
 
@@ -1407,17 +1429,17 @@ async function buildJornal(){
         return `<div class="jornal-card">
           <div class="jornal-card-header">
             <div>
-              <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${chapeuColor(n.impacto)};margin-bottom:6px;font-weight:700">${n.chapeu||n.setor||'Economia'}</div>
-              <div class="jornal-card-titulo">${n.titulo}</div>
+              <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${chapeuColor(n.impacto)};margin-bottom:6px;font-weight:700">${sanitize(n.chapeu||n.setor||'Economia')}</div>
+              <div class="jornal-card-titulo">${sanitize(n.titulo)}</div>
             </div>
             <div style="font-size:14px;flex-shrink:0;color:${impColor(n.impacto)};font-family:var(--f-mono);font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:5px;background:${n.impacto==='positivo'?'rgba(46,171,94,.1)':n.impacto==='negativo'?'rgba(217,64,64,.08)':'rgba(26,58,92,.07)'}">${impEmoji(n.impacto)}</div>
           </div>
-          <div class="jornal-card-corpo">${n.corpo}</div>
-          ${n.pergunta?`<div style="font-size:12px;font-style:italic;color:var(--muted);padding:10px 14px;background:var(--off);border-radius:8px;line-height:1.5">${n.pergunta}</div>`:''}
+          <div class="jornal-card-corpo">${sanitize(n.corpo)}</div>
+          ${n.pergunta?`<div style="font-size:12px;font-style:italic;color:var(--muted);padding:10px 14px;background:var(--off);border-radius:8px;line-height:1.5">${sanitize(n.pergunta)}</div>`:''}
           <div class="jornal-card-footer">
             <div style="display:flex;flex-wrap:wrap;gap:6px">${empsHTML}</div>
             <div style="display:flex;align-items:center;gap:8px">
-              <span class="jornal-impacto-badge ${impClass(n.impacto)}">${n.intensidade||'leve'}</span>
+              <span class="jornal-impacto-badge ${impClass(n.impacto)}">${sanitize(n.intensidade||'leve')}</span>
               <span class="jornal-fonte">${nData}</span>
             </div>
           </div>
@@ -1447,14 +1469,12 @@ function showPg(id,btn){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ── MESH GRADIENT LOADING SCREEN ─────────────────
 (function(){
   const canvas = document.getElementById('ls-canvas');
   if(!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  // Project colors
-  const C = [
+    const C = [
     [13,  30,  52],   // --navy3
     [26,  58,  92],   // --navy
     [18,  40,  69],   // --navy2
@@ -1465,8 +1485,7 @@ function showPg(id,btn){
   ];
 
   let w, h, pts, t = 0;
-  const N = 6; // number of gradient points
-
+  const N = 6; 
   function resize(){
     w = canvas.width  = window.innerWidth;
     h = canvas.height = window.innerHeight;
@@ -1487,12 +1506,10 @@ function showPg(id,btn){
     ctx.fillRect(0, 0, w, h);
 
     pts.forEach((p, i) => {
-      // Move points
-      p.x += p.vx + Math.sin(t * 0.3 + i) * 0.3;
+            p.x += p.vx + Math.sin(t * 0.3 + i) * 0.3;
       p.y += p.vy + Math.cos(t * 0.2 + i * 1.3) * 0.3;
 
-      // Bounce
-      if(p.x < 0 || p.x > w) p.vx *= -1;
+            if(p.x < 0 || p.x > w) p.vx *= -1;
       if(p.y < 0 || p.y > h) p.vy *= -1;
       p.x = Math.max(0, Math.min(w, p.x));
       p.y = Math.max(0, Math.min(h, p.y));
@@ -1510,8 +1527,7 @@ function showPg(id,btn){
       ctx.fillRect(0, 0, w, h);
     });
 
-    // Lime accent pulse
-    const lx = w * 0.5 + Math.sin(t * 0.4) * w * 0.2;
+        const lx = w * 0.5 + Math.sin(t * 0.4) * w * 0.2;
     const ly = h * 0.5 + Math.cos(t * 0.3) * h * 0.2;
     const lr = Math.max(w, h) * (0.15 + Math.sin(t * 0.7) * 0.05);
     const lg = ctx.createRadialGradient(lx, ly, 0, lx, ly, lr);
@@ -1522,8 +1538,7 @@ function showPg(id,btn){
     ctx.fillStyle = lg;
     ctx.fillRect(0, 0, w, h);
 
-    // Sky blue accent
-    const sx = w * 0.3 + Math.cos(t * 0.35) * w * 0.25;
+        const sx = w * 0.3 + Math.cos(t * 0.35) * w * 0.25;
     const sy = h * 0.7 + Math.sin(t * 0.45) * h * 0.2;
     const sr = Math.max(w, h) * (0.18 + Math.cos(t * 0.5) * 0.04);
     const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
@@ -1534,13 +1549,11 @@ function showPg(id,btn){
     ctx.fillStyle = sg;
     ctx.fillRect(0, 0, w, h);
 
-    // Dark overlay to deepen
-    ctx.globalCompositeOperation = 'source-over';
+        ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = 'rgba(13,30,52,0.35)';
     ctx.fillRect(0, 0, w, h);
 
-    // Subtle grid lines
-    ctx.globalCompositeOperation = 'source-over';
+        ctx.globalCompositeOperation = 'source-over';
     ctx.strokeStyle = 'rgba(255,255,255,0.025)';
     ctx.lineWidth = 1;
     const gs = 48;
