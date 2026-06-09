@@ -509,8 +509,8 @@ footer strong{color:var(--navy)}
     <p>Banco Central do Mercado Jovem</p>
     <div id="lErr">Usuário ou senha incorretos.</div>
     <div class="lf"><label>Usuário</label><input type="text" id="lu" autocomplete="username"/></div>
-    <div class="lf"><label>Senha</label><input type="password" id="lp" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <button class="btn-login" onclick="doLogin()">Entrar</button><br>
+    <div class="lf"><label>Senha</label><input type="password" id="lp" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin().catch(console.error)"/></div>
+    <button class="btn-login" onclick="doLogin().catch(console.error)">Entrar</button><br>
     <button class="btn-cancel-l" onclick="closeLogin()">Cancelar</button>
   </div>
 </div>
@@ -833,11 +833,14 @@ footer strong{color:var(--navy)}
         </div>
         <div class="fg"><label>Subtítulo da página inicial</label><input type="text" id="cHSub" placeholder="Visão consolidada..."/></div>
         <div class="fr">
-          <div class="fg"><label>Usuário admin</label><input type="text" id="cUser" placeholder="Novo usuário"/></div>
-          <div class="fg"><label>Nova senha admin</label><input type="password" id="cPass" placeholder="••••••••"/></div>
+          <div class="fg"><label>Novo acesso</label><input type="text" id="cUser" placeholder="Deixe vazio para não alterar" autocomplete="off"/></div>
+          <div class="fg"><label>Nova chave</label><input type="password" id="cPass" placeholder="Deixe vazio para não alterar" autocomplete="new-password"/></div>
         </div>
-        <div class="fg"><label>Confirmar nova senha</label><input type="password" id="cPassC" placeholder="••••••••"/></div>
-        <button class="btn-nv" onclick="saveConfig()">💾 Salvar Configurações</button>
+        <div class="fr">
+          <div class="fg"><label>Confirmar nova chave</label><input type="password" id="cPassC" placeholder="Deixe vazio para não alterar" autocomplete="new-password"/></div>
+          <div class="fg"><label>Chave atual (obrigatório para alterar acesso)</label><input type="password" id="cPassAtual" placeholder="••••••••" autocomplete="current-password"/></div>
+        </div>
+        <button class="btn-nv" onclick="saveConfig()">Salvar</button>
       </div>
     </div>
   </div>
@@ -852,11 +855,6 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const SB_ANON=SB_KEY;
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
-// Credenciais armazenadas como hash SHA-256 — senha não fica exposta
-const CRED={
-  user:'60c625603d58bfd94f6249763a68fd88e9ce8fbd33efebcac1fea6281d5304d9',
-  pass:'1af33e750b02b2086a78e3e03f38ef5a42ee1d78deaa171c1d371a91b3376a7c'
-};
 let isAdmin=false;
 
 // login rate limit
@@ -878,6 +876,11 @@ function sanitize(str){
 function safeVal(val,maxLen=500){
   const s=String(val||'').trim();
   return s.substring(0,maxLen);
+}
+
+async function hashStr(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 let C={empresas:[],selic:[],titulos:[],comunicados:[],pregoes:[],config:{}};
 
@@ -915,7 +918,6 @@ async function hashStr(str){
 }
 
 async function doLogin(){
-  // Rate limit check
   const now=Date.now();
   if(LOGIN_LIMIT.lockedUntil>now){
     const secs=Math.ceil((LOGIN_LIMIT.lockedUntil-now)/1000);
@@ -925,31 +927,46 @@ async function doLogin(){
   }
   const u=document.getElementById('lu').value.trim();
   const p=document.getElementById('lp').value;
-  if(u.length>100||p.length>200){
-    document.getElementById('lErr').textContent='Credenciais inválidas.';
+  if(!u||!p||u.length>100||p.length>200){
+    document.getElementById('lErr').textContent='Preencha todos os campos.';
     document.getElementById('lErr').classList.add('show');
     return;
   }
+  const btn=document.querySelector('.btn-login');
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  try{
     const [uHash,pHash]=await Promise.all([hashStr(u),hashStr(p)]);
-  if(uHash===CRED.user&&pHash===CRED.pass){
-    LOGIN_LIMIT.attempts=0;
-    isAdmin=true;closeLogin();
-    document.getElementById('navAdmin').classList.add('show');
-    const b=document.getElementById('btnLt');b.textContent='✓ Admin';b.className='btn-lt logged';
-    b.onclick=()=>{document.querySelectorAll('.nb').forEach(x=>x.classList.remove('active'));const nb=document.getElementById('navAdmin');nb.classList.add('active');showPg('admin',nb);};
-    document.getElementById('aUser').textContent='Logado: '+u;
-    buildAdminAll();showPg('admin',document.getElementById('navAdmin'));toast('✓ Acesso autorizado!');
-  }else{
-    LOGIN_LIMIT.attempts++;
-    if(LOGIN_LIMIT.attempts>=LOGIN_LIMIT.MAX){
-      LOGIN_LIMIT.lockedUntil=Date.now()+LOGIN_LIMIT.LOCKOUT_MS;
+    const resp=await fetch(`${SB_URL}/functions/v1/auth-admin`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({userHash:uHash,passHash:pHash})
+    });
+    const data=await resp.json();
+    if(resp.ok&&data.ok){
       LOGIN_LIMIT.attempts=0;
-      document.getElementById('lErr').textContent='Conta bloqueada por 60 segundos após múltiplas tentativas.';
+      isAdmin=true;closeLogin();
+      document.getElementById('navAdmin').classList.add('show');
+      const b=document.getElementById('btnLt');b.textContent='✓ Admin';b.className='btn-lt logged';
+      b.onclick=()=>{document.querySelectorAll('.nb').forEach(x=>x.classList.remove('active'));const nb=document.getElementById('navAdmin');nb.classList.add('active');showPg('admin',nb);};
+      document.getElementById('aUser').textContent='Logado: '+u;
+      buildAdminAll();showPg('admin',document.getElementById('navAdmin'));toast('✓ Acesso autorizado!');
     }else{
-      document.getElementById('lErr').textContent=`Usuário ou senha incorretos. (${LOGIN_LIMIT.MAX-LOGIN_LIMIT.attempts} tentativa(s) restante(s))`;
+      LOGIN_LIMIT.attempts++;
+      if(LOGIN_LIMIT.attempts>=LOGIN_LIMIT.MAX){
+        LOGIN_LIMIT.lockedUntil=Date.now()+LOGIN_LIMIT.LOCKOUT_MS;
+        LOGIN_LIMIT.attempts=0;
+        document.getElementById('lErr').textContent='Conta bloqueada por 60 segundos.';
+      }else{
+        document.getElementById('lErr').textContent=`Acesso negado. (${LOGIN_LIMIT.MAX-LOGIN_LIMIT.attempts} tentativa(s) restante(s))`;
+      }
+      document.getElementById('lErr').classList.add('show');
+      document.getElementById('lp').value='';document.getElementById('lp').focus();
     }
+  }catch(e){
+    document.getElementById('lErr').textContent='Erro de conexão. Tente novamente.';
     document.getElementById('lErr').classList.add('show');
-    document.getElementById('lp').value='';document.getElementById('lp').focus();
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Entrar';}
   }
 }
 function doLogout(){isAdmin=false;document.getElementById('navAdmin').classList.remove('show','active');const b=document.getElementById('btnLt');b.textContent='⚙ Admin';b.className='btn-lt';b.onclick=openLogin;showPg('home',document.querySelector('.nb'));toast('Sessão encerrada.');}
@@ -1216,23 +1233,43 @@ function bAP(){document.getElementById('aPreB').innerHTML=C.pregoes.length?C.pre
 
 function bATicker(){const cfg=C.config;document.getElementById('tVis').value=cfg.ticker_visivel===false?'0':'1';document.getElementById('tLbl').value=cfg.ticker_label||'📊 MERCADO JOVEM';document.getElementById('tModo').value=cfg.ticker_modo||'auto';document.getElementById('tManTxt').value=cfg.ticker_manual||'';document.getElementById('tManArea').style.display=cfg.ticker_modo==='manual'?'block':'none';prevTicker();}
 
-function bACfg(){const cfg=C.config;document.getElementById('cNome').value=cfg.nome_projeto||'';document.getElementById('cSub').value=cfg.subtitulo||'';document.getElementById('cHSub').value=cfg.home_sub||'';document.getElementById('cUser').value=CRED.user;}
+function bACfg(){const cfg=C.config;document.getElementById('cNome').value=cfg.nome_projeto||'';document.getElementById('cSub').value=cfg.subtitulo||'';document.getElementById('cHSub').value=cfg.home_sub||'';document.getElementById('cUser').value='';}
 
 async function saveTicker(){const u={ticker_visivel:g('tVis')==='1',ticker_label:g('tLbl')||'📊 MERCADO JOVEM',ticker_modo:g('tModo'),ticker_manual:g('tManTxt')};const{error}=await sb.from('config').update(u).eq('id',1);if(error){toast('⚠️ Erro ao salvar faixa.',true);return;}C.config={...C.config,...u};buildTicker();toast('✓ Faixa atualizada!');}
 
 async function saveConfig(){
+  if(!isAdmin){toast('⚠️ Acesso não autorizado.',true);return;}
   const nome=g('cNome'),sub=g('cSub'),hSub=g('cHSub');
-  const nu=g('cUser').trim(),np=g('cPass'),npc=g('cPassC');
-  if(np&&np!==npc){toast('⚠️ Senhas não coincidem!',true);return;}
+  const nu=g('cUser').trim(),np=g('cPass'),npc=g('cPassC'),npa=g('cPassAtual');
+  if(np&&np!==npc){toast('⚠️ As novas chaves não coincidem.',true);return;}
+  if((nu||np)&&!npa){toast('⚠️ Informe a chave atual para alterar o acesso.',true);return;}
+
+  // Verify current password before allowing credential change
+  if((nu||np)&&npa){
+    const [curHash]=await Promise.all([hashStr(npa)]);
+    const vResp=await fetch(`${SB_URL}/functions/v1/auth-admin`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({userHash:await hashStr(document.getElementById('aUser').textContent.replace('Logado: ','')),passHash:curHash})
+    });
+    if(!vResp.ok){toast('⚠️ Chave atual incorreta.',true);return;}
+  }
+
   const u={};
-  if(nome)u.nome_projeto=nome;if(sub)u.subtitulo=sub;if(hSub)u.home_sub=hSub;
+  if(nome)u.nome_projeto=nome;
+  if(sub)u.subtitulo=sub;
+  if(hSub)u.home_sub=hSub;
+  if(nu)u.admin_user_hash=await hashStr(nu);
+  if(np)u.admin_pass_hash=await hashStr(np);
+
   const{error}=await sb.from('config').update(u).eq('id',1);
   if(error){toast('⚠️ Erro ao salvar.',true);return;}
   C.config={...C.config,...u};
-  if(nu){CRED.user=await hashStr(nu);}
-  if(np){CRED.pass=await hashStr(np);}
   applyConfig();
-  document.getElementById('cPass').value='';document.getElementById('cPassC').value='';
+  document.getElementById('cUser').value='';
+  document.getElementById('cPass').value='';
+  document.getElementById('cPassC').value='';
+  document.getElementById('cPassAtual').value='';
   toast('✓ Configurações salvas!');
 }
 
