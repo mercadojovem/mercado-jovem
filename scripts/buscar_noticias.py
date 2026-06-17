@@ -1,22 +1,12 @@
 #!/usr/bin/env python3
-"""
-MERCADO JOVEM — Jornal Automático
-Busca notícias reais, processa com Claude API,
-salva no Supabase e envia para aprovação no Telegram.
-"""
+import os, json, random, requests, xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
 
-import os
-import json
-import requests
-import xml.etree.ElementTree as ET
-from datetime import datetime, date
-
-# ── CONFIGURAÇÕES ─────────────────────────────────────
-SUPABASE_URL      = os.environ["SUPABASE_URL"]
-SUPABASE_KEY      = os.environ["SUPABASE_SERVICE_KEY"]
-ANTHROPIC_KEY     = os.environ["ANTHROPIC_API_KEY"]
-TELEGRAM_TOKEN    = os.environ["TELEGRAM_TOKEN"]
-TELEGRAM_CHAT_ID  = os.environ["TELEGRAM_CHAT_ID"]
+SUPABASE_URL     = os.environ["SUPABASE_URL"]
+SUPABASE_KEY     = os.environ["SUPABASE_SERVICE_KEY"]
+ANTHROPIC_KEY    = os.environ["ANTHROPIC_API_KEY"]
+TELEGRAM_TOKEN   = os.environ["TELEGRAM_TOKEN"]
+TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 HEADERS_SB = {
     "apikey": SUPABASE_KEY,
@@ -25,408 +15,358 @@ HEADERS_SB = {
     "Prefer": "return=representation"
 }
 
-# ── SETORES E PALAVRAS-CHAVE ──────────────────────────
+# Fontes globais com RSS direto
+FONTES_GLOBAIS = [
+    {"nome": "Reuters Business", "url": "https://feeds.reuters.com/reuters/businessNews"},
+    {"nome": "CNBC Business",    "url": "https://www.cnbc.com/id/10001147/device/rss/rss.html"},
+    {"nome": "Yahoo Finance",    "url": "https://finance.yahoo.com/news/rssindex"},
+    {"nome": "Financial Times",  "url": "https://www.ft.com/rss/home"},
+    {"nome": "Valor Econômico",  "url": "https://valor.globo.com/rss/"},
+]
+
+# Palavras-chave por setor para filtrar notícias das fontes globais
+KEYWORDS_SETOR = {
+    "Banco":       ["bank","banking","interest rate","credit","federal reserve","central bank","juros","banco","selic","credito","inadimplencia","fintech"],
+    "Energia":     ["oil","energy","petroleum","fuel","solar","wind","electricity","crude","energia","petroleo","combustivel","eletrica","aneel"],
+    "Tecnologia":  ["tech","technology","ai","artificial intelligence","startup","software","digital","chip","semiconductor","tecnologia","inteligencia artificial"],
+    "Alimentos":   ["food","agriculture","commodity","soybean","corn","grain","crop","alimento","agronegocio","safra","commodities","inflacao alimentar"],
+    "Varejo":      ["retail","consumer","sales","e-commerce","shopping","spending","varejo","consumo","vendas","comercio","supermercado"],
+    "Transporte":  ["transport","logistics","freight","aviation","shipping","airline","transporte","logistica","frete","aviacao","porto"],
+    "Seguradora":  ["insurance","insurer","reinsurance","claim","premium","seguro","seguradora","sinistro","apolice"],
+    "Saneamento":  ["water","sanitation","sewage","infrastructure","utilities","agua","saneamento","esgoto","hidrico"],
+    "Asset Mgmt":  ["fund","investment","stock market","bonds","portfolio","asset","fundo","investimento","bolsa","acoes","ibovespa","renda fixa"],
+    "Com. Exterior":["trade","export","import","tariff","dollar","exchange rate","exportacao","importacao","cambio","dolar","balanca comercial"],
+}
+
+# Queries Google News por setor
 SETORES = {
-    "Banco": {
-        "queries": ["banco central juros brasil", "selic credito bancario", "inadimplencia financeiro brasil"],
-        "empresas_keywords": ["banco", "financeiro", "crédito", "juros"]
-    },
-    "Energia": {
-        "queries": ["energia eletrica brasil preco", "petroleo combustivel brasil", "energia renovavel solar eolica"],
-        "empresas_keywords": ["energia", "petróleo", "combustível", "elétrica"]
-    },
-    "Tecnologia": {
-        "queries": ["tecnologia startup brasil investimento", "inteligencia artificial empresas", "mercado tech digital brasil"],
-        "empresas_keywords": ["tech", "tecnologia", "software", "digital", "startup"]
-    },
-    "Alimentos": {
-        "queries": ["inflacao alimentos brasil supermercado", "agronegocio safra brasil", "commodities soja milho"],
-        "empresas_keywords": ["alimento", "agro", "safra", "commodity"]
-    },
-    "Varejo": {
-        "queries": ["varejo consumo vendas brasil", "comercio black friday brasil", "pib consumo familia"],
-        "empresas_keywords": ["varejo", "comércio", "vendas", "consumo"]
-    },
-    "Transporte": {
-        "queries": ["logistica transporte frete brasil", "combustivel greve caminhoneiros", "infraestrutura estradas portos"],
-        "empresas_keywords": ["transporte", "logística", "frete", "caminhão"]
-    },
-    "Seguradora": {
-        "queries": ["seguros brasil mercado crescimento", "sinistros seguradora brasil", "seguro vida saude brasil"],
-        "empresas_keywords": ["seguro", "sinistro", "apólice"]
-    },
-    "Saneamento": {
-        "queries": ["saneamento basico brasil agua", "concessao agua esgoto privatizacao", "infraestrutura hidrica brasil"],
-        "empresas_keywords": ["saneamento", "água", "esgoto", "hídrico"]
-    }
+    "Banco":       {"queries": ["banco central brasil selic decisao","credito bancario inadimplencia brasil","banco digital fintechs brasil","spread bancario juros emprestimo","sistema financeiro nacional regulacao"]},
+    "Energia":     {"queries": ["energia eletrica tarifa brasil","petroleo preco barril mercado","energia solar eolica geracao brasil","combustivel gasolina etanol preco","aneel energia distribuicao brasil"]},
+    "Tecnologia":  {"queries": ["startup tecnologia investimento brasil","inteligencia artificial empresas impacto","e-commerce vendas online brasil","ciberseguranca ataques empresas","semiconductores chips industria tech"]},
+    "Alimentos":   {"queries": ["inflacao alimentar supermercado brasil","agronegocio exportacao commodities","safra producao agricola brasil","precos alimentos alta baixa","industria alimenticia crescimento"]},
+    "Varejo":      {"queries": ["varejo vendas consumo brasil","comercio eletronico crescimento","confianca consumidor indice brasil","shopping lojas faturamento","emprego renda consumo familia"]},
+    "Transporte":  {"queries": ["logistica frete transportadora brasil","infraestrutura rodovias porto aeroporto","combustivel diesel transportes custo","aviacao passageiros voos brasil","mobilidade urbana transporte publico"]},
+    "Seguradora":  {"queries": ["seguros mercado brasil crescimento","seguro saude plano assistencia","sinistros indenizacoes setor segurador","seguro rural producao agricola","resseguro mercado regulacao"]},
+    "Saneamento":  {"queries": ["saneamento basico brasil agua","concessao agua esgoto privatizacao","marco saneamento investimentos","escassez hidrica reservatorios nivel","infraestrutura hidrica obras brasil"]},
+    "Asset Mgmt":  {"queries": ["fundos investimento renda fixa variavel","bolsa valores ibovespa semana","tesouro direto renda fixa rentabilidade","mercado financeiro capitalizacao","gestao ativos fundos brasileiros"]},
+    "Com. Exterior":{"queries": ["exportacao importacao brasil balanca comercial","dolar real cambio variacao","comercio exterior tarifas china eua","exportacao commodities brasil mercado","acordo comercial brasil parceiros"]},
 }
 
-# ── FAIXAS DE IMPACTO ─────────────────────────────────
-FAIXAS_IMPACTO = {
-    "leve":    {"min": 1.0, "max": 3.0},
-    "moderado": {"min": 3.0, "max": 6.0},
-    "forte":   {"min": 6.0, "max": 10.0}
-}
 
-# ── BUSCAR NOTÍCIAS VIA RSS ───────────────────────────
-def buscar_noticias_rss(query: str) -> list[dict]:
-    """Busca notícias no Google News RSS."""
+def buscar_titulos_recentes() -> set:
+    desde = (datetime.now() - timedelta(days=7)).isoformat()
+    resp = requests.get(
+        f"{SUPABASE_URL}/rest/v1/noticias?select=titulo_original&created_at=gte.{desde}&status=in.(aprovado,pendente)",
+        headers=HEADERS_SB, timeout=10
+    )
+    if resp.status_code != 200:
+        return set()
+    return {r.get("titulo_original", "").lower().strip() for r in resp.json()}
+
+
+def buscar_setores_recentes() -> list:
+    desde = (datetime.now() - timedelta(days=2)).isoformat()
+    resp = requests.get(
+        f"{SUPABASE_URL}/rest/v1/noticias?select=setor&created_at=gte.{desde}&status=in.(aprovado,pendente)",
+        headers=HEADERS_SB, timeout=10
+    )
+    if resp.status_code != 200:
+        return []
+    return [r.get("setor", "") for r in resp.json()]
+
+
+def titulo_similar(titulo: str, publicados: set) -> bool:
+    stop = {"de","da","do","e","o","a","no","na","em","para","com","que","se","os","as","um","uma","the","of","in","to","and","a","for","is","are","on","at"}
+    palavras = set(titulo.lower().split()) - stop
+    for pub in publicados:
+        palavras_pub = set(pub.split()) - stop
+        if len(palavras & palavras_pub) >= 4:
+            return True
+    return False
+
+
+def buscar_rss(url: str, nome: str, setor: str = None) -> list:
+    """Busca notícias de uma URL RSS. Se setor fornecido, filtra por palavras-chave."""
+    try:
+        resp = requests.get(url, timeout=12, headers={"User-Agent": "Mozilla/5.0"})
+        if resp.status_code != 200:
+            return []
+        root = ET.fromstring(resp.content)
+        items = root.findall(".//item")
+        noticias = []
+        keywords = [k.lower() for k in KEYWORDS_SETOR.get(setor, [])] if setor else []
+        for item in items[:10]:
+            titulo = item.findtext("title", "").strip()
+            link   = item.findtext("link", "").strip()
+            pub    = item.findtext("pubDate", "").strip()
+            if not titulo or not link:
+                continue
+            # Se filtrando por setor, verifica keywords
+            if keywords:
+                titulo_lower = titulo.lower()
+                if not any(k in titulo_lower for k in keywords):
+                    continue
+            noticias.append({"titulo": titulo, "link": link, "data": pub, "fonte": nome})
+        return noticias
+    except Exception as e:
+        print(f"  Erro RSS {nome}: {e}")
+        return []
+
+
+def buscar_google_news(query: str) -> list:
     url = f"https://news.google.com/rss/search?q={requests.utils.quote(query)}&hl=pt-BR&gl=BR&ceid=BR:pt-419"
     try:
         resp = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
         if resp.status_code != 200:
             return []
-
         root = ET.fromstring(resp.content)
         items = root.findall(".//item")
         noticias = []
-
-        for item in items[:3]:  # pega as 3 mais recentes
+        for item in items[:5]:
             titulo = item.findtext("title", "").strip()
             link   = item.findtext("link", "").strip()
             pub    = item.findtext("pubDate", "").strip()
             fonte  = item.findtext("source", "").strip()
-
             if titulo and link:
-                noticias.append({
-                    "titulo": titulo,
-                    "link":   link,
-                    "data":   pub,
-                    "fonte":  fonte or "Google News"
-                })
-
+                noticias.append({"titulo": titulo, "link": link, "data": pub, "fonte": fonte or "Google News"})
         return noticias
     except Exception as e:
-        print(f"⚠️ Erro RSS ({query}): {e}")
+        print(f"  Erro Google News ({query}): {e}")
         return []
 
-# ── BUSCAR EMPRESAS DO SUPABASE ───────────────────────
-def buscar_empresas() -> list[dict]:
+
+def buscar_empresas() -> list:
     resp = requests.get(
         f"{SUPABASE_URL}/rest/v1/empresas?select=id,nome,codigo,setor,valor,variacao",
         headers=HEADERS_SB
     )
-    if resp.status_code == 200:
-        return resp.json()
-    return []
+    return resp.json() if resp.status_code == 200 else []
 
-# ── PROCESSAR COM CLAUDE API ──────────────────────────
-def processar_com_claude(noticia_titulo: str, noticia_link: str, setor: str, empresas_do_setor: list[dict]) -> dict | None:
-    """Usa Claude para analisar a notícia e gerar conteúdo didático."""
 
-    empresas_str = ", ".join([f"{e['nome']} ({e['codigo']})" for e in empresas_do_setor]) if empresas_do_setor else "nenhuma empresa cadastrada neste setor"
+def processar_com_claude(titulo: str, setor: str, empresas_setor: list) -> dict | None:
+    empresas_str = ", ".join([f"{e['nome']} ({e['codigo']})" for e in empresas_setor]) if empresas_setor else "sem empresas cadastradas"
+    prompt = f"""Analise esta notícia e gere um JSON de impacto para uma simulação de bolsa escolar.
 
-    prompt = f"""Você é analista financeiro do projeto educacional "Mercado Jovem" para alunos do Ensino Médio.
+NOTÍCIA: {titulo}
+SETOR: {setor}
+EMPRESAS DO SETOR: {empresas_str}
 
-Analise esta notícia real e gere um JSON com análise de impacto para o projeto.
-
-NOTÍCIA: {noticia_titulo}
-SETOR AFETADO: {setor}
-EMPRESAS DO SETOR NO PROJETO: {empresas_str}
-
-Responda APENAS com JSON válido, sem markdown, sem explicações, seguindo exatamente esta estrutura:
+Responda APENAS com JSON válido, sem markdown:
 
 {{
   "relevante": true,
-  "manchete": "título jornalístico impactante em até 10 palavras",
-  "chapeu": "categoria em 2 palavras (ex: Crise Energética, Boom Tecnológico)",
-  "corpo": "texto didático de 3 a 4 frases explicando a notícia para alunos do Ensino Médio, conectando com o mercado financeiro real",
+  "manchete": "título jornalístico em até 10 palavras",
+  "chapeu": "categoria em 2 palavras",
+  "corpo": "3 a 4 frases explicando o impacto econômico de forma clara e direta",
   "impacto": "positivo ou negativo ou neutro",
   "intensidade": "leve ou moderado ou forte",
-  "justificativa": "1 frase explicando por que esse impacto faz sentido economicamente",
-  "pergunta": "1 pergunta reflexiva para os alunos sobre como reagir a essa notícia",
+  "justificativa": "1 frase explicando o impacto econômico",
+  "pergunta": "1 pergunta reflexiva sobre como reagir a essa notícia",
   "variacao_sugerida": 4.5
 }}
 
-REGRAS para variacao_sugerida:
-- Sempre número positivo (o sinal depende do campo impacto)
-- leve: entre 1.0 e 3.0
-- moderado: entre 3.0 e 6.0  
-- forte: entre 6.0 e 10.0
-- NUNCA ultrapasse 10.0
-
-Se a notícia não for relevante para o projeto, retorne: {{"relevante": false}}"""
+variacao_sugerida: número positivo. leve=1-3, moderado=3-6, forte=6-10. Nunca acima de 10.
+Se não for relevante para o setor, retorne: {{"relevante": false}}"""
 
     try:
         resp = requests.post(
             "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json"
-            },
-            json={
-                "model": "claude-sonnet-4-5",
-                "max_tokens": 800,
-                "messages": [{"role": "user", "content": prompt}]
-            },
+            headers={"x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+            json={"model": "claude-sonnet-4-5", "max_tokens": 800, "messages": [{"role": "user", "content": prompt}]},
             timeout=30
         )
-
         if resp.status_code != 200:
-            print(f"❌ Claude erro {resp.status_code}: {resp.text}")
             return None
-
         texto = resp.json()["content"][0]["text"].strip()
-
-        # Remove possíveis blocos markdown
         if "```" in texto:
             texto = texto.split("```")[1]
             if texto.startswith("json"):
                 texto = texto[4:]
-
         data = json.loads(texto)
         return data if data.get("relevante") else None
-
     except Exception as e:
-        print(f"❌ Erro Claude: {e}")
+        print(f"  Erro Claude: {e}")
         return None
 
-# ── CALCULAR IMPACTO NAS EMPRESAS ─────────────────────
-def calcular_impacto_empresas(empresas: list[dict], analise: dict, setor: str) -> list[dict]:
-    """Calcula a variação sugerida para cada empresa do setor."""
-    import random
 
+def calcular_impacto_empresas(empresas: list, analise: dict, setor: str) -> list:
     empresas_setor = [e for e in empresas if e.get("setor") == setor]
     if not empresas_setor:
         return []
-
     variacao_base = float(analise.get("variacao_sugerida", 3.0))
     sinal = -1 if analise.get("impacto") == "negativo" else 1
-
     resultado = []
     for emp in empresas_setor:
-        # Pequena variação aleatória por empresa (±0.5%) para parecer mais real
-        variacao_individual = variacao_base + random.uniform(-0.5, 0.5)
-        variacao_individual = round(min(variacao_individual, 10.0), 2)
-
+        var = round(min(variacao_base + random.uniform(-0.5, 0.5), 10.0), 2)
         valor_atual = float(emp.get("valor", 1000000))
-        novo_valor  = valor_atual * (1 + (sinal * variacao_individual / 100))
-        novo_valor  = round(novo_valor, 2)
-
+        novo_valor  = round(valor_atual * (1 + (sinal * var / 100)), 2)
         resultado.append({
-            "id":               emp["id"],
-            "nome":             emp["nome"],
-            "codigo":           emp["codigo"],
-            "valor_atual":      valor_atual,
-            "novo_valor":       novo_valor,
-            "variacao_pct":     round(sinal * variacao_individual, 2),
-            "variacao_display": f"{'+' if sinal > 0 else ''}{sinal * variacao_individual:.1f}%"
+            "id": emp["id"], "nome": emp["nome"], "codigo": emp["codigo"],
+            "valor_atual": valor_atual, "novo_valor": novo_valor,
+            "variacao_pct": round(sinal * var, 2),
+            "variacao_display": f"{'+' if sinal > 0 else ''}{sinal * var:.1f}%"
         })
-
     return resultado
 
-# ── SALVAR NO SUPABASE ─────────────────────────────────
-def salvar_noticia(noticia_raw: dict, analise: dict, setor: str, empresas_impacto: list[dict], fonte_url: str) -> int | None:
-    """Salva a notícia no Supabase com status pendente."""
+
+def salvar_noticia(noticia_raw: dict, analise: dict, setor: str, empresas_impacto: list, fonte_url: str) -> int | None:
     data = {
-        "titulo":             analise["manchete"],
-        "chapeu":             analise["chapeu"],
-        "corpo":              analise["corpo"],
-        "impacto":            analise["impacto"],
-        "intensidade":        analise["intensidade"],
-        "setor":              setor,
-        "empresas_afetadas":  empresas_impacto,
-        "status":             "pendente",
-        "fonte_url":          fonte_url,
-        "fonte_nome":         noticia_raw.get("fonte", "Google News"),
-        "pergunta":           analise.get("pergunta", ""),
-        "justificativa":      analise.get("justificativa", ""),
-        "titulo_original":    noticia_raw["titulo"]
+        "titulo": analise["manchete"], "chapeu": analise["chapeu"],
+        "corpo": analise["corpo"], "impacto": analise["impacto"],
+        "intensidade": analise["intensidade"], "setor": setor,
+        "empresas_afetadas": empresas_impacto, "status": "pendente",
+        "fonte_url": fonte_url, "fonte_nome": noticia_raw.get("fonte", "Google News"),
+        "pergunta": analise.get("pergunta", ""),
+        "justificativa": analise.get("justificativa", ""),
+        "titulo_original": noticia_raw["titulo"]
     }
-
-    resp = requests.post(
-        f"{SUPABASE_URL}/rest/v1/noticias",
-        headers=HEADERS_SB,
-        json=data
-    )
-
+    resp = requests.post(f"{SUPABASE_URL}/rest/v1/noticias", headers=HEADERS_SB, json=data)
     if resp.status_code in [200, 201]:
         resultado = resp.json()
-        noticia_id = resultado[0]["id"] if isinstance(resultado, list) else resultado.get("id")
-        print(f"✅ Notícia salva — ID {noticia_id}")
-        return noticia_id
-    else:
-        print(f"❌ Erro ao salvar: {resp.status_code} — {resp.text}")
-        return None
+        return resultado[0]["id"] if isinstance(resultado, list) else resultado.get("id")
+    return None
 
-# ── ENVIAR PARA TELEGRAM ──────────────────────────────
-def enviar_telegram(noticia_id: int, analise: dict, setor: str, empresas_impacto: list[dict], titulo_original: str) -> int | None:
-    """Envia a notícia para o Telegram com botões de aprovação."""
 
-    emoji_impacto = "🟢" if analise["impacto"] == "positivo" else ("🔴" if analise["impacto"] == "negativo" else "⚪")
-    emoji_intensidade = {"leve": "🟡", "moderado": "🟠", "forte": "🔴"}.get(analise["intensidade"], "⚪")
-
-    # Montar lista de empresas
-    empresas_txt = ""
-    for e in empresas_impacto:
-        empresas_txt += f"\n  • {e['nome']} → *{e['variacao_display']}*"
-    if not empresas_txt:
-        empresas_txt = "\n  • Nenhuma empresa cadastrada neste setor"
-
+def enviar_telegram(noticia_id: int, analise: dict, setor: str, empresas_impacto: list, titulo_original: str, fonte: str) -> int | None:
+    emoji_imp = "🟢" if analise["impacto"] == "positivo" else ("🔴" if analise["impacto"] == "negativo" else "⚪")
+    emoji_int = {"leve": "🟡", "moderado": "🟠", "forte": "🔴"}.get(analise["intensidade"], "⚪")
+    emps_txt = "".join([f"\n  • {e['nome']} → *{e['variacao_display']}*" for e in empresas_impacto]) or "\n  • Impacto geral no mercado"
     hoje = datetime.now().strftime("%d/%m/%Y")
-
     mensagem = (
-        f"📰 *JORNAL MJ — Nova Notícia para Aprovação*\n"
-        f"_{hoje}_\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        f"🏷️ *SETOR:* {setor}\n"
-        f"{emoji_impacto} *IMPACTO:* {analise['impacto'].upper()} · "
-        f"{emoji_intensidade} {analise['intensidade'].upper()}\n\n"
+        f"📰 *JORNAL MJ — Aprovação*\n_{hoje}_\n━━━━━━━━━━━━━━━━\n\n"
+        f"🏷️ *SETOR:* {setor}  |  📡 *FONTE:* {fonte}\n"
+        f"{emoji_imp} *IMPACTO:* {analise['impacto'].upper()} · {emoji_int} {analise['intensidade'].upper()}\n\n"
         f"📌 *MANCHETE:*\n_{analise['manchete']}_\n\n"
-        f"📝 *TEXTO PARA OS ALUNOS:*\n{analise['corpo']}\n\n"
-        f"💡 *JUSTIFICATIVA:*\n_{analise.get('justificativa', '')}_\n\n"
-        f"❓ *PERGUNTA REFLEXIVA:*\n_{analise.get('pergunta', '')}_\n\n"
-        f"🏢 *EMPRESAS AFETADAS:*{empresas_txt}\n\n"
-        f"🔗 *Notícia original:* {titulo_original}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"_ID interno: {noticia_id}_"
+        f"📝 *TEXTO:*\n{analise['corpo']}\n\n"
+        f"💡 _{analise.get('justificativa', '')}_\n\n"
+        f"❓ _{analise.get('pergunta', '')}_\n\n"
+        f"🏢 *EMPRESAS:*{emps_txt}\n\n"
+        f"🔗 {titulo_original}\n"
+        f"━━━━━━━━━━━━━━━━\n_ID: {noticia_id}_"
     )
-
-    # Botões inline
-    teclado = {
-        "inline_keyboard": [[
-            {"text": "✅ APROVAR E PUBLICAR", "callback_data": f"aprovar_{noticia_id}"},
-            {"text": "❌ REJEITAR",           "callback_data": f"rejeitar_{noticia_id}"}
-        ]]
-    }
-
+    teclado = {"inline_keyboard": [[
+        {"text": "✅ APROVAR", "callback_data": f"aprovar_{noticia_id}"},
+        {"text": "❌ REJEITAR", "callback_data": f"rejeitar_{noticia_id}"}
+    ]]}
     resp = requests.post(
         f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
-        json={
-            "chat_id":    TELEGRAM_CHAT_ID,
-            "text":       mensagem,
-            "parse_mode": "Markdown",
-            "reply_markup": teclado,
-            "disable_web_page_preview": True
-        },
+        json={"chat_id": TELEGRAM_CHAT_ID, "text": mensagem, "parse_mode": "Markdown",
+              "reply_markup": teclado, "disable_web_page_preview": True},
         timeout=15
     )
-
     if resp.status_code == 200:
-        msg_id = resp.json()["result"]["message_id"]
-        print(f"✅ Telegram enviado — msg_id {msg_id}")
-        return msg_id
-    else:
-        print(f"❌ Erro Telegram: {resp.status_code} — {resp.text}")
-        return None
+        return resp.json()["result"]["message_id"]
+    return None
 
-# ── ATUALIZAR MSG_ID NO SUPABASE ──────────────────────
+
 def atualizar_msg_id(noticia_id: int, msg_id: int):
     requests.patch(
         f"{SUPABASE_URL}/rest/v1/noticias?id=eq.{noticia_id}",
-        headers=HEADERS_SB,
-        json={"telegram_msg_id": msg_id}
+        headers=HEADERS_SB, json={"telegram_msg_id": msg_id}
     )
 
-# ── MAIN ──────────────────────────────────────────────
+
+def coletar_noticias_setor(setor: str, publicados: set) -> list:
+    """Coleta candidatos de todas as fontes para um setor, sem duplicatas."""
+    candidatos = []
+
+    # 1. Fontes globais com filtro por palavras-chave
+    fontes_embaralhadas = FONTES_GLOBAIS.copy()
+    random.shuffle(fontes_embaralhadas)
+    for fonte in fontes_embaralhadas:
+        noticias = buscar_rss(fonte["url"], fonte["nome"], setor)
+        for n in noticias:
+            t = n["titulo"].lower().strip()
+            if t not in publicados and not titulo_similar(n["titulo"], publicados):
+                candidatos.append(n)
+
+    # 2. Google News queries embaralhadas
+    queries = SETORES[setor]["queries"].copy()
+    random.shuffle(queries)
+    for query in queries[:2]:  # máximo 2 queries do Google por setor
+        noticias = buscar_google_news(query)
+        for n in noticias:
+            t = n["titulo"].lower().strip()
+            if t not in publicados and not titulo_similar(n["titulo"], publicados):
+                candidatos.append(n)
+
+    # Embaralha tudo para misturar fontes
+    random.shuffle(candidatos)
+    return candidatos
+
+
 def main():
-    print(f"\n{'='*50}")
-    print(f"JORNAL MJ — {datetime.now().strftime('%d/%m/%Y %H:%M')}")
-    print(f"{'='*50}\n")
+    print(f"\nJORNAL MJ — {datetime.now().strftime('%d/%m/%Y %H:%M')}\n")
 
-    # Buscar empresas cadastradas
-    empresas = buscar_empresas()
-    print(f"📊 {len(empresas)} empresas encontradas no Supabase\n")
+    empresas         = buscar_empresas()
+    publicados       = buscar_titulos_recentes()
+    setores_recentes = buscar_setores_recentes()
 
-    # Selecionar 3 setores com mais empresas cadastradas para priorizar
-    setores_com_empresas = {}
+    print(f"{len(empresas)} empresas | {len(publicados)} títulos recentes | Setores recentes: {list(set(setores_recentes))}\n")
+
+    # Contagem de empresas por setor
+    contagem = {s: 0 for s in SETORES}
     for e in empresas:
         s = e.get("setor", "")
-        if s in SETORES:
-            setores_com_empresas[s] = setores_com_empresas.get(s, 0) + 1
+        if s in contagem:
+            contagem[s] += 1
 
-    # Preenche com setores sem empresas também (para buscar notícias gerais)
-    for s in SETORES:
-        if s not in setores_com_empresas:
-            setores_com_empresas[s] = 0
+    # Penaliza setores usados recentemente
+    penalizados = {s: setores_recentes.count(s) for s in SETORES}
 
-    # Ordena: primeiro os que têm empresas, depois por nome
-    setores_ordenados = sorted(
-        setores_com_empresas.keys(),
-        key=lambda s: (-setores_com_empresas[s], s)
-    )
+    # Ordena com penalização + aleatoriedade
+    todos = list(SETORES.keys())
+    random.shuffle(todos)
+    setores_ordenados = sorted(todos, key=lambda s: (penalizados.get(s, 0), -contagem.get(s, 0)))
 
-    noticias_publicadas = 0
-    setores_tentados    = 0
-    setores_usados      = set()
+    publicadas    = 0
+    setores_usados = set()
 
     for setor in setores_ordenados:
-        if noticias_publicadas >= 3:
+        if publicadas >= 3:
             break
         if setor in setores_usados:
             continue
 
-        print(f"\n🔍 Buscando notícias para setor: {setor}")
-        queries = SETORES[setor]["queries"]
+        print(f"Setor: {setor}")
         empresas_setor = [e for e in empresas if e.get("setor") == setor]
+        candidatos = coletar_noticias_setor(setor, publicados)
+        print(f"  {len(candidatos)} candidatos encontrados")
 
-        noticia_encontrada = False
-
-        for query in queries:
-            if noticia_encontrada:
+        for noticia_raw in candidatos:
+            if setor in setores_usados:
                 break
 
-            noticias_rss = buscar_noticias_rss(query)
-            print(f"   Query '{query}': {len(noticias_rss)} notícias encontradas")
+            print(f"  Processando [{noticia_raw['fonte']}]: {noticia_raw['titulo'][:55]}...")
+            analise = processar_com_claude(noticia_raw["titulo"], setor, empresas_setor)
 
-            for noticia_raw in noticias_rss:
-                if noticia_encontrada:
-                    break
+            if not analise:
+                continue
 
-                print(f"   ⚙️  Processando: {noticia_raw['titulo'][:60]}...")
+            empresas_impacto = calcular_impacto_empresas(empresas, analise, setor)
+            noticia_id = salvar_noticia(noticia_raw, analise, setor, empresas_impacto, noticia_raw["link"])
 
-                # Analisar com Claude
-                analise = processar_com_claude(
-                    noticia_raw["titulo"],
-                    noticia_raw["link"],
-                    setor,
-                    empresas_setor
-                )
+            if not noticia_id:
+                continue
 
-                if not analise:
-                    print("   ⏭️  Não relevante ou erro — pulando")
-                    continue
+            msg_id = enviar_telegram(noticia_id, analise, setor, empresas_impacto, noticia_raw["titulo"], noticia_raw["fonte"])
 
-                # Calcular impacto nas empresas
-                empresas_impacto = calcular_impacto_empresas(empresas, analise, setor)
+            if msg_id:
+                atualizar_msg_id(noticia_id, msg_id)
+                publicadas += 1
+                setores_usados.add(setor)
+                publicados.add(noticia_raw["titulo"].lower().strip())
+                print(f"  ✅ Enviada ({publicadas}/3) — Fonte: {noticia_raw['fonte']}")
+                break
 
-                # Salvar no Supabase
-                noticia_id = salvar_noticia(
-                    noticia_raw, analise, setor,
-                    empresas_impacto, noticia_raw["link"]
-                )
+    print(f"\nCONCLUÍDO — {publicadas}/3 notícias enviadas\n")
 
-                if not noticia_id:
-                    continue
-
-                # Enviar para Telegram
-                msg_id = enviar_telegram(
-                    noticia_id, analise, setor,
-                    empresas_impacto, noticia_raw["titulo"]
-                )
-
-                if msg_id:
-                    atualizar_msg_id(noticia_id, msg_id)
-                    noticias_publicadas += 1
-                    setores_usados.add(setor)
-                    noticia_encontrada = True
-                    print(f"   ✅ Notícia {noticias_publicadas}/3 enviada para aprovação!")
-
-    print(f"\n{'='*50}")
-    print(f"✅ CONCLUÍDO — {noticias_publicadas}/3 notícias enviadas para aprovação")
-    print(f"{'='*50}\n")
-
-    if noticias_publicadas == 0:
-        # Notifica que não encontrou notícias relevantes
+    if publicadas == 0:
         requests.post(
             f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
-            json={
-                "chat_id": TELEGRAM_CHAT_ID,
-                "text": "⚠️ *Jornal MJ* — Nenhuma notícia relevante encontrada hoje.\nO sistema tentará novamente amanhã.",
-                "parse_mode": "Markdown"
-            }
+            json={"chat_id": TELEGRAM_CHAT_ID, "text": "⚠️ *Jornal MJ* — Nenhuma notícia nova encontrada hoje.", "parse_mode": "Markdown"}
         )
+
 
 if __name__ == "__main__":
     main()
