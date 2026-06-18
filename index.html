@@ -1430,7 +1430,8 @@ async function buildJornal(){
     // MANCHETE PRINCIPAL — primeira notícia
     const m=noticias[0];
     const mEmps=m.empresas_afetadas||[];
-    const mEmpsHTML=mEmps.map(e=>`<span class="jornal-emp-tag ${Number(e.variacao_pct)>=0?'jornal-emp-pos':'jornal-emp-neg'}">${e.codigo} ${e.variacao_display}</span>`).join('');
+    const fmtEmp=(e,small=false)=>{const p=Number(e.variacao_pct);const disp=`${p>=0?'+':''}${p.toFixed(1)}%`;return `<span class="jornal-emp-tag ${p>=0?'jornal-emp-pos':'jornal-emp-neg'}"${small?' style="font-size:10px"':''}>${sanitize(e.codigo)} ${disp}</span>`;};
+    const mEmpsHTML=mEmps.map(e=>fmtEmp(e)).join('');
     const mData=m.published_at?new Date(new Date(m.published_at).getTime()-3*60*60000).toLocaleString('pt-BR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}):'hoje';
 
     document.getElementById('jornalManchete').innerHTML=`
@@ -1461,7 +1462,7 @@ async function buildJornal(){
     } else {
       document.getElementById('jornalSecundarias').innerHTML=secundarias.map(n=>{
         const emps=n.empresas_afetadas||[];
-        const empsHTML=emps.slice(0,3).map(e=>`<span class="jornal-emp-tag ${Number(e.variacao_pct)>=0?'jornal-emp-pos':'jornal-emp-neg'}" style="font-size:10px">${e.codigo} ${e.variacao_display}</span>`).join('');
+        const empsHTML=emps.slice(0,3).map(e=>fmtEmp(e,true)).join('');
         const nData=n.published_at?new Date(n.published_at).toLocaleDateString('pt-BR',{day:'numeric',month:'short',timeZone:'America/Sao_Paulo'}):'';
         return `<div class="jornal-card">
           <div class="jornal-card-header">
