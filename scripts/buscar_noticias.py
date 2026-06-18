@@ -197,14 +197,16 @@ def calcular_impacto_empresas(empresas: list, analise: dict, setor: str) -> list
     sinal = -1 if analise.get("impacto") == "negativo" else 1
     resultado = []
     for emp in empresas_setor:
-        var = round(min(variacao_base + random.uniform(-0.5, 0.5), 10.0), 2)
+        # var sempre positivo e mínimo 1.0 para evitar inversão de sinal
+        var = round(min(max(abs(variacao_base + random.uniform(-0.3, 0.3)), 1.0), 10.0), 2)
         valor_atual = float(emp.get("valor", 1000000))
         novo_valor  = round(valor_atual * (1 + (sinal * var / 100)), 2)
+        variacao_pct = round(sinal * var, 2)
         resultado.append({
             "id": emp["id"], "nome": emp["nome"], "codigo": emp["codigo"],
             "valor_atual": valor_atual, "novo_valor": novo_valor,
-            "variacao_pct": round(sinal * var, 2),
-            "variacao_display": f"{'+' if sinal > 0 else ''}{sinal * var:.1f}%"
+            "variacao_pct": variacao_pct,
+            "variacao_display": f"+{var:.1f}%" if sinal > 0 else f"-{var:.1f}%"
         })
     return resultado
 
