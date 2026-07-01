@@ -310,6 +310,7 @@ footer strong{color:var(--navy)}
   <button class="nb" onclick="showPg('titulos',this)">Títulos</button>
   <button class="nb" onclick="showPg('comunicados',this)">Comunicados</button>
   <button class="nb" onclick="showPg('pregao',this)">Pregão</button>
+  <button class="anb" onclick="showAS('lancar-pregao',this);initLancarPregao()"><span class="i">📋</span>Lançar Pregão</button>
   <button class="nb" onclick="showPg('jornal',this)">Jornal</button>
   <button class="nb" id="navAdmin" onclick="showPg('admin',this)">⚙ Admin</button>
 </nav>
@@ -460,6 +461,42 @@ footer strong{color:var(--navy)}
       <div class="asec" id="as-titulos"><div class="ast">Títulos TJV</div><div class="ass">Emita, edite e gerencie os títulos</div><div class="atb"><button class="btn-add" onclick="openM('titulo')">＋ Emitir Título</button></div><div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>Código</th><th>Empresa</th><th>Tipo</th><th>Capital</th><th>Taxa</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead><tbody id="aTitB"></tbody></table></div></div></div>
       <div class="asec" id="as-comunicados"><div class="ast">Comunicados</div><div class="ass">Publique, edite e remova comunicados</div><div class="atb"><button class="btn-add" onclick="openM('comunicado')">＋ Novo Comunicado</button></div><div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>Data</th><th>Categoria</th><th>Título</th><th>Ações</th></tr></thead><tbody id="aComB"></tbody></table></div></div></div>
       <div class="asec" id="as-pregao"><div class="ast">Pregão</div><div class="ass">Agende e gerencie as sessões de negociação</div><div class="atb"><button class="btn-add" onclick="openM('pregao')">＋ Novo Pregão</button></div><div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th><th>Ações</th></tr></thead><tbody id="aPreB"></tbody></table></div></div></div>
+      <div class="asec" id="as-lancar-pregao">
+  <div class="ast">Lançar Pregão</div>
+  <div class="ass">Registre as operações do pregão em lote — o site é a fonte de verdade</div>
+  <div class="fr" style="margin-bottom:16px">
+    <div class="fg"><label>Número do Pregão</label><input type="number" id="lp-num" min="1" placeholder="Ex: 5"/></div>
+    <div class="fg"><label>Data</label><input type="date" id="lp-data"/></div>
+    <div class="fg"><label>Observação (opcional)</label><input type="text" id="lp-obs" placeholder="Ex: Pregão especial"/></div>
+  </div>
+  <div class="tw" style="margin-bottom:16px">
+    <div class="th"><h3>📋 Operações</h3><span id="lp-resumo">0 operações · JCV 0,00</span></div>
+    <div class="tw-scroll">
+      <table>
+        <thead><tr><th style="width:90px">Comprov.</th><th style="width:180px">Compradora 🟢</th><th style="width:180px">Vendedora 🔴</th><th style="width:110px">Qtd. Cotas</th><th style="width:130px">Valor/Cota</th><th style="width:140px">Total (JCV)</th><th>Obs.</th><th style="width:40px"></th></tr></thead>
+        <tbody id="lp-tbody"></tbody>
+        <tfoot><tr>
+          <td colspan="3" style="text-align:right;font-size:11px;color:var(--muted);padding:10px 16px">VOLUME TOTAL</td>
+          <td id="lp-total-cotas" style="font-family:var(--f-mono);font-weight:700;padding:10px 16px">—</td>
+          <td></td>
+          <td id="lp-total-vol" style="font-family:var(--f-mono);font-weight:700;color:var(--lime);padding:10px 16px">—</td>
+          <td colspan="2"></td>
+        </tr></tfoot>
+      </table>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+    <button class="btn-add" onclick="lpAddLinha()">+ Linha</button>
+    <button class="btn-nv" onclick="lpAddLinhas(5)">+ 5 Linhas</button>
+    <button class="btn-nv" onclick="lpLimparTabela()" style="background:var(--off);border:2px solid var(--border);color:var(--muted)">Limpar</button>
+    <button class="btn-nv" onclick="lpExportarCSV()">↓ CSV</button>
+    <button class="btn-add" id="lp-btn-salvar" onclick="lpSalvarPregao()" style="margin-left:auto;background:var(--green)">✓ Salvar e Publicar</button>
+  </div>
+  <div class="tw" style="margin-bottom:0">
+    <div class="th"><h3>📅 Pregões Lançados</h3></div>
+    <div class="tw-scroll"><table><thead><tr><th>Nº</th><th>Data</th><th>Status</th></tr></thead><tbody id="lp-hist-body"></tbody></table></div>
+  </div>
+</div>
       <div class="asec" id="as-ticker">
         <div class="ast">Faixa Superior</div><div class="ass">Controle a faixa de informações no topo do site</div>
         <div class="tap"><div class="tscroll"><div class="tinner" id="tprev"></div></div></div>
@@ -688,7 +725,109 @@ function showPg(id,btn){if(id==='admin'&&!isAdmin){openLogin();return;}document.
   window.addEventListener('resize',resize);resize();loop();
 })();
 async function init(){await loadAll();buildHome();const ls=document.getElementById('ls');ls.classList.add('hide');setTimeout(()=>ls.style.display='none',600);}
-init();
+// ── LANÇAR PREGÃO ──
+const LP_SECRET='MercadoJovem@BC2026#Pregao';
+let lpLinhaId=0,lpEmpresas=[],lpIniciado=false;
+function initLancarPregao(){
+  if(!lpIniciado){
+    document.getElementById('lp-data').value=new Date().toISOString().split('T')[0];
+    lpCarregarEmpresas();lpAddLinhas(3);lpIniciado=true;
+  }
+  lpCarregarHistorico();
+}
+async function lpCarregarEmpresas(){
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/empresas?select=nome&order=nome`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(r.ok){const d=await r.json();lpEmpresas=d.map(e=>e.nome);document.querySelectorAll('.lp-sel-emp').forEach(s=>lpAtualizarOpcoes(s));}
+  }catch(e){}
+}
+function lpAtualizarOpcoes(sel){
+  const val=sel.value;sel.innerHTML='<option value="">— Selecionar —</option>';
+  lpEmpresas.forEach(n=>{const op=document.createElement('option');op.value=n;op.textContent=n;sel.appendChild(op);});
+  const m=document.createElement('option');m.value='__manual__';m.textContent='✏ Digitar...';sel.appendChild(m);
+  if(val)sel.value=val;
+}
+function lpAddLinhas(n=1){for(let i=0;i<n;i++)lpAddLinha();}
+function lpAddLinha(d={}){
+  const id=++lpLinhaId;const tr=document.createElement('tr');tr.dataset.id=id;
+  tr.innerHTML=`<td><input type="text" class="lp-num" placeholder="MJ-001" value="${d.comprovante_num||''}" oninput="lpAtualizar()" style="font-size:12px;padding:5px 8px"/></td>
+    <td><select class="lp-sel-emp lp-comp" onchange="lpHandleEmp(this,${id},'comp')" style="font-size:12px;padding:5px 8px"></select><input type="text" class="lp-inp-comp" placeholder="Nome..." style="display:none;margin-top:3px;font-size:12px;padding:5px 8px" oninput="lpAtualizar()"/></td>
+    <td><select class="lp-sel-emp lp-vend" onchange="lpHandleEmp(this,${id},'vend')" style="font-size:12px;padding:5px 8px"></select><input type="text" class="lp-inp-vend" placeholder="Nome..." style="display:none;margin-top:3px;font-size:12px;padding:5px 8px" oninput="lpAtualizar()"/></td>
+    <td><input type="number" class="lp-cotas" min="0" step="any" placeholder="0" value="${d.qtd_cotas||''}" oninput="lpCalcTotal(${id})" style="font-size:12px;padding:5px 8px"/></td>
+    <td><input type="number" class="lp-valor" min="0" step="any" placeholder="0.00" value="${d.valor_por_cota||''}" oninput="lpCalcTotal(${id})" style="font-size:12px;padding:5px 8px"/></td>
+    <td><input type="text" class="lp-total" readonly placeholder="—" style="background:var(--off);color:var(--lime);font-weight:700;font-family:var(--f-mono);font-size:12px;padding:5px 8px" value="${d.valor_total?fJ(d.valor_total):''}"/></td>
+    <td><input type="text" class="lp-obs" placeholder="Obs." value="${d.observacao||''}" oninput="lpAtualizar()" style="font-size:12px;padding:5px 8px"/></td>
+    <td><button onclick="lpDelLinha(${id})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;padding:2px 6px">✕</button></td>`;
+  document.getElementById('lp-tbody').appendChild(tr);
+  lpAtualizarOpcoes(tr.querySelector('.lp-comp'));lpAtualizarOpcoes(tr.querySelector('.lp-vend'));lpAtualizar();
+}
+function lpHandleEmp(sel,id,tipo){
+  const tr=document.querySelector(`#lp-tbody tr[data-id="${id}"]`);
+  if(sel.value==='__manual__'){sel.style.display='none';const inp=tr.querySelector(`.lp-inp-${tipo}`);inp.style.display='block';inp.focus();}
+  lpAtualizar();
+}
+function lpDelLinha(id){document.querySelector(`#lp-tbody tr[data-id="${id}"]`)?.remove();lpAtualizar();}
+function lpLimparTabela(){if(!confirm('Limpar todas as linhas?'))return;document.getElementById('lp-tbody').innerHTML='';lpLinhaId=0;lpAtualizar();lpAddLinhas(3);}
+function lpCalcTotal(id){
+  const tr=document.querySelector(`#lp-tbody tr[data-id="${id}"]`);
+  const c=parseFloat(tr.querySelector('.lp-cotas').value)||0,v=parseFloat(tr.querySelector('.lp-valor').value)||0;
+  tr.querySelector('.lp-total').value=c*v>0?fJ(c*v):'';lpAtualizar();
+}
+function lpAtualizar(){
+  const ops=lpGetLinhasValidas();let tc=0,tv=0;ops.forEach(o=>{tc+=o.qtd_cotas;tv+=o.valor_total;});
+  document.getElementById('lp-resumo').textContent=`${ops.length} operação(ões) · ${fJ(tv)}`;
+  document.getElementById('lp-total-cotas').textContent=ops.length?fJ(tc):'—';
+  document.getElementById('lp-total-vol').textContent=ops.length?fJ(tv):'—';
+}
+function lpGetLinhasValidas(){
+  const ops=[];
+  document.querySelectorAll('#lp-tbody tr').forEach(tr=>{
+    const comp=lpGetEmp(tr,'comp'),vend=lpGetEmp(tr,'vend');
+    const c=parseFloat(tr.querySelector('.lp-cotas').value)||0,v=parseFloat(tr.querySelector('.lp-valor').value)||0;
+    if(comp&&vend&&c>0&&v>0)ops.push({comprovante_num:tr.querySelector('.lp-num').value.trim()||null,empresa_compradora:comp,empresa_vendedora:vend,qtd_cotas:c,valor_por_cota:v,valor_total:c*v,observacao:tr.querySelector('.lp-obs').value.trim()||null});
+  });
+  return ops;
+}
+function lpGetEmp(tr,tipo){
+  const sel=tr.querySelector(`.lp-${tipo}`);
+  if(sel&&sel.style.display!=='none'&&sel.value&&sel.value!=='__manual__')return sel.value;
+  const inp=tr.querySelector(`.lp-inp-${tipo}`);
+  if(inp&&inp.style.display!=='none')return inp.value.trim()||null;
+  return null;
+}
+async function lpSalvarPregao(){
+  if(!isAdmin){toast('⚠️ Acesso não autorizado.',true);return;}
+  const num=parseInt(document.getElementById('lp-num').value),data=document.getElementById('lp-data').value;
+  if(!num||!data){toast('⚠️ Informe o número e a data.',true);return;}
+  const ops=lpGetLinhasValidas();
+  if(!ops.length){toast('⚠️ Nenhuma operação válida.',true);return;}
+  if(ops.some(o=>o.empresa_compradora===o.empresa_vendedora)){toast('⚠️ Compradora e vendedora iguais em alguma linha.',true);return;}
+  const btn=document.getElementById('lp-btn-salvar');btn.disabled=true;btn.textContent='Salvando...';
+  try{
+    const r=await fetch(`${SB_URL}/functions/v1/lancar-pregao`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+LP_SECRET},body:JSON.stringify({pregao:{numero:num,data,observacao:document.getElementById('lp-obs').value.trim()},operacoes:ops})});
+    const res=await r.json();if(!r.ok)throw new Error(res.error||'Erro desconhecido');
+    toast(`✓ Pregão nº ${num} salvo com ${ops.length} operação(ões)!`);
+    document.getElementById('lp-tbody').innerHTML='';lpLinhaId=0;document.getElementById('lp-num').value='';lpAddLinhas(3);lpCarregarHistorico();
+  }catch(e){toast('⚠️ Erro: '+e.message,true);}
+  finally{btn.disabled=false;btn.textContent='✓ Salvar e Publicar';}
+}
+async function lpCarregarHistorico(){
+  const el=document.getElementById('lp-hist-body');if(!el)return;
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/pregoes?select=numero,data,status&order=numero.desc&limit=10`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    const d=await r.json();
+    if(!d.length){el.innerHTML='<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--muted)">Nenhum pregão lançado ainda.</td></tr>';return;}
+    el.innerHTML=d.map(p=>`<tr><td class="mn" style="color:var(--lime)">${p.numero}</td><td class="mn">${p.data}</td><td><span class="bdg ne">${p.status}</span></td></tr>`).join('');
+  }catch(e){el.innerHTML='<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--muted)">Erro ao carregar.</td></tr>';}
+}
+function lpExportarCSV(){
+  const ops=lpGetLinhasValidas();if(!ops.length){toast('⚠️ Nenhuma operação.',true);return;}
+  const num=document.getElementById('lp-num').value||'X',data=document.getElementById('lp-data').value||'';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['Comprovante,Compradora,Vendedora,Cotas,Valor/Cota,Total,Obs\n'+ops.map(o=>`${o.comprovante_num||''},${o.empresa_compradora},${o.empresa_vendedora},${o.qtd_cotas},${o.valor_por_cota},${o.valor_total},${o.observacao||''}`).join('\n')],{type:'text/csv;charset=utf-8;'}));
+  a.download=`pregao_${num}_${data}.csv`;a.click();
+}
+  init();
 </script>
 </body>
 </html>
