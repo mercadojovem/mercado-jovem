@@ -431,7 +431,7 @@
 <script>
 // ── Config ── Substitua com os valores do seu projeto
 const SUPABASE_URL = 'https://eqqezdzzznyatfdbovyt.supabase.co';
-const SUPABASE_ANON_KEY = ''; // Coloque a anon key (somente leitura) ou use a Edge Function
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxcWV6ZHp6em55YXRmZGJvdnl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNTg1OTksImV4cCI6MjA5MzgzNDU5OX0.s0-b-a04snZiVWdUeL1Y3CeaLdognM308M_ZWTb-3mg';
 
 // Edge Function para operações protegidas (usa service_role internamente)
 const EDGE_BASE = `${SUPABASE_URL}/functions/v1`;
@@ -685,8 +685,7 @@ async function salvarPregao() {
 }
 
 function obterTokenAdmin() {
-  // Reutiliza o token de sessão do admin já logado (armazenado em sessionStorage pelo login)
-  return sessionStorage.getItem('mj_admin_token') || '';
+  return 'MercadoJovem@BC2026#Pregao';
 }
 
 // ── Histórico ──
