@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lançamento de Pregão — Banco Central MJ</title>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-dark:   #1A3A5C;
+    --blue-mid:    #2E6DA4;
+    --blue-light:  #4A90D9;
+    --gold:        #F5A623;
+    --green:       #27AE60;
+    --red:         #E74C3C;
+    --bg:          #F4F6F9;
+    --surface:     #FFFFFF;
+    --border:      #D0D7E2;
+    --text:        #1A2B3C;
+    --text-muted:  #7A8CA0;
+    --radius:      8px;
+  }
+
+  body {
+    font-family: 'Ubuntu', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--blue-dark);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  }
+  header .brand { display: flex; align-items: center; gap: 10px; }
+  header .brand span {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  header .brand small {
+    color: #7aafd4;
+    font-size: 11px;
+    display: block;
+    font-weight: 400;
+  }
+  .badge-bc {
+    background: var(--gold);
+    color: var(--blue-dark);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: .5px;
+  }
+
+  /* ── Layout ── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--blue-mid);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Form grid ── */
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  input, select, textarea {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    transition: border-color .15s;
+    outline: none;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--blue-mid);
+    background: #fff;
+  }
+
+  /* ── Operações table ── */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: var(--blue-dark);
+    color: #fff;
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: .4px;
+    white-space: nowrap;
+  }
+  thead th:first-child { border-radius: 6px 0 0 0; }
+  thead th:last-child  { border-radius: 0 6px 0 0; }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .1s;
+  }
+  tbody tr:hover { background: #f0f4f9; }
+  tbody td { padding: 6px 8px; vertical-align: middle; }
+
+  /* inline table inputs */
+  tbody td input, tbody td select {
+    padding: 6px 8px;
+    font-size: 13px;
+    background: #fff;
+  }
+  tbody td input[readonly] {
+    background: #f0f4f9;
+    color: var(--blue-mid);
+    font-weight: 700;
+    cursor: default;
+  }
+  .col-num   { width: 90px; }
+  .col-comp  { width: 160px; }
+  .col-vend  { width: 160px; }
+  .col-cotas { width: 110px; }
+  .col-valor { width: 130px; }
+  .col-total { width: 140px; }
+  .col-obs   { width: 160px; }
+  .col-del   { width: 44px; text-align: center; }
+
+  .btn-del {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #c0392b;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background .15s;
+  }
+  .btn-del:hover { background: #fde8e6; }
+
+  .tfoot-row td {
+    padding: 10px 8px;
+    border-top: 2px solid var(--blue-dark);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--blue-dark);
+  }
+
+  /* ── Buttons ── */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .btn {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: opacity .15s, transform .1s;
+    letter-spacing: .3px;
+  }
+  .btn:hover { opacity: .88; }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background: var(--blue-mid);  color: #fff; }
+  .btn-success   { background: var(--green);     color: #fff; }
+  .btn-outline   { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+  .btn-danger    { background: var(--red); color: #fff; }
+  .btn:disabled  { opacity: .45; cursor: not-allowed; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    min-width: 280px;
+    max-width: 400px;
+    background: var(--blue-dark);
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all .3s ease;
+    z-index: 1000;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-left: 5px solid var(--green); }
+  #toast.error   { border-left: 5px solid var(--red); }
+  #toast.info    { border-left: 5px solid var(--gold); }
+
+  /* ── Resumo ── */
+  .resumo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .resumo-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .resumo-valor {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--blue-dark);
+  }
+  .resumo-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-top: 4px;
+  }
+
+  /* ── Spinner ── */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Histórico ── */
+  .hist-list { list-style: none; }
+  .hist-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .hist-list li:last-child { border-bottom: none; }
+  .tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .tag-aberto   { background: #e8f5e9; color: var(--green); }
+  .tag-encerrado { background: #f0f4f9; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div>
+      <span>Mercado Jovem</span>
+      <small>Painel do Banco Central</small>
+    </div>
+  </div>
+  <span class="badge-bc">BC · ADMIN</span>
+</header>
+
+<main>
+  <h1 class="page-title">Lançamento de Pregão</h1>
+  <p class="page-sub">Registre todas as operações do pregão em lote. O site é a fonte de verdade.</p>
+
+  <!-- ── Identificação do Pregão ── -->
+  <div class="card">
+    <div class="card-title">Identificação do Pregão</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Número do Pregão</label>
+        <input type="number" id="pregao-num" min="1" placeholder="Ex: 5" value="">
+      </div>
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="pregao-data">
+      </div>
+      <div class="form-group">
+        <label>Observação (opcional)</label>
+        <input type="text" id="pregao-obs" placeholder="Ex: Pregão especial de aniversário">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Operações ── -->
+  <div class="card">
+    <div class="card-title">Operações do Pregão</div>
+    <div class="table-wrap">
+      <table id="tabela-ops">
+        <thead>
+          <tr>
+            <th class="col-num">Comprov.</th>
+            <th class="col-comp">Empresa Compradora 🟢</th>
+            <th class="col-vend">Empresa Vendedora 🔴</th>
+            <th class="col-cotas">Qtd. Cotas</th>
+            <th class="col-valor">Valor / Cota (JCV)</th>
+            <th class="col-total">Total (JCV)</th>
+            <th class="col-obs">Obs.</th>
+            <th class="col-del"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+        <tfoot>
+          <tr class="tfoot-row">
+            <td colspan="3" style="text-align:right;padding-right:12px;color:var(--text-muted);font-weight:400;font-size:12px;">
+              VOLUME TOTAL DO PREGÃO
+            </td>
+            <td id="total-cotas" class="col-cotas">—</td>
+            <td></td>
+            <td id="total-volume" class="col-total">—</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="addLinha()">+ Adicionar Linha</button>
+      <button class="btn btn-outline" onclick="addLinhas(5)">+ 5 Linhas</button>
+      <button class="btn btn-outline" onclick="limparTabela()">Limpar Tabela</button>
+    </div>
+  </div>
+
+  <!-- ── Resumo ── -->
+  <div class="card">
+    <div class="card-title">Resumo do Pregão</div>
+    <div class="resumo-grid">
+      <div class="resumo-item">
+        <div class="resumo-valor" id="r-ops">0</div>
+        <div class="resumo-label">Operações</div>
+      </div>
+      <div class="resumo-item">
+        <div class="resumo-valor" id="r-empresas">0</div>
+        <div class="resumo-label">Empresas Envolvidas</div>
+      </div>
+      <div class="resumo-item">
+        <div class="resumo-valor" id="r-cotas">0</div>
+        <div class="resumo-label">Cotas Negociadas</div>
+      </div>
+      <div class="resumo-item">
+        <div class="resumo-valor" id="r-volume">JCV 0</div>
+        <div class="resumo-label">Volume Total</div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:20px;">
+      <button class="btn btn-success" id="btn-salvar" onclick="salvarPregao()">
+        ✓ Salvar e Publicar Pregão
+      </button>
+      <button class="btn btn-outline" onclick="exportarCSV()">
+        ↓ Exportar CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Histórico ── -->
+  <div class="card">
+    <div class="card-title">Pregões Anteriores</div>
+    <ul class="hist-list" id="hist-list">
+      <li><span style="color:var(--text-muted);font-size:13px;">Carregando...</span></li>
+    </ul>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+// ── Config ── Substitua com os valores do seu projeto
+const SUPABASE_URL = 'https://eqqezdzzznyatfdbovyt.supabase.co';
+const SUPABASE_ANON_KEY = ''; // Coloque a anon key (somente leitura) ou use a Edge Function
+
+// Edge Function para operações protegidas (usa service_role internamente)
+const EDGE_BASE = `${SUPABASE_URL}/functions/v1`;
+
+// ── Empresas cadastradas ── busca do Supabase ao carregar
+let EMPRESAS = [];
+
+// ── Estado ──
+let linhaId = 0;
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Data padrão = hoje
+  document.getElementById('pregao-data').value = new Date().toISOString().split('T')[0];
+  carregarEmpresas();
+  carregarHistorico();
+  addLinhas(3);
+});
+
+// ── Carrega empresas do Supabase ──
+async function carregarEmpresas() {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/empresas?select=nome&order=nome`, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+    });
+    if (r.ok) {
+      const data = await r.json();
+      EMPRESAS = data.map(e => e.nome);
+    }
+  } catch {
+    // Fallback: empresas de exemplo para desenvolvimento
+    EMPRESAS = [];
+  }
+  atualizarSelects();
+}
+
+function atualizarSelects() {
+  document.querySelectorAll('.sel-empresa').forEach(sel => {
+    const val = sel.value;
+    atualizarOpcoes(sel);
+    sel.value = val;
+  });
+}
+
+function atualizarOpcoes(sel) {
+  const val = sel.value;
+  sel.innerHTML = '<option value="">— Selecionar —</option>';
+  EMPRESAS.forEach(e => {
+    const op = document.createElement('option');
+    op.value = e;
+    op.textContent = e;
+    sel.appendChild(op);
+  });
+  // Permite digitar empresa não listada via opção manual
+  const op = document.createElement('option');
+  op.value = '__manual__';
+  op.textContent = '✏ Digitar manualmente...';
+  sel.appendChild(op);
+  if (val) sel.value = val;
+}
+
+// ── Tabela de operações ──
+function addLinhas(n = 1) {
+  for (let i = 0; i < n; i++) addLinha();
+}
+
+function addLinha(dados = {}) {
+  const id = ++linhaId;
+  const tr = document.createElement('tr');
+  tr.dataset.id = id;
+  tr.innerHTML = `
+    <td class="col-num">
+      <input type="text" class="campo-num" placeholder="MJ-001"
+             value="${dados.comprovante_num || ''}" oninput="atualizar()">
+    </td>
+    <td class="col-comp">
+      <select class="sel-empresa sel-comp" onchange="handleEmpresaChange(this, ${id}, 'comp')" data-manual="0">
+        <option value="">— Selecionar —</option>
+      </select>
+      <input type="text" class="inp-manual inp-comp" placeholder="Nome da empresa"
+             style="display:none;margin-top:4px" oninput="atualizar()">
+    </td>
+    <td class="col-vend">
+      <select class="sel-empresa sel-vend" onchange="handleEmpresaChange(this, ${id}, 'vend')" data-manual="0">
+        <option value="">— Selecionar —</option>
+      </select>
+      <input type="text" class="inp-manual inp-vend" placeholder="Nome da empresa"
+             style="display:none;margin-top:4px" oninput="atualizar()">
+    </td>
+    <td class="col-cotas">
+      <input type="number" class="campo-cotas" min="0" step="any"
+             placeholder="0" value="${dados.qtd_cotas || ''}" oninput="calcTotal(${id})">
+    </td>
+    <td class="col-valor">
+      <input type="number" class="campo-valor" min="0" step="any"
+             placeholder="0.00" value="${dados.valor_por_cota || ''}" oninput="calcTotal(${id})">
+    </td>
+    <td class="col-total">
+      <input type="text" class="campo-total" readonly placeholder="—" value="${dados.valor_total ? fmtNum(dados.valor_total) : ''}">
+    </td>
+    <td class="col-obs">
+      <input type="text" class="campo-obs" placeholder="Obs."
+             value="${dados.observacao || ''}" oninput="atualizar()">
+    </td>
+    <td class="col-del">
+      <button class="btn-del" onclick="deleteLinha(${id})" title="Remover">✕</button>
+    </td>
+  `;
+  document.getElementById('tbody').appendChild(tr);
+  atualizarOpcoes(tr.querySelector('.sel-comp'));
+  atualizarOpcoes(tr.querySelector('.sel-vend'));
+  atualizar();
+}
+
+function handleEmpresaChange(sel, id, tipo) {
+  const tr = document.querySelector(`tr[data-id="${id}"]`);
+  const inp = tr.querySelector(`.inp-${tipo}`);
+  if (sel.value === '__manual__') {
+    inp.style.display = 'block';
+    sel.style.display = 'none';
+    inp.focus();
+  }
+  atualizar();
+}
+
+function deleteLinha(id) {
+  document.querySelector(`tr[data-id="${id}"]`)?.remove();
+  atualizar();
+}
+
+function limparTabela() {
+  if (!confirm('Limpar todas as linhas?')) return;
+  document.getElementById('tbody').innerHTML = '';
+  linhaId = 0;
+  atualizar();
+  addLinhas(3);
+}
+
+function calcTotal(id) {
+  const tr = document.querySelector(`tr[data-id="${id}"]`);
+  const cotas = parseFloat(tr.querySelector('.campo-cotas').value) || 0;
+  const valor = parseFloat(tr.querySelector('.campo-valor').value) || 0;
+  const total = cotas * valor;
+  tr.querySelector('.campo-total').value = total > 0 ? fmtNum(total) : '';
+  atualizar();
+}
+
+// ── Resumo e totais ──
+function atualizar() {
+  const linhas = getLinhasValidas();
+  let totalCotas = 0, totalVolume = 0;
+  const empresas = new Set();
+  linhas.forEach(l => {
+    totalCotas  += l.qtd_cotas;
+    totalVolume += l.valor_total;
+    if (l.empresa_compradora) empresas.add(l.empresa_compradora);
+    if (l.empresa_vendedora)  empresas.add(l.empresa_vendedora);
+  });
+
+  document.getElementById('total-cotas').textContent  = linhas.length ? fmtNum(totalCotas) : '—';
+  document.getElementById('total-volume').textContent  = linhas.length ? 'JCV ' + fmtNum(totalVolume) : '—';
+  document.getElementById('r-ops').textContent         = linhas.length;
+  document.getElementById('r-empresas').textContent    = empresas.size;
+  document.getElementById('r-cotas').textContent       = fmtNum(totalCotas);
+  document.getElementById('r-volume').textContent      = 'JCV ' + fmtNum(totalVolume);
+}
+
+function getLinhasValidas() {
+  const rows = document.querySelectorAll('#tbody tr');
+  const ops = [];
+  rows.forEach(tr => {
+    const comp  = getEmpresa(tr, 'comp');
+    const vend  = getEmpresa(tr, 'vend');
+    const cotas = parseFloat(tr.querySelector('.campo-cotas').value) || 0;
+    const valor = parseFloat(tr.querySelector('.campo-valor').value) || 0;
+    if (comp && vend && cotas > 0 && valor > 0) {
+      ops.push({
+        comprovante_num:    tr.querySelector('.campo-num').value.trim() || null,
+        empresa_compradora: comp,
+        empresa_vendedora:  vend,
+        qtd_cotas:          cotas,
+        valor_por_cota:     valor,
+        valor_total:        cotas * valor,
+        observacao:         tr.querySelector('.campo-obs').value.trim() || null
+      });
+    }
+  });
+  return ops;
+}
+
+function getEmpresa(tr, tipo) {
+  const sel = tr.querySelector(`.sel-${tipo}`);
+  if (sel && sel.style.display !== 'none' && sel.value && sel.value !== '__manual__') return sel.value;
+  const inp = tr.querySelector(`.inp-${tipo}`);
+  if (inp && inp.style.display !== 'none') return inp.value.trim() || null;
+  return null;
+}
+
+// ── Salvar no Supabase via Edge Function ──
+async function salvarPregao() {
+  const num  = parseInt(document.getElementById('pregao-num').value);
+  const data = document.getElementById('pregao-data').value;
+  const obs  = document.getElementById('pregao-obs').value.trim();
+
+  if (!num || !data) return toast('Informe o número e a data do pregão.', 'error');
+
+  const ops = getLinhasValidas();
+  if (ops.length === 0) return toast('Nenhuma operação válida para salvar.', 'error');
+
+  // Verificações básicas
+  const erros = [];
+  ops.forEach((op, i) => {
+    if (op.empresa_compradora === op.empresa_vendedora)
+      erros.push(`Linha ${i + 1}: compradora e vendedora iguais.`);
+  });
+  if (erros.length) return toast(erros.join('\n'), 'error');
+
+  const btn = document.getElementById('btn-salvar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Salvando...';
+
+  try {
+    // Chamar Edge Function lancar-pregao (cria pregão + operações com service_role)
+    const r = await fetch(`${EDGE_BASE}/lancar-pregao`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${obterTokenAdmin()}` // token do admin logado
+      },
+      body: JSON.stringify({
+        pregao: { numero: num, data, observacao: obs },
+        operacoes: ops
+      })
+    });
+
+    const result = await r.json();
+    if (!r.ok) throw new Error(result.error || 'Erro desconhecido');
+
+    toast(`Pregão nº ${num} salvo com ${ops.length} operação(ões)!`, 'success');
+    document.getElementById('tbody').innerHTML = '';
+    linhaId = 0;
+    addLinhas(3);
+    document.getElementById('pregao-num').value = '';
+    carregarHistorico();
+  } catch (e) {
+    toast('Erro ao salvar: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✓ Salvar e Publicar Pregão';
+  }
+}
+
+function obterTokenAdmin() {
+  // Reutiliza o token de sessão do admin já logado (armazenado em sessionStorage pelo login)
+  return sessionStorage.getItem('mj_admin_token') || '';
+}
+
+// ── Histórico ──
+async function carregarHistorico() {
+  const el = document.getElementById('hist-list');
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/pregoes?select=id,numero,data,status,operacoes_pregao(count)&order=numero.desc&limit=10`, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+    });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    if (!data.length) { el.innerHTML = '<li><span style="color:var(--text-muted)">Nenhum pregão registrado ainda.</span></li>'; return; }
+    el.innerHTML = data.map(p => `
+      <li>
+        <div>
+          <strong>Pregão nº ${p.numero}</strong>
+          <span style="color:var(--text-muted);font-size:12px;margin-left:8px">${formatarData(p.data)}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--text-muted)">${(p.operacoes_pregao?.[0]?.count || 0)} operação(ões)</span>
+          <span class="tag ${p.status === 'aberto' ? 'tag-aberto' : 'tag-encerrado'}">${p.status}</span>
+        </div>
+      </li>
+    `).join('');
+  } catch {
+    el.innerHTML = '<li><span style="color:var(--text-muted)">Configure a anon key para ver o histórico.</span></li>';
+  }
+}
+
+// ── Exportar CSV ──
+function exportarCSV() {
+  const ops = getLinhasValidas();
+  if (!ops.length) return toast('Nenhuma operação válida para exportar.', 'info');
+  const num  = document.getElementById('pregao-num').value || 'X';
+  const data = document.getElementById('pregao-data').value || '';
+  const header = 'Comprovante,Compradora,Vendedora,Cotas,Valor/Cota,Total,Observacao\n';
+  const rows = ops.map(o =>
+    `${o.comprovante_num || ''},${o.empresa_compradora},${o.empresa_vendedora},${o.qtd_cotas},${o.valor_por_cota},${o.valor_total},${o.observacao || ''}`
+  ).join('\n');
+  const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pregao_${num}_${data}.csv`;
+  a.click();
+}
+
+// ── Utils ──
+function fmtNum(n) {
+  return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function formatarData(d) {
+  if (!d) return '';
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+function toast(msg, tipo = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + tipo;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = ''; }, 4000);
+}
+</script>
+</body>
+</html>
