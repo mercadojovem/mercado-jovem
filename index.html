@@ -310,7 +310,6 @@ footer strong{color:var(--navy)}
   <button class="nb" onclick="showPg('titulos',this)">Títulos</button>
   <button class="nb" onclick="showPg('comunicados',this)">Comunicados</button>
   <button class="nb" onclick="showPg('pregao',this)">Pregão</button>
-  <button class="anb" onclick="showAS('lancar-pregao',this);initLancarPregao()"><span class="i">📋</span>Lançar Pregão</button>
   <button class="nb" onclick="showPg('jornal',this)">Jornal</button>
   <button class="nb" id="navAdmin" onclick="showPg('admin',this)">⚙ Admin</button>
 </nav>
@@ -449,6 +448,7 @@ footer strong{color:var(--navy)}
         <button class="anb" onclick="showAS('titulos',this)"><span class="i">📋</span>Títulos TJV</button>
         <button class="anb" onclick="showAS('comunicados',this)"><span class="i">📢</span>Comunicados</button>
         <button class="anb" onclick="showAS('pregao',this)"><span class="i">🔔</span>Pregão</button>
+        <button class="anb" onclick="showAS('lancar-pregao',this);initLancarPregao()">Lançar Pregão</button>
         <div class="ansep"></div>
         <button class="anb" onclick="showAS('ticker',this)"><span class="i">📡</span>Faixa Superior</button>
         <button class="anb" onclick="showAS('config',this)"><span class="i">⚙️</span>Configurações</button>
@@ -462,41 +462,41 @@ footer strong{color:var(--navy)}
       <div class="asec" id="as-comunicados"><div class="ast">Comunicados</div><div class="ass">Publique, edite e remova comunicados</div><div class="atb"><button class="btn-add" onclick="openM('comunicado')">＋ Novo Comunicado</button></div><div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>Data</th><th>Categoria</th><th>Título</th><th>Ações</th></tr></thead><tbody id="aComB"></tbody></table></div></div></div>
       <div class="asec" id="as-pregao"><div class="ast">Pregão</div><div class="ass">Agende e gerencie as sessões de negociação</div><div class="atb"><button class="btn-add" onclick="openM('pregao')">＋ Novo Pregão</button></div><div class="tw" style="margin-bottom:0"><div class="tw-scroll"><table><thead><tr><th>#</th><th>Data</th><th>Horário</th><th>Tipo</th><th>Status</th><th>Destaque</th><th>Ações</th></tr></thead><tbody id="aPreB"></tbody></table></div></div></div>
       <div class="asec" id="as-lancar-pregao">
-  <div class="ast">Lançar Pregão</div>
-  <div class="ass">Registre as operações do pregão em lote — o site é a fonte de verdade</div>
-  <div class="fr" style="margin-bottom:16px">
-    <div class="fg"><label>Número do Pregão</label><input type="number" id="lp-num" min="1" placeholder="Ex: 5"/></div>
-    <div class="fg"><label>Data</label><input type="date" id="lp-data"/></div>
-    <div class="fg"><label>Observação (opcional)</label><input type="text" id="lp-obs" placeholder="Ex: Pregão especial"/></div>
-  </div>
-  <div class="tw" style="margin-bottom:16px">
-    <div class="th"><h3>📋 Operações</h3><span id="lp-resumo">0 operações · JCV 0,00</span></div>
-    <div class="tw-scroll">
-      <table>
-        <thead><tr><th style="width:90px">Comprov.</th><th style="width:180px">Compradora 🟢</th><th style="width:180px">Vendedora 🔴</th><th style="width:110px">Qtd. Cotas</th><th style="width:130px">Valor/Cota</th><th style="width:140px">Total (JCV)</th><th>Obs.</th><th style="width:40px"></th></tr></thead>
-        <tbody id="lp-tbody"></tbody>
-        <tfoot><tr>
-          <td colspan="3" style="text-align:right;font-size:11px;color:var(--muted);padding:10px 16px">VOLUME TOTAL</td>
-          <td id="lp-total-cotas" style="font-family:var(--f-mono);font-weight:700;padding:10px 16px">—</td>
-          <td></td>
-          <td id="lp-total-vol" style="font-family:var(--f-mono);font-weight:700;color:var(--lime);padding:10px 16px">—</td>
-          <td colspan="2"></td>
-        </tr></tfoot>
-      </table>
-    </div>
-  </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
-    <button class="btn-add" onclick="lpAddLinha()">+ Linha</button>
-    <button class="btn-nv" onclick="lpAddLinhas(5)">+ 5 Linhas</button>
-    <button class="btn-nv" onclick="lpLimparTabela()" style="background:var(--off);border:2px solid var(--border);color:var(--muted)">Limpar</button>
-    <button class="btn-nv" onclick="lpExportarCSV()">↓ CSV</button>
-    <button class="btn-add" id="lp-btn-salvar" onclick="lpSalvarPregao()" style="margin-left:auto;background:var(--green)">✓ Salvar e Publicar</button>
-  </div>
-  <div class="tw" style="margin-bottom:0">
-    <div class="th"><h3>📅 Pregões Lançados</h3></div>
-    <div class="tw-scroll"><table><thead><tr><th>Nº</th><th>Data</th><th>Status</th></tr></thead><tbody id="lp-hist-body"></tbody></table></div>
-  </div>
-</div>
+        <div class="ast">Lançar Pregão</div>
+        <div class="ass">Registre as operações do pregão em lote — o site é a fonte de verdade</div>
+        <div class="fr" style="margin-bottom:16px">
+          <div class="fg"><label>Número do Pregão</label><input type="number" id="lp-num" min="1" placeholder="Ex: 5"/></div>
+          <div class="fg"><label>Data</label><input type="date" id="lp-data"/></div>
+          <div class="fg"><label>Observação (opcional)</label><input type="text" id="lp-obs" placeholder="Ex: Pregão especial"/></div>
+        </div>
+        <div class="tw" style="margin-bottom:16px">
+          <div class="th"><h3>📋 Operações</h3><span id="lp-resumo">0 operações · JCV 0,00</span></div>
+          <div class="tw-scroll">
+            <table>
+              <thead><tr><th style="width:90px">Comprov.</th><th style="width:180px">Compradora 🟢</th><th style="width:180px">Vendedora 🔴</th><th style="width:110px">Qtd. Cotas</th><th style="width:130px">Valor/Cota</th><th style="width:140px">Total (JCV)</th><th>Obs.</th><th style="width:40px"></th></tr></thead>
+              <tbody id="lp-tbody"></tbody>
+              <tfoot><tr>
+                <td colspan="3" style="text-align:right;font-size:11px;color:var(--muted);padding:10px 16px">VOLUME TOTAL</td>
+                <td id="lp-total-cotas" style="font-family:var(--f-mono);font-weight:700;padding:10px 16px">—</td>
+                <td></td>
+                <td id="lp-total-vol" style="font-family:var(--f-mono);font-weight:700;color:var(--lime);padding:10px 16px">—</td>
+                <td colspan="2"></td>
+              </tr></tfoot>
+            </table>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+          <button class="btn-add" onclick="lpAddLinha()">+ Linha</button>
+          <button class="btn-nv" onclick="lpAddLinhas(5)">+ 5 Linhas</button>
+          <button class="btn-nv" onclick="lpLimparTabela()" style="background:var(--off);border:2px solid var(--border);color:var(--muted)">Limpar</button>
+          <button class="btn-nv" onclick="lpExportarCSV()">↓ CSV</button>
+          <button class="btn-add" id="lp-btn-salvar" onclick="lpSalvarPregao()" style="margin-left:auto;background:var(--green)">✓ Salvar e Publicar</button>
+        </div>
+        <div class="tw" style="margin-bottom:0">
+          <div class="th"><h3>📅 Pregões Lançados</h3></div>
+          <div class="tw-scroll"><table><thead><tr><th>Nº</th><th>Data</th><th>Status</th></tr></thead><tbody id="lp-hist-body"></tbody></table></div>
+        </div>
+      </div>
       <div class="asec" id="as-ticker">
         <div class="ast">Faixa Superior</div><div class="ass">Controle a faixa de informações no topo do site</div>
         <div class="tap"><div class="tscroll"><div class="tinner" id="tprev"></div></div></div>
@@ -724,7 +724,6 @@ function showPg(id,btn){if(id==='admin'&&!isAdmin){openLogin();return;}document.
   function loop(){const ls=document.getElementById('ls');if(!ls||ls.classList.contains('hide')||ls.style.display==='none'){cancelAnimationFrame(animId);return;}draw();animId=requestAnimationFrame(loop);}
   window.addEventListener('resize',resize);resize();loop();
 })();
-async function init(){await loadAll();buildHome();const ls=document.getElementById('ls');ls.classList.add('hide');setTimeout(()=>ls.style.display='none',600);}
 // ── LANÇAR PREGÃO ──
 const LP_SECRET='MercadoJovem@BC2026#Pregao';
 let lpLinhaId=0,lpEmpresas=[],lpIniciado=false;
@@ -806,10 +805,27 @@ async function lpSalvarPregao(){
   try{
     const r=await fetch(`${SB_URL}/functions/v1/lancar-pregao`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+LP_SECRET},body:JSON.stringify({pregao:{numero:num,data,observacao:document.getElementById('lp-obs').value.trim()},operacoes:ops})});
     const res=await r.json();if(!r.ok)throw new Error(res.error||'Erro desconhecido');
-    toast(`✓ Pregão nº ${num} salvo com ${ops.length} operação(ões)!`);
+    await lpAtualizarCotacoes(ops);
+    toast(`✓ Pregão nº ${num} salvo! Cotações atualizadas automaticamente.`);
     document.getElementById('lp-tbody').innerHTML='';lpLinhaId=0;document.getElementById('lp-num').value='';lpAddLinhas(3);lpCarregarHistorico();
+    await loadAll();
   }catch(e){toast('⚠️ Erro: '+e.message,true);}
   finally{btn.disabled=false;btn.textContent='✓ Salvar e Publicar';}
+}
+async function lpAtualizarCotacoes(ops){
+  // Preço da última negociação de cada empresa atualiza sua cotação
+  // A empresa vendedora vende SUAS cotas — preço negociado define o novo valor de mercado
+  const ultimoPreco={};
+  ops.forEach(op=>{ultimoPreco[op.empresa_vendedora]=op.valor_por_cota;});
+  for(const[nome,precoCota] of Object.entries(ultimoPreco)){
+    const emp=C.empresas.find(e=>e.nome===nome);
+    if(!emp)continue;
+    const totalCotas=Number(emp.cotas||1000000);
+    const valorAnt=Number(emp.valor);
+    const novoValor=precoCota*totalCotas;
+    const variacao=valorAnt>0?((novoValor-valorAnt)/valorAnt)*100:0;
+    await sb.from('empresas').update({valor:novoValor,variacao:parseFloat(variacao.toFixed(2))}).eq('nome',nome);
+  }
 }
 async function lpCarregarHistorico(){
   const el=document.getElementById('lp-hist-body');if(!el)return;
@@ -827,7 +843,8 @@ function lpExportarCSV(){
   a.href=URL.createObjectURL(new Blob(['Comprovante,Compradora,Vendedora,Cotas,Valor/Cota,Total,Obs\n'+ops.map(o=>`${o.comprovante_num||''},${o.empresa_compradora},${o.empresa_vendedora},${o.qtd_cotas},${o.valor_por_cota},${o.valor_total},${o.observacao||''}`).join('\n')],{type:'text/csv;charset=utf-8;'}));
   a.download=`pregao_${num}_${data}.csv`;a.click();
 }
-  init();
+async function init(){await loadAll();buildHome();const ls=document.getElementById('ls');ls.classList.add('hide');setTimeout(()=>ls.style.display='none',600);}
+init();
 </script>
 </body>
 </html>
