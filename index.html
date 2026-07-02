@@ -531,7 +531,7 @@ let isAdmin=false;
 const LOGIN_LIMIT={attempts:0,lockedUntil:0,MAX:5,LOCKOUT_MS:60000};
 function sanitize(str){if(str===null||str===undefined)return '';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;').replace(/\//g,'&#x2F;');}
 function safeVal(val,maxLen=500){const s=String(val||'').trim();return s.substring(0,maxLen);}
-async function hashStr(str){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function hashStr(str){const enc=new TextEncoder();const km=await crypto.subtle.importKey('raw',enc.encode(str),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode('mj-bc-salt-2026'),iterations:100000,hash:'SHA-256'},km,256);return Array.from(new Uint8Array(bits)).map(b=>b.toString(16).padStart(2,'0')).join('');}
 let C={empresas:[],selic:[],titulos:[],comunicados:[],pregoes:[],config:{}};
 const fJ=v=>'JCV '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fP=v=>(v>=0?'+':'')+Number(v).toFixed(2)+'%';
